@@ -3,6 +3,7 @@
   margin: 40px auto;
   padding: 24px;
   font-family: "Maple Mono NF";
+  color: #181825;
 }
 
 h1 {
@@ -19,11 +20,13 @@ h1 {
 }
 
 .player-list {
+  color: #181825;
   display: grid;
   gap: 16px;
 }
 
 .player-card {
+  color: #181825;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
@@ -31,11 +34,13 @@ h1 {
 }
 
 .player-card h2 {
+  color: #181825;
   margin-top: 0;
   margin-bottom: 12px;
 }
 
 .player-card p {
+  color: #181825;
   margin: 6px 0;
 }
 
@@ -46,4 +51,37 @@ input {
   margin: 0 auto 24px;
   padding: 10px;
   font-size: 16px;
+}
+
+.error-message {
+  text-align: center;
+  color: #c0392b;
+}
+
+.player-image {
+  width: 100%;
+  max-width: 180px;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+}
+
+.stats {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.status-message {
+  text-align: center;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.error-message {
+  text-align: center;
+  color: #c0392b;
+  margin-bottom: 20px;
 }

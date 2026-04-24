@@ -29,6 +29,7 @@ app.get("/api/players", async (req, res) => {
 app.get("/api/players/search", async (req, res) => {
   try {
     const searchText = req.query.q || "";
+    // models/Player.jsより
     const players = await Player.find({
       name: { $regex: searchText, $options: "i" },
     });

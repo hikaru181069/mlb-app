@@ -13,6 +13,24 @@ const playerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  image: {
+    type: String,
+    required: true,
+  },
+  stats: {
+    battingAverage: {
+      type: String,
+      required: true,
+    },
+    homeRuns: {
+      type: Number,
+      required: true,
+    },
+    rbis: {
+      type: Number,
+      required: true,
+    },
+  },
 });
 
 module.exports = mongoose.model("Player", playerSchema);
