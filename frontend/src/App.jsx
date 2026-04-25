@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import PlayerCard from "./components/PlayerCard";
+import SearchInput from "./components/SearchInput";
 
 function App() {
   const [searchText, setSearchText] = useState("");
@@ -41,12 +43,7 @@ function App() {
       <h1>MLB Player Search App</h1>
       <p className="description">Search players from MongoDB</p>
 
-      <input
-        type="text"
-        placeholder="Search player name"
-        value={searchText}
-        onChange={(event) => setSearchText(event.target.value)}
-      />
+      <SearchInput searchText={searchText} setSearchText={setSearchText} />
 
       {loading && <p className="status-message">Loading...</p>}
       {!loading && errorMessage && (
@@ -58,27 +55,7 @@ function App() {
 
       <div className="player-list">
         {players.map((player) => (
-          <div className="player-card" key={player._id}>
-            {player.image && (
-              <img
-                className="player-image"
-                src={player.image}
-                alt={player.name}
-              />
-            )}
-
-            <h2>{player.name}</h2>
-            <p>Team: {player.team}</p>
-            <p>Position: {player.position}</p>
-
-            {player.stats && (
-              <div className="stats">
-                <p>AVG: {player.stats.battingAverage}</p>
-                <p>HR: {player.stats.homeRuns}</p>
-                <p>RBI: {player.stats.rbis}</p>
-              </div>
-            )}
-          </div>
+          <PlayerCard key={player._id} player={player} />
         ))}
       </div>
     </div>
