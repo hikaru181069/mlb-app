@@ -31,6 +31,12 @@ h1 {
   border-radius: 8px;
   padding: 16px;
   background-color: #f9f9f9;
+  display: block;
+  text-decoration: none;
+}
+
+.player-card:hover {
+  border-color: #1f618d;
 }
 
 .player-card h2 {
@@ -84,4 +90,30 @@ input {
   text-align: center;
   color: #c0392b;
   margin-bottom: 20px;
+}
+
+.back-link {
+  color: #1f618d;
+  display: inline-block;
+  margin-bottom: 24px;
+}
+
+.player-detail {
+  display: grid;
+  gap: 24px;
+}
+
+.detail-image {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+@media (min-width: 700px) {
+  .player-detail {
+    grid-template-columns: 280px 1fr;
+    align-items: start;
+  }
 }

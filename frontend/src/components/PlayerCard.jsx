@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
+
 function PlayerCard({ player }) {
   return (
-    <div className="player-card">
+    <Link className="player-card" to={`/players/${player._id}`}>
       {player.image && (
         <img className="player-image" src={player.image} alt={player.name} />
       )}
@@ -15,7 +17,7 @@ function PlayerCard({ player }) {
           <p>RBI: {player.stats.rbis}</p>
         </div>
       )}
-    </div>
+    </Link>
   );
 }
 

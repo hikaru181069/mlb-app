@@ -40,6 +40,19 @@ app.get("/api/players/search", async (req, res) => {
   }
 });
 
+app.get("/api/players/:id", async (req, res) => {
+  try {
+    const player = await Player.findById(req.params.id);
+    if (!player) {
+      return res.status(404).json({ message: "Player not found" });
+    }
+    res.json(player);
+  } catch (error) {
+    console.error("Player detail error:", error.message);
+    res.status(500).json({ message: "Failed to fetch player" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
