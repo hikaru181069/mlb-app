@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import PlayerCard from "../components/PlayerCard";
 import SearchInput from "../components/SearchInput";
 
@@ -55,6 +56,11 @@ function PlayersPage() {
     <div className="app">
       <h1>MLB Player Search App</h1>
       <p className="description">Search by player name, team, or position</p>
+
+      <Link className="add-player-link" to="/players/new">
+        Add Player
+      </Link>
+
       <SearchInput searchText={searchText} setSearchText={setSearchText} />
       <select
         value={sortType}

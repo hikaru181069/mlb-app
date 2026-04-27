@@ -65,9 +65,8 @@ input {
 }
 
 .player-image {
-  width: 100%;
-  max-width: 180px;
-  height: 180px;
+  width: 90px;
+  height: 90px;
   object-fit: cover;
   display: block;
   margin: 0 auto 16px;
@@ -99,14 +98,14 @@ input {
 }
 
 .player-detail {
+  color: white;
   display: grid;
   gap: 24px;
 }
 
 .detail-image {
-  width: 100%;
-  max-width: 260px;
-  aspect-ratio: 1;
+  width: 180px;
+  height: 180px;
   object-fit: cover;
   border-radius: 8px;
 }
@@ -152,4 +151,41 @@ input {
   padding: 12px 18px;
   border-radius: 8px;
   font-weight: 700;
+}
+
+.add-player-link {
+  color: white;
+  background-color: #1f618d;
+  display: inline-block;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.player-form {
+  display: grid;
+  gap: 16px;
+}
+
+.player-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.player-form input {
+  margin: 0;
+  max-width: none;
+}
+
+.player-form button {
+  color: white;
+  background-color: #1f618d;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
 }

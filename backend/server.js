@@ -26,6 +26,16 @@ app.get("/api/players", async (req, res) => {
   }
 });
 
+app.post("/api/players", async (req, res) => {
+  try {
+    const player = await Player.create(req.body);
+    res.status(201).json(player);
+  } catch (error) {
+    console.error("Create player error:", error.message);
+    res.status(500).json({ message: "Failed to create player" });
+  }
+});
+
 app.get("/api/players/search", async (req, res) => {
   try {
     const searchText = req.query.q || "";

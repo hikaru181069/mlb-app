@@ -3,7 +3,7 @@ const players = [
     name: "Shohei Ohtani",
     team: "Dodgers",
     position: "DH",
-    image: "https://placehold.co/300x300?text=Ohtani",
+    image: "/images/IMG_5201.jpg",
     stats: {
       battingAverage: ".310",
       homeRuns: 44,
@@ -14,7 +14,7 @@ const players = [
     name: "Aaron Judge",
     team: "Yankees",
     position: "OF",
-    image: "https://placehold.co/300x300?text=Judge",
+    image: "/images/judge.jpg",
     stats: {
       battingAverage: ".267",
       homeRuns: 37,
@@ -25,7 +25,7 @@ const players = [
     name: "Mookie Betts",
     team: "Dodgers",
     position: "SS",
-    image: "https://placehold.co/300x300?text=Betts",
+    image: "/images/betts.jpg",
     stats: {
       battingAverage: ".289",
       homeRuns: 39,
