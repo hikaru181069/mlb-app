@@ -117,3 +117,39 @@ input {
     align-items: start;
   }
 }
+
+.home-page {
+  min-height: 80vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+}
+
+.home-hero {
+  max-width: 760px;
+  text-align: center;
+}
+
+.home-kicker {
+  color: #1f618d;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.home-description {
+  color: #555;
+  font-size: 18px;
+  line-height: 1.7;
+  margin: 0 auto 28px;
+  max-width: 620px;
+}
+
+.home-link {
+  display: inline-block;
+  color: white;
+  background-color: #1f618d;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+}

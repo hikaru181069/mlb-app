@@ -42,7 +42,7 @@ function PlayerDetailPage() {
     return (
       <div className="app">
         <p className="error-message">{errorMessage}</p>
-        <Link className="back-link" to="/">
+        <Link className="back-link" to="/players">
           Back to players
         </Link>
       </div>
@@ -55,7 +55,7 @@ function PlayerDetailPage() {
 
   return (
     <div className="app">
-      <Link className="back-link" to="/">
+      <Link className="back-link" to="/players">
         Back to players
       </Link>
 
