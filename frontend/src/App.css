@@ -189,3 +189,31 @@ input {
   font-weight: 700;
   cursor: pointer;
 }
+
+.edit-link {
+  color: white;
+  background-color: #1f618d;
+  display: inline-block;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  margin-left: 12px;
+  margin-bottom: 24px;
+}
+
+.delete-button {
+  color: white;
+  background-color: #c0392b;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 12px;
+  margin-bottom: 24px;
+}
+
+.delete-button:hover {
+  background-color: #922b21;
+}

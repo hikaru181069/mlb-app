@@ -9,6 +9,8 @@ function PlayersPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sortType, setSortType] = useState("name");
+  const [teamFilter, setTeamFilter] = useState("All");
+  const [positionFilter, setPositionFilter] = useState("All");
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -36,7 +38,21 @@ function PlayersPage() {
     fetchPlayers();
   }, [searchText]);
 
-  const sortedPlayers = [...players].sort((a, b) => {
+  let filteredPlayers = [...players];
+
+  if (teamFilter !== "All") {
+    filteredPlayers = filteredPlayers.filter(
+      (player) => player.team === teamFilter,
+    );
+  }
+
+  if (positionFilter !== "All") {
+    filteredPlayers = filteredPlayers.filter(
+      (player) => player.position === positionFilter,
+    );
+  }
+
+  const sortedPlayers = filteredPlayers.sort((a, b) => {
     if (sortType === "name") {
       return a.name.localeCompare(b.name);
     }
@@ -70,17 +86,50 @@ function PlayersPage() {
         <option value="homeRuns">Sort by home runs</option>
         <option value="battingAverage">Sort by batting average</option>
       </select>
+
+      <select
+        value={teamFilter}
+        onChange={(event) => setTeamFilter(event.target.value)}
+      >
+        <option value="All">All Teams</option>
+        <option value="Dodgers">Dodgers</option>
+        <option value="Angels">Angels</option>
+        <option value="Yankees">Yankees</option>
+        <option value="Padres">Padres</option>
+        <option value="Giants">Giants</option>
+        <option value="D-backs">D-backs</option>
+        <option value="Rockies">Rockies</option>
+        <option value="Brewers">Brewers</option>
+        <option value="Cardinals">Cardinals</option>
+      </select>
+
+      <select
+        value={positionFilter}
+        onChange={(event) => setPositionFilter(event.target.value)}
+      >
+        <option value="All">All Positions</option>
+        <option value="Pitcher">Pitcher</option>
+        <option value="Catcher">Catcher</option>
+        <option value="First Base">First Base</option>
+        <option value="Second Base">Second Base</option>
+        <option value="Third Base">Third Base</option>
+        <option value="Shortstop">Shortstop</option>
+        <option value="Outfielder">Outfielder</option>
+        <option value="Designated Hitter">Designated Hitter</option>
+      </select>
+
       {loading && <p className="status-message">Loading...</p>}
       {!loading && errorMessage && (
         <p className="error-message">{errorMessage}</p>
       )}
-      {!loading && !errorMessage && players.length === 0 && (
+      {!loading && !errorMessage && sortedPlayers.length === 0 && (
         <p className="status-message">No players found.</p>
       )}
 
-      {!loading && !errorMessage && players.length > 0 && (
+      {!loading && !errorMessage && sortedPlayers.length > 0 && (
         <p className="status-message">
-          {players.length} {players.length === 1 ? "player" : "players"} found
+          {sortedPlayers.length}{" "}
+          {sortedPlayers.length === 1 ? "player" : "players"} found
         </p>
       )}
 

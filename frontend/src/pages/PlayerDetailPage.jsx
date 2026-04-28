@@ -1,8 +1,9 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 function PlayerDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [player, setPlayer] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,30 @@ function PlayerDetailPage() {
     };
     fetchPlayer();
   }, [id]);
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this player?",
+    );
+    if (!confirmed) {
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5001/api/players/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete player.");
+      }
+      navigate("/players");
+    } catch (error) {
+      console.error("Delete player error:", error);
+      setErrorMessage("Failed to delete player.");
+    }
+  };
 
   if (loading) {
     return (
@@ -58,6 +83,13 @@ function PlayerDetailPage() {
       <Link className="back-link" to="/players">
         Back to players
       </Link>
+      <Link className="edit-link" to={`/players/${id}/edit`}>
+        Edit Player
+      </Link>
+
+      <button className="delete-button" type="button" onClick={handleDelete}>
+        Delete Player
+      </button>
 
       <div className="player-detail">
         {player.image && (
