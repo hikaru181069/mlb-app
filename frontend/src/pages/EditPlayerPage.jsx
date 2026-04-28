@@ -11,10 +11,16 @@ function EditPlayerPage() {
     team: "",
     position: "",
     image: "",
-    stats: {
+    playerType: "hitter",
+    hitterStats: {
       battingAverage: "",
       homeRuns: "",
       rbis: "",
+    },
+    pitcherStats: {
+      era: "",
+      strikeouts: "",
+      inningsPitched: "",
     },
   });
 
@@ -35,12 +41,19 @@ function EditPlayerPage() {
           team: data.team,
           position: data.position,
           image: data.image,
-          stats: {
-            battingAverage: data.stats.battingAverage,
-            homeRuns: data.stats.homeRuns,
-            rbis: data.stats.rbis,
+          playerType: data.playerType || "hitter",
+          hitterStats: {
+            battingAverage: data.hitterStats?.battingAverage || "",
+            homeRuns: data.hitterStats?.homeRuns || "",
+            rbis: data.hitterStats?.rbis || "",
+          },
+          pitcherStats: {
+            era: data.pitcherStats?.era || "",
+            strikeouts: data.pitcherStats?.strikeouts || "",
+            inningsPitched: data.pitcherStats?.inningsPitched || "",
           },
         });
+
         setErrorMessage("");
       } catch (error) {
         console.error("Fetch player error:", error);
@@ -59,8 +72,19 @@ function EditPlayerPage() {
     if (name === "battingAverage" || name === "homeRuns" || name === "rbis") {
       setFormData({
         ...formData,
-        stats: {
-          ...formData.stats,
+        hitterStats: {
+          ...formData.hitterStats,
+          [name]: value,
+        },
+      });
+      return;
+    }
+
+    if (name === "era" || name === "strikeouts" || name === "inningsPitched") {
+      setFormData({
+        ...formData,
+        pitcherStats: {
+          ...formData.pitcherStats,
           [name]: value,
         },
       });
@@ -86,15 +110,29 @@ function EditPlayerPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
+          name: formData.name,
+          team: formData.team,
+          position: formData.position,
           image:
             formData.image ||
             `https://placehold.co/300x300?text=${encodeURIComponent(formData.name)}`,
-          stats: {
-            battingAverage: formData.stats.battingAverage,
-            homeRuns: Number(formData.stats.homeRuns),
-            rbis: Number(formData.stats.rbis),
-          },
+          playerType: formData.playerType,
+          hitterStats:
+            formData.playerType === "hitter"
+              ? {
+                  battingAverage: formData.hitterStats.battingAverage,
+                  homeRuns: Number(formData.hitterStats.homeRuns),
+                  rbis: Number(formData.hitterStats.rbis),
+                }
+              : undefined,
+          pitcherStats:
+            formData.playerType === "pitcher"
+              ? {
+                  era: formData.pitcherStats.era,
+                  strikeouts: Number(formData.pitcherStats.strikeouts),
+                  inningsPitched: formData.pitcherStats.inningsPitched,
+                }
+              : undefined,
         }),
       });
 
@@ -164,6 +202,18 @@ function EditPlayerPage() {
         </label>
 
         <label>
+          Player Type
+          <select
+            name="playerType"
+            value={formData.playerType}
+            onChange={handleChange}
+          >
+            <option value="hitter">Hitter</option>
+            <option value="pitcher">Pitcher</option>
+          </select>
+        </label>
+
+        <label>
           Image URL
           <input
             type="text"
@@ -173,38 +223,79 @@ function EditPlayerPage() {
           />
         </label>
 
-        <label>
-          Batting Average
-          <input
-            type="text"
-            name="battingAverage"
-            value={formData.stats.battingAverage}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        {formData.playerType === "hitter" && (
+          <>
+            <label>
+              Batting Average
+              <input
+                type="text"
+                name="battingAverage"
+                value={formData.hitterStats.battingAverage}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-        <label>
-          Home Runs
-          <input
-            type="number"
-            name="homeRuns"
-            value={formData.stats.homeRuns}
-            onChange={handleChange}
-            required
-          />
-        </label>
+            <label>
+              Home Runs
+              <input
+                type="number"
+                name="homeRuns"
+                value={formData.hitterStats.homeRuns}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-        <label>
-          RBIs
-          <input
-            type="number"
-            name="rbis"
-            value={formData.stats.rbis}
-            onChange={handleChange}
-            required
-          />
-        </label>
+            <label>
+              RBIs
+              <input
+                type="number"
+                name="rbis"
+                value={formData.hitterStats.rbis}
+                onChange={handleChange}
+                required
+              />
+            </label>
+          </>
+        )}
+
+        {formData.playerType === "pitcher" && (
+          <>
+            <label>
+              ERA
+              <input
+                type="text"
+                name="era"
+                value={formData.pitcherStats.era}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label>
+              Strikeouts
+              <input
+                type="number"
+                name="strikeouts"
+                value={formData.pitcherStats.strikeouts}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label>
+              Innings Pitched
+              <input
+                type="text"
+                name="inningsPitched"
+                value={formData.pitcherStats.inningsPitched}
+                onChange={handleChange}
+                required
+              />
+            </label>
+          </>
+        )}
 
         <button type="submit" disabled={loading}>
           {loading ? "Updating..." : "Update Player"}

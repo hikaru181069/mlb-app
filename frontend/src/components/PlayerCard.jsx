@@ -10,11 +10,19 @@ function PlayerCard({ player }) {
       <p>Team: {player.team}</p>
       <p>Position: {player.position}</p>
 
-      {player.stats && (
+      {player.playerType === "hitter" && player.hitterStats && (
         <div className="stats">
-          <p>AVG: {player.stats.battingAverage}</p>
-          <p>HR: {player.stats.homeRuns}</p>
-          <p>RBI: {player.stats.rbis}</p>
+          <p>AVG: {player.hitterStats.battingAverage}</p>
+          <p>HR: {player.hitterStats.homeRuns}</p>
+          <p>RBI: {player.hitterStats.rbis}</p>
+        </div>
+      )}
+
+      {player.playerType === "pitcher" && player.pitcherStats && (
+        <div className="stats">
+          <p>ERA: {player.pitcherStats.era}</p>
+          <p>SO: {player.pitcherStats.strikeouts}</p>
+          <p>IP: {player.pitcherStats.inningsPitched}</p>
         </div>
       )}
     </Link>

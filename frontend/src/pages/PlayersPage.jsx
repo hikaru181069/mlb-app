@@ -11,6 +11,7 @@ function PlayersPage() {
   const [sortType, setSortType] = useState("name");
   const [teamFilter, setTeamFilter] = useState("All");
   const [positionFilter, setPositionFilter] = useState("All");
+  const [typeFilter, setTypeFilter] = useState("All");
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -52,21 +53,50 @@ function PlayersPage() {
     );
   }
 
+  if (typeFilter !== "All") {
+    filteredPlayers = filteredPlayers.filter(
+      (player) => player.playerType === typeFilter,
+    );
+  }
+
   const sortedPlayers = filteredPlayers.sort((a, b) => {
     if (sortType === "name") {
       return a.name.localeCompare(b.name);
     }
 
     if (sortType === "homeRuns") {
-      return b.stats.homeRuns - a.stats.homeRuns;
+      return (b.hitterStats?.homeRuns || 0) - (a.hitterStats?.homeRuns || 0);
     }
 
     if (sortType === "battingAverage") {
-      return Number(b.stats.battingAverage) - Number(a.stats.battingAverage);
+      return (
+        Number(b.hitterStats?.battingAverage || 0) -
+        Number(a.hitterStats?.battingAverage || 0)
+      );
+    }
+
+    if (sortType === "era") {
+      return (
+        Number(a.pitcherStats?.era || 999) - Number(b.pitcherStats?.era || 999) //打者にはERAがないため打者が上に来るのを防ぐため999
+      );
+    }
+
+    if (sortType === "strikeouts") {
+      return (
+        (b.pitcherStats?.strikeouts || 0) - (a.pitcherStats?.strikeouts || 0)
+      );
     }
 
     return 0;
   });
+
+  const handleResetFilters = () => {
+    setSearchText("");
+    setTypeFilter("All");
+    setSortType("name");
+    setTeamFilter("All");
+    setPositionFilter("All");
+  };
 
   return (
     <div className="app">
@@ -78,13 +108,38 @@ function PlayersPage() {
       </Link>
 
       <SearchInput searchText={searchText} setSearchText={setSearchText} />
+
+      <select
+        value={typeFilter}
+        onChange={(event) => {
+          setTypeFilter(event.target.value);
+          setSortType("name");
+        }}
+      >
+        <option value="All">All Player Types</option>
+        <option value="hitter">Hitters</option>
+        <option value="pitcher">Pitchers</option>
+      </select>
+
       <select
         value={sortType}
         onChange={(event) => setSortType(event.target.value)}
       >
         <option value="name">Sort by name</option>
-        <option value="homeRuns">Sort by home runs</option>
-        <option value="battingAverage">Sort by batting average</option>
+
+        {typeFilter === "hitter" && (
+          <>
+            <option value="homeRuns">Sort by home runs</option>
+            <option value="battingAverage">Sort by batting average</option>
+          </>
+        )}
+
+        {typeFilter === "pitcher" && (
+          <>
+            <option value="era">Sort by ERA</option>
+            <option value="strikeouts">Sort by strikeouts</option>
+          </>
+        )}
       </select>
 
       <select
@@ -117,6 +172,10 @@ function PlayersPage() {
         <option value="Outfielder">Outfielder</option>
         <option value="Designated Hitter">Designated Hitter</option>
       </select>
+
+      <button className="reset-button" type="button" onClick={handleResetFilters}>
+        Reset Filters
+      </button>
 
       {loading && <p className="status-message">Loading...</p>}
       {!loading && errorMessage && (

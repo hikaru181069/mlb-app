@@ -17,18 +17,51 @@ const playerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  stats: {
+
+  playerType: {
+    type: String,
+    required: true,
+    enum: ["hitter", "pitcher"],
+    default: "hitter",
+  },
+  hitterStats: {
     battingAverage: {
       type: String,
-      required: true,
+      required: function () {
+        return this.playerType === "hitter";
+      },
     },
     homeRuns: {
       type: Number,
-      required: true,
+      required: function () {
+        return this.playerType === "hitter";
+      },
     },
     rbis: {
       type: Number,
-      required: true,
+      required: function () {
+        return this.playerType === "hitter";
+      },
+    },
+  },
+  pitcherStats: {
+    era: {
+      type: String,
+      required: function () {
+        return this.playerType === "pitcher";
+      },
+    },
+    strikeouts: {
+      type: Number,
+      required: function () {
+        return this.playerType === "pitcher";
+      },
+    },
+    inningsPitched: {
+      type: String,
+      required: function () {
+        return this.playerType === "pitcher";
+      },
     },
   },
 });

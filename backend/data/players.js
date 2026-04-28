@@ -2,34 +2,37 @@ const players = [
   {
     name: "Shohei Ohtani",
     team: "Dodgers",
-    position: "DH",
+    position: "Designated Hitter",
     image: "/images/IMG_5201.jpg",
-    stats: {
+    playerType: "hitter",
+    hitterStats: {
       battingAverage: ".310",
       homeRuns: 44,
       rbis: 95,
     },
   },
   {
-    name: "Aaron Judge",
-    team: "Yankees",
-    position: "OF",
-    image: "/images/judge.jpg",
-    stats: {
-      battingAverage: ".267",
-      homeRuns: 37,
-      rbis: 75,
-    },
-  },
-  {
     name: "Mookie Betts",
     team: "Dodgers",
-    position: "SS",
+    position: "Shortstop",
     image: "/images/betts.jpg",
-    stats: {
+    playerType: "hitter",
+    hitterStats: {
       battingAverage: ".289",
       homeRuns: 39,
       rbis: 107,
+    },
+  },
+  {
+    name: "Yoshinobu Yamamoto",
+    team: "Dodgers",
+    position: "Pitcher",
+    image: "/images/yamamoto.jpg",
+    playerType: "pitcher",
+    pitcherStats: {
+      era: "3.00",
+      strikeouts: 180,
+      inningsPitched: "160.0",
     },
   },
 ];
