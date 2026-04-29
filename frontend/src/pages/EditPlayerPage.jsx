@@ -1,28 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import PlayerForm from "../components/PlayerForm";
+import { initialPlayerFormData } from "../utils/playerFormDefaults";
+import {
+  createPlayerRequestBody,
+  updatePlayerFormData,
+} from "../utils/playerFormHandlers";
 
 function EditPlayerPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    team: "",
-    position: "",
-    image: "",
-    playerType: "hitter",
-    hitterStats: {
-      battingAverage: "",
-      homeRuns: "",
-      rbis: "",
-    },
-    pitcherStats: {
-      era: "",
-      strikeouts: "",
-      inningsPitched: "",
-    },
-  });
+  const [formData, setFormData] = useState(initialPlayerFormData);
 
   useEffect(() => {
     const fetchPlayer = async () => {
@@ -68,33 +58,7 @@ function EditPlayerPage() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
-    if (name === "battingAverage" || name === "homeRuns" || name === "rbis") {
-      setFormData({
-        ...formData,
-        hitterStats: {
-          ...formData.hitterStats,
-          [name]: value,
-        },
-      });
-      return;
-    }
-
-    if (name === "era" || name === "strikeouts" || name === "inningsPitched") {
-      setFormData({
-        ...formData,
-        pitcherStats: {
-          ...formData.pitcherStats,
-          [name]: value,
-        },
-      });
-      return;
-    }
-
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData(updatePlayerFormData(formData, name, value));
   };
 
   const handleSubmit = async (event) => {
@@ -109,31 +73,7 @@ function EditPlayerPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: formData.name,
-          team: formData.team,
-          position: formData.position,
-          image:
-            formData.image ||
-            `https://placehold.co/300x300?text=${encodeURIComponent(formData.name)}`,
-          playerType: formData.playerType,
-          hitterStats:
-            formData.playerType === "hitter"
-              ? {
-                  battingAverage: formData.hitterStats.battingAverage,
-                  homeRuns: Number(formData.hitterStats.homeRuns),
-                  rbis: Number(formData.hitterStats.rbis),
-                }
-              : undefined,
-          pitcherStats:
-            formData.playerType === "pitcher"
-              ? {
-                  era: formData.pitcherStats.era,
-                  strikeouts: Number(formData.pitcherStats.strikeouts),
-                  inningsPitched: formData.pitcherStats.inningsPitched,
-                }
-              : undefined,
-        }),
+        body: JSON.stringify(createPlayerRequestBody(formData)),
       });
 
       if (!response.ok) {
@@ -167,140 +107,13 @@ function EditPlayerPage() {
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-      <form className="player-form" onSubmit={handleSubmit}>
-        <label>
-          Name
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <label>
-          Team
-          <input
-            type="text"
-            name="team"
-            value={formData.team}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <label>
-          Position
-          <input
-            type="text"
-            name="position"
-            value={formData.position}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <label>
-          Player Type
-          <select
-            name="playerType"
-            value={formData.playerType}
-            onChange={handleChange}
-          >
-            <option value="hitter">Hitter</option>
-            <option value="pitcher">Pitcher</option>
-          </select>
-        </label>
-
-        <label>
-          Image URL
-          <input
-            type="text"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-          />
-        </label>
-
-        {formData.playerType === "hitter" && (
-          <>
-            <label>
-              Batting Average
-              <input
-                type="text"
-                name="battingAverage"
-                value={formData.hitterStats.battingAverage}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              Home Runs
-              <input
-                type="number"
-                name="homeRuns"
-                value={formData.hitterStats.homeRuns}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              RBIs
-              <input
-                type="number"
-                name="rbis"
-                value={formData.hitterStats.rbis}
-                onChange={handleChange}
-                required
-              />
-            </label>
-          </>
-        )}
-
-        {formData.playerType === "pitcher" && (
-          <>
-            <label>
-              ERA
-              <input
-                type="text"
-                name="era"
-                value={formData.pitcherStats.era}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              Strikeouts
-              <input
-                type="number"
-                name="strikeouts"
-                value={formData.pitcherStats.strikeouts}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              Innings Pitched
-              <input
-                type="text"
-                name="inningsPitched"
-                value={formData.pitcherStats.inningsPitched}
-                onChange={handleChange}
-                required
-              />
-            </label>
-          </>
-        )}
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Updating..." : "Update Player"}
-        </button>
-      </form>
+      <PlayerForm
+        formData={formData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        loading={loading}
+        buttonText="Update Player"
+      />
     </div>
   );
 }

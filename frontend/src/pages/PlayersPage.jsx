@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PlayerCard from "../components/PlayerCard";
 import SearchInput from "../components/SearchInput";
+import FilterControls from "../components/FilterControls";
 
 function PlayersPage() {
   const [searchText, setSearchText] = useState("");
@@ -102,81 +103,22 @@ function PlayersPage() {
     <div className="app">
       <h1>MLB Player Search App</h1>
       <p className="description">Search by player name, team, or position</p>
-
       <Link className="add-player-link" to="/players/new">
         Add Player
       </Link>
-
       <SearchInput searchText={searchText} setSearchText={setSearchText} />
 
-      <select
-        value={typeFilter}
-        onChange={(event) => {
-          setTypeFilter(event.target.value);
-          setSortType("name");
-        }}
-      >
-        <option value="All">All Player Types</option>
-        <option value="hitter">Hitters</option>
-        <option value="pitcher">Pitchers</option>
-      </select>
-
-      <select
-        value={sortType}
-        onChange={(event) => setSortType(event.target.value)}
-      >
-        <option value="name">Sort by name</option>
-
-        {typeFilter === "hitter" && (
-          <>
-            <option value="homeRuns">Sort by home runs</option>
-            <option value="battingAverage">Sort by batting average</option>
-          </>
-        )}
-
-        {typeFilter === "pitcher" && (
-          <>
-            <option value="era">Sort by ERA</option>
-            <option value="strikeouts">Sort by strikeouts</option>
-          </>
-        )}
-      </select>
-
-      <select
-        value={teamFilter}
-        onChange={(event) => setTeamFilter(event.target.value)}
-      >
-        <option value="All">All Teams</option>
-        <option value="Dodgers">Dodgers</option>
-        <option value="Angels">Angels</option>
-        <option value="Yankees">Yankees</option>
-        <option value="Padres">Padres</option>
-        <option value="Giants">Giants</option>
-        <option value="D-backs">D-backs</option>
-        <option value="Rockies">Rockies</option>
-        <option value="Brewers">Brewers</option>
-        <option value="Cardinals">Cardinals</option>
-      </select>
-
-      <select
-        value={positionFilter}
-        onChange={(event) => setPositionFilter(event.target.value)}
-      >
-        <option value="All">All Positions</option>
-        <option value="Pitcher">Pitcher</option>
-        <option value="Catcher">Catcher</option>
-        <option value="First Base">First Base</option>
-        <option value="Second Base">Second Base</option>
-        <option value="Third Base">Third Base</option>
-        <option value="Shortstop">Shortstop</option>
-        <option value="Outfielder">Outfielder</option>
-        <option value="Designated Hitter">Designated Hitter</option>
-      </select>
-
-      <button className="reset-button" type="button" onClick={handleResetFilters}>
-        Reset Filters
-      </button>
-
+      <FilterControls
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
+        sortType={sortType}
+        setSortType={setSortType}
+        teamFilter={teamFilter}
+        setTeamFilter={setTeamFilter}
+        positionFilter={positionFilter}
+        setPositionFilter={setPositionFilter}
+        handleResetFilters={handleResetFilters}
+      />
       {loading && <p className="status-message">Loading...</p>}
       {!loading && errorMessage && (
         <p className="error-message">{errorMessage}</p>
@@ -184,14 +126,12 @@ function PlayersPage() {
       {!loading && !errorMessage && sortedPlayers.length === 0 && (
         <p className="status-message">No players found.</p>
       )}
-
       {!loading && !errorMessage && sortedPlayers.length > 0 && (
         <p className="status-message">
           {sortedPlayers.length}{" "}
           {sortedPlayers.length === 1 ? "player" : "players"} found
         </p>
       )}
-
       <div className="player-list">
         {sortedPlayers.map((player) => (
           <PlayerCard key={player._id} player={player} />

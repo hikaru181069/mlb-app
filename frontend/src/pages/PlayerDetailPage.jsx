@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import PlayerStats from "../components/PlayerStats";
 
 function PlayerDetailPage() {
   const { id } = useParams();
@@ -101,21 +102,7 @@ function PlayerDetailPage() {
           <p>Team: {player.team}</p>
           <p>Position: {player.position}</p>
 
-          {player.playerType === "hitter" && player.hitterStats && (
-            <div className="stats">
-              <p>AVG: {player.hitterStats.battingAverage}</p>
-              <p>HR: {player.hitterStats.homeRuns}</p>
-              <p>RBI: {player.hitterStats.rbis}</p>
-            </div>
-          )}
-
-          {player.playerType === "pitcher" && player.pitcherStats && (
-            <div className="stats">
-              <p>ERA: {player.pitcherStats.era}</p>
-              <p>SO: {player.pitcherStats.strikeouts}</p>
-              <p>IP: {player.pitcherStats.inningsPitched}</p>
-            </div>
-          )}
+          <PlayerStats player={player} />
         </div>
       </div>
     </div>
