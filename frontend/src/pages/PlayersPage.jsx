@@ -101,6 +101,10 @@ function PlayersPage() {
 
   return (
     <div className="app">
+      <Link className="back-link" to="/">
+        Back to Home
+      </Link>
+
       <h1>MLB Player Search App</h1>
       <p className="description">Search by player name, team, or position</p>
       <Link className="add-player-link" to="/players/new">
