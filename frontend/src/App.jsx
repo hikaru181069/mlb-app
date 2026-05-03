@@ -5,11 +5,13 @@ import PlayersPage from "./pages/PlayersPage";
 import PlayerDetailPage from "./pages/PlayerDetailPage";
 import AddPlayerPage from "./pages/AddPlayerPage";
 import EditPlayerPage from "./pages/EditPlayerPage";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/players" element={<PlayersPage />} />
       <Route path="/players/new" element={<AddPlayerPage />} />
       <Route path="/players/:id/edit" element={<EditPlayerPage />} />

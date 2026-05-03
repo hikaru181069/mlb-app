@@ -1,4 +1,5 @@
 const express = require("express");
+const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -12,10 +13,10 @@ const {
 } = require("../controllers/playerController");
 
 router.get("/", getPlayers);
-router.post("/", createPlayer);
+router.post("/", protect, createPlayer);
 router.get("/search", searchPlayers);
 router.get("/:id", getPlayerById);
-router.put("/:id", updatePlayer);
-router.delete("/:id", deletePlayer);
+router.put("/:id", protect, updatePlayer);
+router.delete("/:id", protect, deletePlayer);
 
 module.exports = router;
