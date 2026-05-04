@@ -13,6 +13,7 @@ function EditPlayerPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(initialPlayerFormData);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchPlayer = async () => {
@@ -72,6 +73,7 @@ function EditPlayerPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(createPlayerRequestBody(formData)),
       });
@@ -88,6 +90,18 @@ function EditPlayerPage() {
       setLoading(false);
     }
   };
+
+  if (!token) {
+    return (
+      <div className="app">
+        <p className="error-message">Please login to edit a player.</p>
+
+        <Link className="back-link" to="/login">
+          Go to Login
+        </Link>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -9,9 +9,16 @@ function HomePage() {
         <p className="home-description">
           Search MLB players, view player details, and manage player data.
         </p>
-        <Link className="home-link" to="/players">
-          Search Players
-        </Link>
+
+        <div className="home-actions">
+          <Link className="home-link" to="/players">
+            View Players
+          </Link>
+
+          <Link className="home-link secondary" to="/login">
+            Login
+          </Link>
+        </div>
       </section>
     </div>
   );

@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -33,6 +35,7 @@ function LoginPage() {
       localStorage.setItem("token", data.token);
       setErrorMessage("");
       setSuccessMessage("Login successful.");
+      navigate("/players");
     } catch (error) {
       console.error("Login error:", error);
       setSuccessMessage("");

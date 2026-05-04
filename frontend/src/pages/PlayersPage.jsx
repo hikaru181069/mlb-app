@@ -14,6 +14,8 @@ function PlayersPage() {
   const [positionFilter, setPositionFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
@@ -99,6 +101,11 @@ function PlayersPage() {
     setPositionFilter("All");
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.reload();
+  };
+
   return (
     <div className="app">
       <Link className="back-link" to="/">
@@ -107,9 +114,27 @@ function PlayersPage() {
 
       <h1>MLB Player Search App</h1>
       <p className="description">Search by player name, team, or position</p>
-      <Link className="add-player-link" to="/players/new">
-        Add Player
-      </Link>
+
+      {token ? (
+        <>
+          <Link className="add-player-link" to="/players/new">
+            Add Player
+          </Link>
+
+          <button
+            className="logout-button"
+            type="button"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </>
+      ) : (
+        <Link className="add-player-link" to="/login">
+          Login
+        </Link>
+      )}
+
       <SearchInput searchText={searchText} setSearchText={setSearchText} />
 
       <FilterControls

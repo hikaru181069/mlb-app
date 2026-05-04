@@ -9,6 +9,8 @@ function PlayerDetailPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const fetchPlayer = async () => {
       try {
@@ -40,8 +42,13 @@ function PlayerDetailPage() {
       return;
     }
     try {
+      const token = localStorage.getItem("token");
+
       const response = await fetch(`http://localhost:5001/api/players/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = await response.json();
@@ -84,13 +91,22 @@ function PlayerDetailPage() {
       <Link className="back-link" to="/players">
         Back to players
       </Link>
-      <Link className="edit-link" to={`/players/${id}/edit`}>
-        Edit Player
-      </Link>
 
-      <button className="delete-button" type="button" onClick={handleDelete}>
-        Delete Player
-      </button>
+      {token && (
+        <>
+          <Link className="edit-link" to={`/players/${id}/edit`}>
+            Edit Player
+          </Link>
+
+          <button
+            className="delete-button"
+            type="button"
+            onClick={handleDelete}
+          >
+            Delete Player
+          </button>
+        </>
+      )}
 
       <div className="player-detail">
         {player.image && (

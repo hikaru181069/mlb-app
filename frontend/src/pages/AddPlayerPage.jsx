@@ -11,6 +11,7 @@ function AddPlayerPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
   const [formData, setFormData] = useState(initialPlayerFormData);
 
   const handleChange = (event) => {
@@ -24,8 +25,6 @@ function AddPlayerPage() {
     try {
       setLoading(true);
       setErrorMessage("");
-
-      const token = localStorage.getItem("token");
 
       const response = await fetch("http://localhost:5001/api/players", {
         method: "POST",
@@ -47,6 +46,18 @@ function AddPlayerPage() {
       setLoading(false);
     }
   };
+
+  if (!token) {
+    return (
+      <div className="app">
+        <p className="error-message">Please login to add a player.</p>
+
+        <Link className="back-link" to="/login">
+          Go to Login
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="app">

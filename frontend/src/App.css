@@ -228,6 +228,13 @@ input {
   max-width: 640px;
 }
 
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
 .home-link {
   display: inline-block;
   color: var(--ctp-crust);
@@ -240,6 +247,18 @@ input {
 
 .home-link:hover {
   background-color: var(--ctp-teal);
+}
+
+.home-link.secondary {
+  color: var(--ctp-text);
+  background-color: transparent;
+  border: 1px solid var(--ctp-surface2);
+}
+
+.home-link.secondary:hover {
+  color: var(--ctp-crust);
+  background-color: var(--ctp-blue);
+  border-color: var(--ctp-blue);
 }
 
 .add-player-link {
