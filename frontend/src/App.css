@@ -30,12 +30,50 @@
   --ctp-crust: #11111b;
 }
 
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    opacity: 0.78;
+    transform: translate3d(-8px, -6px, 0) scale(1.04);
+  }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .app {
   max-width: 900px;
   margin: 40px auto;
   padding: 24px;
   font-family: var(--app-font);
   color: var(--ctp-text);
+  animation: page-rise 420ms ease both;
 }
 
 h1 {
@@ -73,6 +111,7 @@ h1 {
   display: block;
   text-decoration: none;
   box-shadow: 0 14px 30px rgba(17, 17, 27, 0.28);
+  animation: card-in 360ms ease both;
   transition:
     transform 160ms ease,
     border-color 160ms ease,
@@ -257,6 +296,7 @@ input {
     linear-gradient(135deg, rgba(137, 180, 250, 0.16), transparent),
     var(--ctp-mantle);
   box-shadow: 0 24px 60px rgba(17, 17, 27, 0.36);
+  animation: page-rise 520ms ease both;
 }
 
 .home-hero > * {
@@ -273,6 +313,7 @@ input {
   border-radius: 999px;
   background: rgba(203, 166, 247, 0.14);
   filter: blur(6px);
+  animation: soft-glow 7s ease-in-out infinite;
 }
 
 .home-kicker {
@@ -371,6 +412,7 @@ input {
     linear-gradient(135deg, rgba(166, 227, 161, 0.08), transparent 48%),
     var(--ctp-mantle);
   box-shadow: 0 18px 44px rgba(17, 17, 27, 0.32);
+  animation: page-rise 360ms ease both;
 }
 
 .player-form label {
@@ -473,6 +515,18 @@ input {
   border: 1px solid var(--ctp-surface1);
   border-radius: 16px;
   background-color: var(--ctp-mantle);
+  animation: page-rise 340ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 .filter-controls select {
