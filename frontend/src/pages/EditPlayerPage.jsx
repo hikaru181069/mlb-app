@@ -6,6 +6,7 @@ import {
   createPlayerRequestBody,
   updatePlayerFormData,
 } from "../utils/playerFormHandlers";
+import { getAuthToken } from "../utils/authStorage";
 
 function EditPlayerPage() {
   const { id } = useParams();
@@ -13,7 +14,7 @@ function EditPlayerPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(initialPlayerFormData);
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
 
   useEffect(() => {
     const fetchPlayer = async () => {
