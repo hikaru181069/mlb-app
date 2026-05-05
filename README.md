@@ -8,6 +8,7 @@ This app allows users to search, filter, sort, create, update, and delete MLB pl
 It uses local MongoDB data instead of an external API.
 
 The app separates hitter stats and pitcher stats to make the data structure more realistic.
+Authenticated users can manage player data, while public users can browse and search players.
 
 ## Screenshots
 
@@ -26,19 +27,24 @@ docs/screenshots/player-detail-page.png
 - Sort hitters by batting average and home runs
 - Sort pitchers by ERA and strikeouts
 - View player details
-- Add new players
-- Edit player information
-- Delete players
+- Register and login users
+- Store authentication data with JWT
+- Protect create, update, and delete operations
+- Add new players as an authenticated user
+- Edit player information as an authenticated user
+- Delete players as an authenticated user
 - Store player data in MongoDB
 - Run MongoDB with Docker Compose
+- Style the UI with Tailwind CSS and Catppuccin Mocha colors
 
 ## Tech Stack
 
 - Frontend: React, Vite, React Router
 - Backend: Node.js, Express
 - Database: MongoDB, Mongoose
+- Authentication: JWT, bcryptjs
 - Development: Docker, Docker Compose
-- Styling: CSS, Catppuccin Mocha, Maple Mono NF
+- Styling: Tailwind CSS, CSS, Catppuccin Mocha, Maple Mono NF
 
 ## Project Structure
 
@@ -97,7 +103,27 @@ Create `backend/.env`:
 ```env
 PORT=5001
 MONGO_URI=mongodb://127.0.0.1:27017/mlbApp
+JWT_SECRET=your_jwt_secret
 ```
+
+## Authentication
+
+Users can register and login through the backend auth API.
+
+```txt
+POST /api/auth/register
+POST /api/auth/login
+```
+
+After login, the frontend stores the JWT and user information in local storage.
+Protected player actions send the token with the `Authorization` header.
+
+```txt
+Authorization: Bearer <token>
+```
+
+Create, update, and delete routes are protected by backend middleware.
+Public users can still view, search, filter, and sort players.
 
 ## Design Notes
 
@@ -105,11 +131,14 @@ MONGO_URI=mongodb://127.0.0.1:27017/mlbApp
 - I split frontend UI into reusable components.
 - I separated hitter stats and pitcher stats instead of using one common stats object.
 - I used Docker Compose to make MongoDB easier to run locally.
+- I organized auth-related localStorage logic into a frontend utility file.
+- I introduced Tailwind CSS gradually while keeping the existing Catppuccin-based design system.
 
 ## Future Improvements
 
-- Authentication and authorization
-- Admin-only CRUD operations
+- Improve authentication with role-based access control
+- Add user profile UI
+- Add screenshots
 - External MLB API integration
 - Deployment
 - Tests

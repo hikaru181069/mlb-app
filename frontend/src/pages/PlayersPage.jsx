@@ -114,9 +114,21 @@ function PlayersPage() {
 
   return (
     <div className="app">
-      <Link className="back-link" to="/">
-        Back to Home
-      </Link>
+      <div className="top-actions">
+        <Link className="back-link" to="/">
+          ← Back to Home
+        </Link>
+
+        {token && (
+          <button
+            className="logout-button inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
+            type="button"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        )}
+      </div>
 
       <h1>MLB Player Search App</h1>
       <p className="description">Search by player name, team, or position</p>
@@ -125,31 +137,23 @@ function PlayersPage() {
         <p className="status-message">Logged in as {userName}</p>
       )}
 
-      {token ? (
-        <>
+      <div className="page-actions">
+        {token ? (
           <Link
             className="add-player-link inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
             to="/players/new"
           >
             Add Player
           </Link>
-
-          <button
-            className="logout-button inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
-            type="button"
-            onClick={handleLogout}
+        ) : (
+          <Link
+            className="add-player-link inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
+            to="/login"
           >
-            Logout
-          </button>
-        </>
-      ) : (
-        <Link
-          className="add-player-link inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
-          to="/login"
-        >
-          Login
-        </Link>
-      )}
+            Login
+          </Link>
+        )}
+      </div>
 
       <SearchInput searchText={searchText} setSearchText={setSearchText} />
 

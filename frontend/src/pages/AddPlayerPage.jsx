@@ -63,7 +63,7 @@ function AddPlayerPage() {
   return (
     <div className="app">
       <Link className="back-link" to="/players">
-        Back to players
+        ← Back to players
       </Link>
 
       <h1>Add Player</h1>

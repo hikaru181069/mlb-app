@@ -77,7 +77,7 @@ function PlayerDetailPage() {
       <div className="app">
         <p className="error-message">{errorMessage}</p>
         <Link className="back-link" to="/players">
-          Back to players
+          ← Back to players
         </Link>
       </div>
     );
@@ -89,25 +89,27 @@ function PlayerDetailPage() {
 
   return (
     <div className="app">
-      <Link className="back-link" to="/players">
-        Back to players
-      </Link>
+      <div className="detail-actions">
+        <Link className="back-link" to="/players">
+          ← Back to players
+        </Link>
 
-      {token && (
-        <>
-          <Link className="edit-link" to={`/players/${id}/edit`}>
-            Edit Player
-          </Link>
+        {token && (
+          <>
+            <Link className="edit-link" to={`/players/${id}/edit`}>
+              Edit Player
+            </Link>
 
-          <button
-            className="delete-button"
-            type="button"
-            onClick={handleDelete}
-          >
-            Delete Player
-          </button>
-        </>
-      )}
+            <button
+              className="delete-button"
+              type="button"
+              onClick={handleDelete}
+            >
+              Delete Player
+            </button>
+          </>
+        )}
+      </div>
 
       <div className="player-detail mx-auto mt-8 w-full max-w-4xl">
         {player.image && (

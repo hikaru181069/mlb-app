@@ -12,6 +12,13 @@ function HomePage() {
           Search MLB players, view player details, and manage player data.
         </p>
 
+        <div className="home-tech-stack">
+          <span>MERN</span>
+          <span>JWT Auth</span>
+          <span>Docker</span>
+          <span>Tailwind CSS</span>
+        </div>
+
         <div className="home-actions mt-7">
           <Link className="home-link" to="/players">
             View Players

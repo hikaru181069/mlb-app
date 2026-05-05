@@ -115,7 +115,7 @@ function EditPlayerPage() {
   return (
     <div className="app">
       <Link className="back-link" to={`/players/${id}`}>
-        Back to detail
+        ← Back to detail
       </Link>
 
       <h1>Edit Player</h1>

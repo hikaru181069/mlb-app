@@ -55,7 +55,7 @@ function LoginPage() {
     return (
       <div className="app">
         <Link className="back-link" to="/">
-          Back to Home
+          ← Back to Home
         </Link>
 
         <h1>Already logged in</h1>
@@ -71,12 +71,15 @@ function LoginPage() {
   return (
     <div className="app">
       <Link className="back-link" to="/">
-        Back to Home
+        ← Back to Home
       </Link>
 
       <h1>Login</h1>
 
-      <form className="player-form" onSubmit={handleSubmit}>
+      <form
+        className="player-form mx-auto mt-8 w-full max-w-md"
+        onSubmit={handleSubmit}
+      >
         <label>
           Email
           <input
