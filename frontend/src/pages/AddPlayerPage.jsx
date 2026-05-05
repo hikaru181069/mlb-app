@@ -6,12 +6,13 @@ import {
   createPlayerRequestBody,
   updatePlayerFormData,
 } from "../utils/playerFormHandlers";
+import { getAuthToken } from "../utils/authStorage";
 
 function AddPlayerPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
   const [formData, setFormData] = useState(initialPlayerFormData);
 
   const handleChange = (event) => {

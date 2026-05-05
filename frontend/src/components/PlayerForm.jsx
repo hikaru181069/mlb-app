@@ -6,7 +6,10 @@ function PlayerForm({
   buttonText,
 }) {
   return (
-    <form className="player-form" onSubmit={handleSubmit}>
+    <form
+      className="player-form mx-auto mt-8 w-full max-w-2xl"
+      onSubmit={handleSubmit}
+    >
       <label>
         Name
         <input
@@ -136,7 +139,11 @@ function PlayerForm({
         </>
       )}
 
-      <button type="submit" disabled={loading}>
+      <button
+        className="transition duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+        type="submit"
+        disabled={loading}
+      >
         {loading ? "Saving..." : buttonText}
       </button>
     </form>

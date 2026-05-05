@@ -10,7 +10,7 @@ function FilterControls({
   handleResetFilters,
 }) {
   return (
-    <div className="filter-controls">
+    <div className="filter-controls mx-auto mt-6 grid w-full max-w-4xl gap-4 md:grid-cols-2 lg:grid-cols-4">
       <select
         value={typeFilter}
         onChange={(event) => {
@@ -76,7 +76,7 @@ function FilterControls({
       </select>
 
       <button
-        className="reset-button"
+        className="reset-button transition duration-200 hover:-translate-y-0.5"
         type="button"
         onClick={handleResetFilters}
       >

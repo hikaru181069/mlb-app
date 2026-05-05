@@ -3,7 +3,10 @@ import PlayerStats from "./PlayerStats";
 
 function PlayerCard({ player }) {
   return (
-    <Link className="player-card" to={`/players/${player._id}`}>
+    <Link
+      className="player-card transition duration-200 hover:-translate-y-1 hover:shadow-2xl"
+      to={`/players/${player._id}`}
+    >
       {player.image && (
         <img className="player-image" src={player.image} alt={player.name} />
       )}

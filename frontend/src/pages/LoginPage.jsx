@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  getAuthToken,
+  getAuthUserName,
+  saveAuthData,
+} from "../utils/authStorage";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -8,6 +13,9 @@ function LoginPage() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const navigate = useNavigate();
+
+  const token = getAuthToken();
+  const userName = getAuthUserName();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -32,7 +40,8 @@ function LoginPage() {
         return;
       }
 
-      localStorage.setItem("token", data.token);
+      saveAuthData(data);
+
       setErrorMessage("");
       setSuccessMessage("Login successful.");
       navigate("/players");
@@ -42,6 +51,22 @@ function LoginPage() {
       setErrorMessage("Failed to login.");
     }
   };
+  if (token) {
+    return (
+      <div className="app">
+        <Link className="back-link" to="/">
+          Back to Home
+        </Link>
+
+        <h1>Already logged in</h1>
+        <p className="status-message">Logged in as {userName || "user"}</p>
+
+        <Link className="add-player-link" to="/players">
+          Go to Players
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="app">

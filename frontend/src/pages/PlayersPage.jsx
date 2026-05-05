@@ -3,6 +3,11 @@ import { Link } from "react-router-dom";
 import PlayerCard from "../components/PlayerCard";
 import SearchInput from "../components/SearchInput";
 import FilterControls from "../components/FilterControls";
+import {
+  clearAuthData,
+  getAuthToken,
+  getAuthUserName,
+} from "../utils/authStorage";
 
 function PlayersPage() {
   const [searchText, setSearchText] = useState("");
@@ -13,8 +18,8 @@ function PlayersPage() {
   const [teamFilter, setTeamFilter] = useState("All");
   const [positionFilter, setPositionFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
-
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState(getAuthToken());
+  const [userName, setUserName] = useState(getAuthUserName());
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -102,8 +107,9 @@ function PlayersPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.reload();
+    clearAuthData();
+    setToken(null);
+    setUserName(null);
   };
 
   return (
@@ -115,14 +121,21 @@ function PlayersPage() {
       <h1>MLB Player Search App</h1>
       <p className="description">Search by player name, team, or position</p>
 
+      {token && userName && (
+        <p className="status-message">Logged in as {userName}</p>
+      )}
+
       {token ? (
         <>
-          <Link className="add-player-link" to="/players/new">
+          <Link
+            className="add-player-link inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
+            to="/players/new"
+          >
             Add Player
           </Link>
 
           <button
-            className="logout-button"
+            className="logout-button inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
             type="button"
             onClick={handleLogout}
           >
@@ -130,7 +143,10 @@ function PlayersPage() {
           </button>
         </>
       ) : (
-        <Link className="add-player-link" to="/login">
+        <Link
+          className="add-player-link inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
+          to="/login"
+        >
           Login
         </Link>
       )}

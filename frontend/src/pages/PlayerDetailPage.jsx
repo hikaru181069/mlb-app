@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PlayerStats from "../components/PlayerStats";
+import { getAuthToken } from "../utils/authStorage";
 
 function PlayerDetailPage() {
   const { id } = useParams();
@@ -9,7 +10,7 @@ function PlayerDetailPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
 
   useEffect(() => {
     const fetchPlayer = async () => {
@@ -42,7 +43,7 @@ function PlayerDetailPage() {
       return;
     }
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
 
       const response = await fetch(`http://localhost:5001/api/players/${id}`, {
         method: "DELETE",
@@ -108,12 +109,16 @@ function PlayerDetailPage() {
         </>
       )}
 
-      <div className="player-detail">
+      <div className="player-detail mx-auto mt-8 w-full max-w-4xl">
         {player.image && (
-          <img className="detail-image" src={player.image} alt={player.name} />
+          <img
+            className="detail-image transition duration-200 hover:scale-[1.02]"
+            src={player.image}
+            alt={player.name}
+          />
         )}
 
-        <div>
+        <div className="space-y-3">
           <h1>{player.name}</h1>
           <p>Team: {player.team}</p>
           <p>Position: {player.position}</p>
