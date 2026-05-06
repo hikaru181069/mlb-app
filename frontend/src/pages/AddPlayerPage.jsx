@@ -29,6 +29,11 @@ function AddPlayerPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (!token) {
+      setErrorMessage("Please login before adding a player.");
+      return;
+    }
+
     try {
       setLoading(true);
       setErrorMessage("");

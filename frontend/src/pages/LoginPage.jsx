@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  clearAuthData,
   getAuthToken,
   getAuthUserName,
   saveAuthData,
@@ -17,6 +18,13 @@ function LoginPage() {
 
   const token = getAuthToken();
   const userName = getAuthUserName();
+
+  const handleLogout = () => {
+    clearAuthData();
+    setSuccessMessage("");
+    setErrorMessage("");
+    window.location.reload();
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -65,6 +73,10 @@ function LoginPage() {
         <Link className="add-player-link" to="/players">
           Go to Players
         </Link>
+
+        <button className="delete-button" type="button" onClick={handleLogout}>
+          Logout and Login Again
+        </button>
       </div>
     );
   }
