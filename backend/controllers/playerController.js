@@ -16,7 +16,10 @@ const createPlayer = async (req, res) => {
     res.status(201).json(player);
   } catch (error) {
     console.error("Create player error:", error.message);
-    res.status(500).json({ message: "Failed to create player" });
+    res.status(400).json({
+      message: "Failed to create player",
+      error: error.message,
+    });
   }
 };
 

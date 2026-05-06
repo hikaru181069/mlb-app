@@ -43,12 +43,15 @@ function AddPlayerPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create player.");
+        const data = await response.json();
+        throw new Error(
+          data.error || data.message || "Failed to create player.",
+        );
       }
       navigate("/players");
     } catch (error) {
       console.error("Create player error:", error);
-      setErrorMessage("Failed to create player.");
+      setErrorMessage(error.message);
     } finally {
       setLoading(false);
     }

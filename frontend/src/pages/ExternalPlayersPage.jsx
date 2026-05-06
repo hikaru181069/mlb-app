@@ -64,7 +64,7 @@ function ExternalPlayersPage() {
       state: {
         externalPlayer: {
           name: player.name,
-          team: player.team === "Unknown" ? "" : player.team,
+          team: player.team || "Unknown",
           position: normalizedPosition === "Unknown" ? "" : normalizedPosition,
           image: player.image,
           externalId: player.externalId,
