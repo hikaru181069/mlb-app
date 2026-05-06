@@ -2,6 +2,11 @@
 
 A MERN stack portfolio app for searching and managing MLB player data.
 
+## Live Demo
+
+- Frontend: https://mlb-app-eight.vercel.app
+- Backend API: https://mlb-app-wzpt.onrender.com
+
 ## Overview
 
 This app allows users to search, filter, sort, create, update, and delete MLB player data.
@@ -45,6 +50,7 @@ docs/screenshots/player-detail-page.png
 - Authentication: JWT, bcryptjs
 - Development: Docker, Docker Compose
 - Styling: Tailwind CSS, CSS, Catppuccin Mocha, Maple Mono NF
+- Deployment: Vercel, Render, MongoDB Atlas
 
 ## Project Structure
 
@@ -104,6 +110,19 @@ Create `backend/.env`:
 PORT=5001
 MONGO_URI=mongodb://127.0.0.1:27017/mlbApp
 JWT_SECRET=your_jwt_secret
+FRONTEND_URL=http://localhost:5173
+```
+
+Create `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:5001
+```
+
+For production, the frontend uses the Render backend URL, and the backend uses the Vercel frontend URL for CORS.
+
+```txt
+Vercel Frontend -> Render Backend -> MongoDB Atlas
 ```
 
 ## Authentication
@@ -133,6 +152,7 @@ Public users can still view, search, filter, and sort players.
 - I used Docker Compose to make MongoDB easier to run locally.
 - I organized auth-related localStorage logic into a frontend utility file.
 - I introduced Tailwind CSS gradually while keeping the existing Catppuccin-based design system.
+- I deployed the frontend, backend, and database separately to match a real MERN deployment flow.
 
 ## Future Improvements
 
@@ -140,5 +160,4 @@ Public users can still view, search, filter, and sort players.
 - Add user profile UI
 - Add screenshots
 - External MLB API integration
-- Deployment
 - Tests
