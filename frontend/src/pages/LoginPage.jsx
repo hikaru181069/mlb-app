@@ -5,6 +5,7 @@ import {
   getAuthUserName,
   saveAuthData,
 } from "../utils/authStorage";
+import { API_URL } from "../utils/apiConfig";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ function LoginPage() {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5001/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

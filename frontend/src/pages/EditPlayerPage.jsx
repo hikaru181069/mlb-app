@@ -7,6 +7,7 @@ import {
   updatePlayerFormData,
 } from "../utils/playerFormHandlers";
 import { getAuthToken } from "../utils/authStorage";
+import { API_URL } from "../utils/apiConfig";
 
 function EditPlayerPage() {
   const { id } = useParams();
@@ -21,7 +22,7 @@ function EditPlayerPage() {
       try {
         setLoading(true);
 
-        const response = await fetch(`http://localhost:5001/api/players/${id}`);
+        const response = await fetch(`${API_URL}/api/players/${id}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -70,7 +71,7 @@ function EditPlayerPage() {
       setLoading(true);
       setErrorMessage("");
 
-      const response = await fetch(`http://localhost:5001/api/players/${id}`, {
+      const response = await fetch(`${API_URL}/api/players/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

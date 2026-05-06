@@ -7,6 +7,7 @@ import {
   updatePlayerFormData,
 } from "../utils/playerFormHandlers";
 import { getAuthToken } from "../utils/authStorage";
+import { API_URL } from "../utils/apiConfig";
 
 function AddPlayerPage() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,7 +28,7 @@ function AddPlayerPage() {
       setLoading(true);
       setErrorMessage("");
 
-      const response = await fetch("http://localhost:5001/api/players", {
+      const response = await fetch(`${API_URL}/api/players`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

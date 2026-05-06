@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PlayerStats from "../components/PlayerStats";
 import { getAuthToken } from "../utils/authStorage";
+import { API_URL } from "../utils/apiConfig";
 
 function PlayerDetailPage() {
   const { id } = useParams();
@@ -16,7 +17,7 @@ function PlayerDetailPage() {
     const fetchPlayer = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5001/api/players/${id}`);
+        const response = await fetch(`${API_URL}/api/players/${id}`);
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.message || "Failed to load player.");
@@ -45,7 +46,7 @@ function PlayerDetailPage() {
     try {
       const token = getAuthToken();
 
-      const response = await fetch(`http://localhost:5001/api/players/${id}`, {
+      const response = await fetch(`${API_URL}/api/players/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
