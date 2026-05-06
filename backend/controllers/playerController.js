@@ -5,6 +5,7 @@ const getPlayers = async (req, res) => {
     const players = await Player.find();
     res.json(players);
   } catch (error) {
+    console.error("Fetch players error:", error.name, error.message);
     res.status(500).json({ message: "Failed to fetch players" });
   }
 };
