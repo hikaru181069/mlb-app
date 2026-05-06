@@ -8,6 +8,7 @@ import {
   getAuthToken,
   getAuthUserName,
 } from "../utils/authStorage";
+import { API_URL } from "../utils/apiConfig";
 
 function PlayersPage() {
   const [searchText, setSearchText] = useState("");
@@ -27,9 +28,9 @@ function PlayersPage() {
         setLoading(true);
         let url;
         if (searchText) {
-          url = `http://localhost:5001/api/players/search?q=${encodeURIComponent(searchText)}`;
+          url = `${API_URL}/api/players/search?q=${encodeURIComponent(searchText)}`;
         } else {
-          url = "http://localhost:5001/api/players";
+          url = `${API_URL}/api/players`;
         }
 
         const response = await fetch(url);
