@@ -6,7 +6,7 @@ import {
   createPlayerRequestBody,
   updatePlayerFormData,
 } from "../utils/playerFormHandlers";
-import { getAuthToken } from "../utils/authStorage";
+import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import { API_URL } from "../utils/apiConfig";
 
 function AddPlayerPage() {
@@ -42,13 +42,19 @@ function AddPlayerPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(createPlayerRequestBody(formData)),
       });
 
       if (!response.ok) {
         const data = await response.json();
+
+        if (response.status === 401) {
+          clearAuthData();
+          throw new Error("Your login session is invalid. Please login again.");
+        }
+
         throw new Error(
           data.error || data.message || "Failed to create player.",
         );

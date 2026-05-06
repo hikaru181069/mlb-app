@@ -6,6 +6,7 @@ const protect = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.error("Auth error: Missing Bearer token");
       return res.status(401).json({ message: "Not authorized" });
     }
 
