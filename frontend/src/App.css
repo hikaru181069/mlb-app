@@ -153,6 +153,17 @@ input {
   border-radius: 8px;
 }
 
+.search-form {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin: 0 auto 24px;
+}
+
+.search-form input {
+  margin-bottom: 0;
+}
+
 .error-message {
   text-align: center;
   color: var(--ctp-red);
@@ -180,6 +191,25 @@ input {
   text-align: center;
   color: var(--ctp-subtext0);
   margin-bottom: 20px;
+}
+
+.external-note {
+  color: var(--ctp-yellow);
+  font-size: 14px;
+}
+
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto 10px;
+  padding: 5px 10px;
+  color: var(--ctp-crust);
+  font-size: 13px;
+  font-weight: 800;
+  background-color: var(--ctp-green);
+  border-radius: 999px;
 }
 
 .error-message {

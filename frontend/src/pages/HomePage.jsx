@@ -24,6 +24,10 @@ function HomePage() {
             View Players
           </Link>
 
+          <Link className="home-link secondary" to="/external-players">
+            Search MLB API
+          </Link>
+
           <Link className="home-link secondary" to="/login">
             Login
           </Link>

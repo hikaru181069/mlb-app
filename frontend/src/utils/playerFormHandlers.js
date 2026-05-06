@@ -33,6 +33,8 @@ export const createPlayerRequestBody = (formData) => {
     image:
       formData.image ||
       `https://placehold.co/300x300?text=${encodeURIComponent(formData.name)}`,
+    externalId: formData.externalId ? Number(formData.externalId) : undefined,
+    source: formData.source || "Manual",
     playerType: formData.playerType,
     hitterStats:
       formData.playerType === "hitter"

@@ -3,6 +3,8 @@ export const initialPlayerFormData = {
   team: "",
   position: "",
   image: "",
+  externalId: "",
+  source: "Manual",
   playerType: "hitter",
   hitterStats: {
     battingAverage: "",

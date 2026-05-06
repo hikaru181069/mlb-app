@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import PlayerForm from "../components/PlayerForm";
 import { initialPlayerFormData } from "../utils/playerFormDefaults";
 import {
@@ -13,8 +13,13 @@ function AddPlayerPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const token = getAuthToken();
-  const [formData, setFormData] = useState(initialPlayerFormData);
+  const externalPlayer = location.state?.externalPlayer;
+  const [formData, setFormData] = useState({
+    ...initialPlayerFormData,
+    ...externalPlayer,
+  });
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -68,6 +73,13 @@ function AddPlayerPage() {
       </Link>
 
       <h1>Add Player</h1>
+
+      {externalPlayer?.source && (
+        <p className="status-message">
+          Imported from {externalPlayer.source}. Please add stats before
+          saving.
+        </p>
+      )}
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 

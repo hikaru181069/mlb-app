@@ -17,6 +17,13 @@ const playerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  externalId: {
+    type: Number,
+  },
+  source: {
+    type: String,
+    default: "Manual",
+  },
 
   playerType: {
     type: String,

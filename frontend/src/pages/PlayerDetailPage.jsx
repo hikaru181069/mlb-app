@@ -123,6 +123,9 @@ function PlayerDetailPage() {
 
         <div className="space-y-3">
           <h1>{player.name}</h1>
+          {player.source && player.source !== "Manual" && (
+            <p className="source-badge">{player.source}</p>
+          )}
           <p>Team: {player.team}</p>
           <p>Position: {player.position}</p>
 

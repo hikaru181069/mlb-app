@@ -34,6 +34,8 @@ function EditPlayerPage() {
           team: data.team,
           position: data.position,
           image: data.image,
+          externalId: data.externalId || "",
+          source: data.source || "Manual",
           playerType: data.playerType || "hitter",
           hitterStats: {
             battingAverage: data.hitterStats?.battingAverage || "",

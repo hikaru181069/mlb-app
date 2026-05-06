@@ -11,6 +11,9 @@ function PlayerCard({ player }) {
         <img className="player-image" src={player.image} alt={player.name} />
       )}
       <h2>{player.name}</h2>
+      {player.source && player.source !== "Manual" && (
+        <p className="source-badge">{player.source}</p>
+      )}
       <p>Team: {player.team}</p>
       <p>Position: {player.position}</p>
 

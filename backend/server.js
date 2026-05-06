@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const playerRoutes = require("./routes/playerRoutes");
 const authRoutes = require("./routes/authRoutes");
+const externalPlayerRoutes = require("./routes/externalPlayerRoutes");
 
 dotenv.config();
 connectDB();
@@ -23,6 +24,7 @@ app.use(
 app.use(express.json());
 app.use("/api/players", playerRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/external/players", externalPlayerRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend server is running");
