@@ -54,3 +54,35 @@ export const createPlayerRequestBody = (formData) => {
         : undefined,
   };
 };
+
+export const createFavoriteRequestBody = (formData) => {
+  return {
+    mlbPlayerId: Number(formData.externalId),
+    fullName: formData.name,
+    teamName: formData.team || "Unknown",
+    position: formData.position || "Unknown",
+    imageUrl: formData.image,
+    playerType: formData.playerType,
+    currentSeasonStats: formData.currentSeasonStats,
+    careerStats: formData.careerStats,
+    recentGames: formData.recentGames || [],
+    baseballSavantUrl: formData.baseballSavantUrl || "",
+    hitterStats:
+      formData.playerType === "hitter"
+        ? {
+            battingAverage: formData.hitterStats.battingAverage,
+            homeRuns: Number(formData.hitterStats.homeRuns || 0),
+            rbis: Number(formData.hitterStats.rbis || 0),
+          }
+        : undefined,
+    pitcherStats:
+      formData.playerType === "pitcher"
+        ? {
+            era: formData.pitcherStats.era,
+            strikeouts: Number(formData.pitcherStats.strikeouts || 0),
+            inningsPitched: formData.pitcherStats.inningsPitched,
+          }
+        : undefined,
+    source: formData.source || "MLB Stats API",
+  };
+};

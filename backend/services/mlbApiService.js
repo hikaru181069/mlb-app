@@ -1,10 +1,16 @@
 const MLB_PLAYER_SEARCH_URL =
   "https://statsapi.mlb.com/api/v1/people/search";
 const MLB_PLAYER_STATS_URL = "https://statsapi.mlb.com/api/v1/people";
-const DEFAULT_STATS_SEASON = "2024";
+const CURRENT_SEASON = new Date().getFullYear().toString();
 
 const buildPlayerHeadshotUrl = (playerId) => {
   return `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/${playerId}/headshot/67/current`;
+};
+
+const buildBaseballSavantUrl = (player) => {
+  const nameSlug = player.fullName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+  return `https://baseballsavant.mlb.com/savant-player/${nameSlug}-${player.id}`;
 };
 
 const formatExternalPlayer = (player) => {
@@ -21,10 +27,11 @@ const formatExternalPlayer = (player) => {
     weight: player.weight,
     active: player.active,
     mlbDebutDate: player.mlbDebutDate,
+    baseballSavantUrl: buildBaseballSavantUrl(player),
   };
 };
 
-const formatExternalStats = (stats) => {
+const formatExternalStats = (stats = []) => {
   const hittingSplit = stats.find(
     (stat) => stat.group?.displayName === "hitting",
   )?.splits?.[0];
@@ -50,12 +57,47 @@ const formatExternalStats = (stats) => {
   };
 };
 
-const fetchExternalPlayerStats = async (
+const formatRecentGames = (stats = [], playerType = "hitter") => {
+  const preferredGroup = playerType === "pitcher" ? "pitching" : "hitting";
+  const preferredSplits =
+    stats.find((stat) => stat.group?.displayName === preferredGroup)?.splits ||
+    [];
+  const fallbackSplits = stats.flatMap((stat) => stat.splits || []);
+  const splits = preferredSplits.length > 0 ? preferredSplits : fallbackSplits;
+
+  return [...splits]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5)
+    .map((split) => ({
+      date: split.date,
+      opponent: split.opponent?.name || "Unknown",
+      summary: split.stat?.summary || "No summary",
+      result: split.isWin ? "W" : "L",
+    }));
+};
+
+const fetchExternalPlayerDetails = async (playerId) => {
+  const response = await fetch(
+    `${MLB_PLAYER_STATS_URL}/${playerId}?hydrate=currentTeam`,
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch player details from MLB API");
+  }
+
+  const data = await response.json();
+
+  return data.people?.[0];
+};
+
+const fetchExternalPlayerStats = async ({
   playerId,
-  season = DEFAULT_STATS_SEASON,
-) => {
+  statsType = "season",
+  season = CURRENT_SEASON,
+}) => {
   try {
-    const url = `${MLB_PLAYER_STATS_URL}/${playerId}/stats?stats=season&group=hitting,pitching&season=${season}`;
+    const seasonQuery = statsType === "career" ? "" : `&season=${season}`;
+    const url = `${MLB_PLAYER_STATS_URL}/${playerId}/stats?stats=${statsType}&group=hitting,pitching${seasonQuery}`;
 
     const response = await fetch(url);
 
@@ -65,10 +107,10 @@ const fetchExternalPlayerStats = async (
 
     const data = await response.json();
 
-    return formatExternalStats(data.stats || []);
+    return data.stats || [];
   } catch (error) {
     console.error("External player stats error:", error.message);
-    return {};
+    return [];
   }
 };
 
@@ -85,18 +127,46 @@ const fetchExternalPlayers = async (searchText) => {
 
   const data = await response.json();
 
-  const players = (data.people || []).map(formatExternalPlayer);
-
   return Promise.all(
-    players.map(async (player) => {
-      const stats = await fetchExternalPlayerStats(player.externalId);
+    (data.people || []).map(async (searchResultPlayer) => {
+      const detailedPlayer =
+        (await fetchExternalPlayerDetails(searchResultPlayer.id)) ||
+        searchResultPlayer;
+      const player = formatExternalPlayer(detailedPlayer);
+      const seasonStats = await fetchExternalPlayerStats({
+        playerId: player.externalId,
+      });
+      const formattedSeasonStats = formatExternalStats(seasonStats);
 
       return {
         ...player,
-        ...stats,
+        ...formattedSeasonStats,
+        currentSeasonStats: formattedSeasonStats,
       };
     }),
   );
 };
 
-module.exports = { fetchExternalPlayers };
+const fetchExternalPlayerFullDetails = async (playerId) => {
+  const detailedPlayer = await fetchExternalPlayerDetails(playerId);
+  const player = formatExternalPlayer(detailedPlayer);
+  const [seasonStats, careerStats, gameLogStats] = await Promise.all([
+    fetchExternalPlayerStats({ playerId }),
+    fetchExternalPlayerStats({ playerId, statsType: "career" }),
+    fetchExternalPlayerStats({ playerId, statsType: "gameLog" }),
+  ]);
+  const formattedSeasonStats = formatExternalStats(seasonStats);
+
+  return {
+    ...player,
+    ...formattedSeasonStats,
+    currentSeasonStats: formattedSeasonStats,
+    careerStats: formatExternalStats(careerStats),
+    recentGames: formatRecentGames(gameLogStats, player.playerType),
+  };
+};
+
+module.exports = {
+  fetchExternalPlayers,
+  fetchExternalPlayerFullDetails,
+};

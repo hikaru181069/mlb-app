@@ -1,4 +1,7 @@
-const { fetchExternalPlayers } = require("../services/mlbApiService");
+const {
+  fetchExternalPlayerFullDetails,
+  fetchExternalPlayers,
+} = require("../services/mlbApiService");
 
 const searchExternalPlayers = async (req, res) => {
   try {
@@ -17,4 +20,18 @@ const searchExternalPlayers = async (req, res) => {
   }
 };
 
-module.exports = { searchExternalPlayers };
+const getExternalPlayerById = async (req, res) => {
+  try {
+    const player = await fetchExternalPlayerFullDetails(req.params.playerId);
+
+    res.json(player);
+  } catch (error) {
+    console.error("External player detail error:", error.message);
+    res.status(500).json({ message: "Failed to fetch external player" });
+  }
+};
+
+module.exports = {
+  searchExternalPlayers,
+  getExternalPlayerById,
+};

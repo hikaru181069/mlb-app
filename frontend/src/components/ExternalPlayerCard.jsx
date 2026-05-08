@@ -1,6 +1,6 @@
 import PlayerStats from "./PlayerStats";
 
-function ExternalPlayerCard({ player, alreadySaved, handleUsePlayer }) {
+function ExternalPlayerCard({ player, alreadySaved, handleAddToFavorites }) {
   return (
     <article className="player-card">
       {player.image && (
@@ -9,7 +9,7 @@ function ExternalPlayerCard({ player, alreadySaved, handleUsePlayer }) {
 
       <h2>{player.name}</h2>
       {alreadySaved && (
-        <p className="external-note">Already saved in your database</p>
+        <p className="external-note">Already saved in your favorites</p>
       )}
       <p>Team: {player.team}</p>
       <p>Position: {player.position}</p>
@@ -28,9 +28,9 @@ function ExternalPlayerCard({ player, alreadySaved, handleUsePlayer }) {
         className="add-player-link mt-4 inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
         type="button"
         disabled={alreadySaved}
-        onClick={() => handleUsePlayer(player)}
+        onClick={() => handleAddToFavorites(player)}
       >
-        {alreadySaved ? "Already Saved" : "Use This Player"}
+        {alreadySaved ? "Already Favorite" : "Add to Favorites"}
       </button>
     </article>
   );

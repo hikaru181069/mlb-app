@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import PlayerForm from "../components/PlayerForm";
 import { initialPlayerFormData } from "../utils/playerFormDefaults";
 import {
-  createPlayerRequestBody,
+  createFavoriteRequestBody,
   updatePlayerFormData,
 } from "../utils/playerFormHandlers";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
@@ -38,13 +38,13 @@ function AddPlayerPage() {
       setLoading(true);
       setErrorMessage("");
 
-      const response = await fetch(`${API_URL}/api/players`, {
+      const response = await fetch(`${API_URL}/api/favorites`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify(createPlayerRequestBody(formData)),
+        body: JSON.stringify(createFavoriteRequestBody(formData)),
       });
 
       if (!response.ok) {
@@ -59,7 +59,7 @@ function AddPlayerPage() {
           data.error || data.message || "Failed to create player.",
         );
       }
-      navigate("/players");
+      navigate("/favorites");
     } catch (error) {
       console.error("Create player error:", error);
       setErrorMessage(error.message);
@@ -82,16 +82,16 @@ function AddPlayerPage() {
 
   return (
     <div className="app">
-      <Link className="back-link" to="/players">
-        ← Back to players
+      <Link className="back-link" to="/favorites">
+        ← Back to favorites
       </Link>
 
-      <h1>Add Player</h1>
+      <h1>Add to Favorites</h1>
 
       {externalPlayer?.source && (
         <p className="status-message">
-          Imported from {externalPlayer.source}. Please add stats before
-          saving.
+          Imported from {externalPlayer.source}. You can edit stats before
+          saving this favorite.
         </p>
       )}
 
@@ -102,7 +102,7 @@ function AddPlayerPage() {
         handleChange={handleChange}
         handleSubmit={handleSubmit}
         loading={loading}
-        buttonText="Add Player"
+        buttonText="Add to Favorites"
       />
     </div>
   );

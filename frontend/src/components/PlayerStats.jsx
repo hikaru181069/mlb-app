@@ -1,25 +1,28 @@
 function PlayerStats({ player }) {
-  if (player.playerType === "hitter" && player.hitterStats) {
+  const hitterStats = player.hitterStats || player.seasonStats;
+  const pitcherStats = player.pitcherStats || player.seasonStats;
+
+  if (player.playerType === "hitter" && hitterStats) {
     return (
       <div className="stats">
         <p>
           AVG:
-          {player.hitterStats.battingAverage}
+          {hitterStats.battingAverage}
         </p>
-        <p>HR: {player.hitterStats.homeRuns}</p>
-        <p>RBI: {player.hitterStats.rbis}</p>
+        <p>HR: {hitterStats.homeRuns}</p>
+        <p>RBI: {hitterStats.rbis}</p>
       </div>
     );
   }
 
-  if (player.playerType === "pitcher" && player.pitcherStats) {
+  if (player.playerType === "pitcher" && pitcherStats) {
     return (
       <div className="stats">
-        <p>ERA: {player.pitcherStats.era}</p>
-        <p>SO: {player.pitcherStats.strikeouts}</p>
+        <p>ERA: {pitcherStats.era}</p>
+        <p>SO: {pitcherStats.strikeouts}</p>
         <p>
           IP:
-          {player.pitcherStats.inningsPitched}
+          {pitcherStats.inningsPitched}
         </p>
       </div>
     );
