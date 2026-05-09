@@ -4,7 +4,11 @@ import AppNav from "../components/AppNav";
 import PlayerStats from "../components/PlayerStats";
 import PlayerCard from "../components/PlayerCard";
 import { getAuthToken } from "../utils/authStorage";
-import { API_URL } from "../utils/apiConfig";
+import {
+  createFavorite,
+  getFavorites,
+} from "../services/api/favoriteApi";
+import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import {
   getPlayerById,
   getSimilarPlayers,
@@ -16,55 +20,53 @@ function PlayerDetailPage() {
   const [player, setPlayer] = useState(null);
   const [similarPlayers, setSimilarPlayers] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [favoriteMessage, setFavoriteMessage] = useState("");
+  const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const token = getAuthToken();
 
   useEffect(() => {
-    const fetchExternalPlayerDetail = async (mlbPlayerId) => {
-      const response = await fetch(
-        `${API_URL}/api/external/players/${mlbPlayerId}`,
-      );
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to load external player.");
-      }
-
-      return data;
-    };
-
     const fetchPlayer = async () => {
       try {
         setLoading(true);
+        setFavoriteMessage("");
+        setFavoriteRecord(null);
+        const token = getAuthToken();
+        const favoritePlayers = await getFavorites(token);
+        const isExternalPlayerId = /^\d+$/.test(playerId);
 
         const localPlayer = getPlayerById(playerId);
 
         if (localPlayer) {
-          const externalPlayer = await fetchExternalPlayerDetail(
-            localPlayer.playerId,
+          const externalPlayer = await getExternalPlayerDetail(localPlayer.playerId);
+          const savedFavorite = favoritePlayers.find(
+            (favorite) => favorite.mlbPlayerId === localPlayer.playerId,
           );
           setPlayer({
             ...localPlayer,
             ...externalPlayer,
           });
+          setFavoriteRecord(savedFavorite || null);
           setSimilarPlayers(getSimilarPlayers(playerId));
           setErrorMessage("");
           return;
         }
 
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/api/favorites`, {
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to load player.");
+        if (isExternalPlayerId) {
+          const externalPlayer = await getExternalPlayerDetail(playerId);
+          const savedFavorite = favoritePlayers.find(
+            (favorite) => favorite.mlbPlayerId === Number(playerId),
+          );
+
+          setPlayer(externalPlayer);
+          setFavoriteRecord(savedFavorite || null);
+          setSimilarPlayers([]);
+          setErrorMessage("");
+          return;
         }
 
-        const favoritePlayer = data.find(
+        const favoritePlayer = favoritePlayers.find(
           (favorite) => favorite._id === playerId,
         );
 
@@ -72,7 +74,7 @@ function PlayerDetailPage() {
           throw new Error("Player not found.");
         }
 
-        const externalPlayer = await fetchExternalPlayerDetail(
+        const externalPlayer = await getExternalPlayerDetail(
           favoritePlayer.mlbPlayerId,
         );
 
@@ -80,6 +82,7 @@ function PlayerDetailPage() {
           ...favoritePlayer,
           ...externalPlayer,
         });
+        setFavoriteRecord(favoritePlayer);
         setSimilarPlayers([]);
         setErrorMessage("");
       } catch (error) {
@@ -93,32 +96,25 @@ function PlayerDetailPage() {
     fetchPlayer();
   }, [playerId]);
 
-  const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this player?",
-    );
-    if (!confirmed) {
+  const handleAddToFavorites = async () => {
+    if (!token) {
+      navigate("/login");
       return;
     }
+
+    if (favoriteRecord) {
+      setFavoriteMessage("This player is already in your favorites.");
+      return;
+    }
+
     try {
-      const token = getAuthToken();
-
-      const response = await fetch(`${API_URL}/api/players/${playerId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to delete player.");
-      }
-      navigate("/players");
+      setFavoriteMessage("");
+      const favorite = await createFavorite(player, token);
+      setFavoriteRecord(favorite);
+      setFavoriteMessage("Added to favorites.");
     } catch (error) {
-      console.error("Delete player error:", error);
-      setErrorMessage("Failed to delete player.");
+      console.error("Add favorite error:", error);
+      setFavoriteMessage(error.message || "Failed to add favorite.");
     }
   };
 
@@ -173,21 +169,9 @@ function PlayerDetailPage() {
           ← Back to Home
         </Link>
 
-        {token && (
-          <>
-            <Link className="edit-link" to={`/players/${playerId}/edit`}>
-              Edit Player
-            </Link>
-
-            <button
-              className="delete-button"
-              type="button"
-              onClick={handleDelete}
-            >
-              Delete Player
-            </button>
-          </>
-        )}
+        <Link className="back-link" to="/search">
+          Search Players
+        </Link>
       </div>
 
       <div className="player-detail mx-auto mt-8 w-full max-w-4xl">
@@ -230,6 +214,19 @@ function PlayerDetailPage() {
               >
                 View on Baseball Savant
               </a>
+            )}
+
+            <button
+              className="add-player-link"
+              type="button"
+              disabled={Boolean(favoriteRecord)}
+              onClick={handleAddToFavorites}
+            >
+              {favoriteRecord ? "Already in Favorites" : "Add to Favorites"}
+            </button>
+
+            {favoriteMessage && (
+              <p className="status-message">{favoriteMessage}</p>
             )}
           </div>
         </section>

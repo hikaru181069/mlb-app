@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import FavoritePlayerCard from "../components/FavoritePlayerCard";
-import { API_URL } from "../utils/apiConfig";
 import { getAuthToken } from "../utils/authStorage";
+import {
+  deleteFavorite,
+  getFavorites,
+  updateFavorite,
+} from "../services/api/favoriteApi";
 
 function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
@@ -21,16 +25,7 @@ function FavoritesPage() {
         setLoading(true);
         setErrorMessage("");
 
-        const response = await fetch(`${API_URL}/api/favorites`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to load favorites.");
-        }
+        const data = await getFavorites(token);
 
         setFavorites(data);
       } catch (error) {
@@ -49,19 +44,7 @@ function FavoritesPage() {
     try {
       setErrorMessage("");
 
-      const response = await fetch(`${API_URL}/api/favorites/${favoriteId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updateData),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update favorite.");
-      }
+      const data = await updateFavorite(favoriteId, updateData, token);
 
       setFavorites((currentFavorites) =>
         currentFavorites.map((favorite) =>
@@ -86,17 +69,7 @@ function FavoritesPage() {
     try {
       setErrorMessage("");
 
-      const response = await fetch(`${API_URL}/api/favorites/${favoriteId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to delete favorite.");
-      }
+      await deleteFavorite(favoriteId, token);
 
       setFavorites((currentFavorites) =>
         currentFavorites.filter((favorite) => favorite._id !== favoriteId),

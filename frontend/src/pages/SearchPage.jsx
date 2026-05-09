@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
-import { API_URL } from "../utils/apiConfig";
 import { getAuthToken } from "../utils/authStorage";
+import { getFavorites } from "../services/api/favoriteApi";
+import { searchExternalPlayers as fetchExternalPlayers } from "../services/api/externalPlayerApi";
 
 function SearchPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const keyword = searchParams.get("keyword") || "";
   const [searchText, setSearchText] = useState(keyword);
   const [players, setPlayers] = useState([]);
@@ -16,7 +16,7 @@ function SearchPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
 
-  const searchExternalPlayers = async (nextSearchText) => {
+  const handleSearchExternalPlayers = async (nextSearchText) => {
     if (!nextSearchText.trim()) {
       setPlayers([]);
       setErrorMessage("Please enter a player name.");
@@ -28,26 +28,9 @@ function SearchPage() {
       setLoading(true);
       setErrorMessage("");
 
-      const response = await fetch(
-        `${API_URL}/api/external/players/search?q=${encodeURIComponent(
-          nextSearchText,
-        )}`,
-      );
       const token = getAuthToken();
-      const savedPlayersResponse = await fetch(`${API_URL}/api/favorites`, {
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      const data = await response.json();
-      const savedPlayersData = savedPlayersResponse.ok
-        ? await savedPlayersResponse.json()
-        : [];
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to search external players.");
-      }
+      const data = await fetchExternalPlayers(nextSearchText);
+      const savedPlayersData = token ? await getFavorites(token) : [];
 
       setPlayers(data);
       setSavedPlayers(savedPlayersData);
@@ -63,48 +46,13 @@ function SearchPage() {
 
   useEffect(() => {
     if (keyword) {
-      searchExternalPlayers(keyword);
+      handleSearchExternalPlayers(keyword);
     }
   }, [keyword]);
 
   const handleSearch = (event) => {
     event.preventDefault();
-    searchExternalPlayers(searchText);
-  };
-
-  const handleAddToFavorites = (player) => {
-    const normalizedPosition =
-      player.position === "Two-Way Player"
-        ? "Designated Hitter"
-        : player.position;
-
-    navigate("/players/new", {
-      state: {
-        externalPlayer: {
-          name: player.name,
-          team: player.team || "Unknown",
-          position: normalizedPosition === "Unknown" ? "" : normalizedPosition,
-          image: player.image,
-          externalId: player.externalId,
-          playerType: player.playerType,
-          hitterStats: player.hitterStats || {
-            battingAverage: "",
-            homeRuns: "",
-            rbis: "",
-          },
-          pitcherStats: player.pitcherStats || {
-            era: "",
-            strikeouts: "",
-            inningsPitched: "",
-          },
-          currentSeasonStats: player.currentSeasonStats,
-          careerStats: player.careerStats,
-          recentGames: player.recentGames || [],
-          baseballSavantUrl: player.baseballSavantUrl || "",
-          source: "MLB Stats API",
-        },
-      },
-    });
+    handleSearchExternalPlayers(searchText);
   };
 
   const isAlreadySaved = (player) => {
@@ -161,7 +109,6 @@ function SearchPage() {
               key={player.externalId}
               player={player}
               alreadySaved={alreadySaved}
-              handleAddToFavorites={handleAddToFavorites}
             />
           );
         })}
