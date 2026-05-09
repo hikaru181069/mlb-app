@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import PlayerStats from "./PlayerStats";
 
-function ExternalPlayerCard({ player, alreadySaved }) {
+function ExternalPlayerCard({ player, alreadySaved, detailState }) {
+  const detailPath = `/players/${player.externalId}`;
+
   return (
     <article className="player-card">
-      <Link className="player-card-link" to={`/players/${player.externalId}`}>
+      <Link className="player-card-link" to={detailPath} state={detailState}>
         {player.image && (
           <img className="player-image" src={player.image} alt={player.name} />
         )}
@@ -19,12 +21,22 @@ function ExternalPlayerCard({ player, alreadySaved }) {
         <p>Height: {player.height || "Unknown"}</p>
         <p>Weight: {player.weight || "Unknown"}</p>
         <p>MLB Debut: {player.mlbDebutDate || "Unknown"}</p>
+        {player.playerType && <p>Type: {player.playerType}</p>}
+        {typeof player.active === "boolean" && (
+          <p>{player.active ? "Active roster player" : "Inactive player"}</p>
+        )}
+        {player.recommendationReasons?.length > 0 && (
+          <p className="external-note">
+            {player.recommendationReasons.slice(0, 2).join(" / ")}
+          </p>
+        )}
         <PlayerStats player={player} />
       </Link>
 
       <Link
         className="add-player-link mt-4 inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-        to={`/players/${player.externalId}`}
+        to={detailPath}
+        state={detailState}
       >
         View Detail
       </Link>

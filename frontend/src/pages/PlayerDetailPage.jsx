@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AppNav from "../components/AppNav";
 import PlayerStats from "../components/PlayerStats";
@@ -16,6 +16,7 @@ import {
 
 function PlayerDetailPage() {
   const { playerId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const [player, setPlayer] = useState(null);
   const [similarPlayers, setSimilarPlayers] = useState([]);
@@ -25,6 +26,8 @@ function PlayerDetailPage() {
   const [loading, setLoading] = useState(false);
 
   const token = getAuthToken();
+  const backPath = location.state?.from || "/";
+  const backLabel = location.state?.fromLabel || "Back to Home";
 
   useEffect(() => {
     const fetchPlayer = async () => {
@@ -165,13 +168,15 @@ function PlayerDetailPage() {
       <AppNav />
 
       <div className="detail-actions">
-        <Link className="back-link" to="/">
-          ← Back to Home
+        <Link className="back-link" to={backPath}>
+          ← {backLabel}
         </Link>
 
-        <Link className="back-link" to="/search">
-          Search Players
-        </Link>
+        {backPath !== "/search" && (
+          <Link className="back-link" to="/search">
+            Search Players
+          </Link>
+        )}
       </div>
 
       <div className="player-detail mx-auto mt-8 w-full max-w-4xl">

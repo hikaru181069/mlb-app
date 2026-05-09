@@ -22,6 +22,12 @@ function PlayerCard({ player }) {
       <p>Team: {team}</p>
       <p>Position: {position}</p>
       {player.shortBio && <p>{player.shortBio}</p>}
+      {player.reason && <p className="external-note">{player.reason}</p>}
+      {player.recommendationReasons?.length > 0 && (
+        <p className="external-note">
+          {player.recommendationReasons.slice(0, 2).join(" / ")}
+        </p>
+      )}
 
       <PlayerStats player={player} />
     </Link>

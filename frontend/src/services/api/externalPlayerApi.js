@@ -38,3 +38,16 @@ export const getExternalPlayersByTeam = async (teamId) => {
 
   return data;
 };
+
+export const getRecommendedPlayersByTeam = async (teamId) => {
+  const response = await fetch(
+    `${API_URL}/api/external/players/team/${teamId}/recommended`,
+  );
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to load recommended team players.");
+  }
+
+  return data;
+};

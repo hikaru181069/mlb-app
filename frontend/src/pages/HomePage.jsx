@@ -209,7 +209,9 @@ function HomePage() {
         <section className="home-player-section">
           <div className="section-heading">
             <h2>Recommended For You</h2>
-            <p>Simple Express recommendations based on team and favorites.</p>
+            <p>
+              Recommended from your favorite team, current stats, and saved players.
+            </p>
           </div>
           {renderPlayerGrid(
             recommendations,

@@ -2,7 +2,7 @@ const FavoritePlayer = require("../models/FavoritePlayer");
 const User = require("../models/User");
 const {
   fetchExternalPlayers,
-  fetchExternalPlayersByTeam,
+  fetchRecommendedPlayersByTeam,
 } = require("./mlbApiService");
 
 const fallbackPlayers = [
@@ -40,6 +40,9 @@ const formatRecommendation = (player, reason) => {
     hitterStats: player.hitterStats,
     pitcherStats: player.pitcherStats,
     currentSeasonStats: player.currentSeasonStats,
+    active: player.active,
+    recommendationScore: player.recommendationScore,
+    recommendationReasons: player.recommendationReasons,
     source: "Recommendation",
     reason,
   };
@@ -52,7 +55,8 @@ const addUniqueRecommendations = ({
   reason,
 }) => {
   for (const candidate of candidates) {
-    const playerId = candidate.externalId || candidate.mlbPlayerId || candidate.playerId;
+    const playerId =
+      candidate.externalId || candidate.mlbPlayerId || candidate.playerId;
 
     if (!playerId || existingIds.has(Number(playerId))) {
       continue;
@@ -84,7 +88,15 @@ const getRecommendationsForUser = async (userId) => {
 
   if (user?.favoriteTeam?.id) {
     try {
-      const teamPlayers = await fetchExternalPlayersByTeam(user.favoriteTeam.id);
+      const teamPlayers = await fetchRecommendedPlayersByTeam(
+        user.favoriteTeam.id,
+        {
+          limit: 3,
+          hitterLimit: 2,
+          pitcherLimit: 1,
+          excludePlayerIds: [...favoriteIds],
+        },
+      );
 
       addUniqueRecommendations({
         candidates: teamPlayers,

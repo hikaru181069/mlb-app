@@ -4,7 +4,7 @@ import AppNav from "../components/AppNav";
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
 import { completeOnboarding, getCurrentUser } from "../services/api/userApi";
 import { createFavoritesBulk } from "../services/api/favoriteApi";
-import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
+import { getRecommendedPlayersByTeam } from "../services/api/externalPlayerApi";
 import {
   getAuthToken,
   markOnboardingCompleted,
@@ -37,7 +37,7 @@ function OnboardingFavoritesPage() {
           return;
         }
 
-        const teamPlayers = await getExternalPlayersByTeam(
+        const teamPlayers = await getRecommendedPlayersByTeam(
           currentUser.favoriteTeam.id,
         );
 
@@ -104,7 +104,9 @@ function OnboardingFavoritesPage() {
 
       <h1>Choose Favorite Players</h1>
       <p className="status-message">
-        Choose at least 3 players from {user?.favoriteTeam?.name || "your team"}.
+        Choose recommended players from {user?.favoriteTeam?.name || "your team"}.
+        We prioritize active players, current stats, stars, and a hitter/pitcher balance.
+        Select at least 3 players that interest you.
       </p>
 
       {loading && <p className="status-message">Loading...</p>}
@@ -125,7 +127,14 @@ function OnboardingFavoritesPage() {
               className={`selectable-player ${selected ? "selected" : ""}`}
               key={player.externalId}
             >
-              <ExternalPlayerCard player={player} alreadySaved={selected} />
+              <ExternalPlayerCard
+                player={player}
+                alreadySaved={selected}
+                detailState={{
+                  from: "/onboarding/favorites",
+                  fromLabel: "Back to Onboarding",
+                }}
+              />
               <button
                 className="add-player-link"
                 type="button"
