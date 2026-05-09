@@ -20,7 +20,9 @@ export const getFavorites = async (token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to load favorites.");
+    const error = new Error(data.message || "Failed to load favorites.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -35,7 +37,9 @@ export const createFavorite = async (player, token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to add favorite.");
+    const error = new Error(data.message || "Failed to add favorite.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -52,7 +56,9 @@ export const createFavoritesBulk = async (players, token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to add favorites.");
+    const error = new Error(data.message || "Failed to add favorites.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -67,7 +73,9 @@ export const updateFavorite = async (favoriteId, updateData, token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to update favorite.");
+    const error = new Error(data.message || "Failed to update favorite.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -83,7 +91,9 @@ export const deleteFavorite = async (favoriteId, token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to delete favorite.");
+    const error = new Error(data.message || "Failed to delete favorite.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;

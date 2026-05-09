@@ -86,12 +86,18 @@ function AddPlayerPage() {
         ← Back to favorites
       </Link>
 
-      <h1>Add to Favorites</h1>
+      <h1>Add Favorite Manually</h1>
 
       {externalPlayer?.source && (
         <p className="status-message">
           Imported from {externalPlayer.source}. You can edit stats before
           saving this favorite.
+        </p>
+      )}
+      {!externalPlayer && (
+        <p className="status-message">
+          This page is mainly kept for admin-style testing. The recommended flow
+          is Search → Detail → Add to Favorites.
         </p>
       )}
 

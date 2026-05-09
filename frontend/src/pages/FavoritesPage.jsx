@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import FavoritePlayerCard from "../components/FavoritePlayerCard";
-import { getAuthToken } from "../utils/authStorage";
+import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import {
   deleteFavorite,
   getFavorites,
   updateFavorite,
 } from "../services/api/favoriteApi";
+import {
+  getApiErrorMessage,
+  isUnauthorizedError,
+} from "../services/api/apiError";
 
 function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
@@ -30,8 +34,14 @@ function FavoritesPage() {
         setFavorites(data);
       } catch (error) {
         console.error("Fetch favorites error:", error);
+        if (isUnauthorizedError(error)) {
+          clearAuthData();
+          setErrorMessage("Your login session expired. Please login again.");
+          return;
+        }
+
         setFavorites([]);
-        setErrorMessage("Failed to load favorites.");
+        setErrorMessage(getApiErrorMessage(error, "Failed to load favorites."));
       } finally {
         setLoading(false);
       }
@@ -53,7 +63,7 @@ function FavoritesPage() {
       );
     } catch (error) {
       console.error("Update favorite error:", error);
-      setErrorMessage("Failed to update favorite.");
+      setErrorMessage(getApiErrorMessage(error, "Failed to update favorite."));
     }
   };
 
@@ -76,7 +86,7 @@ function FavoritesPage() {
       );
     } catch (error) {
       console.error("Delete favorite error:", error);
-      setErrorMessage("Failed to delete favorite.");
+      setErrorMessage(getApiErrorMessage(error, "Failed to delete favorite."));
     }
   };
 

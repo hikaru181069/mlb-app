@@ -121,7 +121,11 @@ function EditPlayerPage() {
         ← Back to detail
       </Link>
 
-      <h1>Edit Player</h1>
+      <h1>Edit Legacy Player</h1>
+      <p className="status-message">
+        This page edits manually stored player data. Favorites are managed from
+        the Favorites page.
+      </p>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 

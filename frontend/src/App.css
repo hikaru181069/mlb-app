@@ -183,8 +183,8 @@ input {
 }
 
 .player-image {
-  width: 300px;
-  height: 400px;
+  width: min(100%, 260px);
+  height: 340px;
   object-fit: cover;
   display: block;
   margin: 0 auto 20px;
@@ -198,6 +198,12 @@ input {
   padding-top: 14px;
   border-top: 1px solid var(--ctp-surface1);
   text-align: center;
+}
+
+.player-card .add-player-link,
+.player-card .back-link {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .status-message {
@@ -1003,4 +1009,39 @@ button:disabled,
 
 .reset-button:hover {
   background-color: var(--ctp-surface2);
+}
+
+@media (max-width: 640px) {
+  .app,
+  .home-page {
+    margin: 16px auto;
+    padding: 16px;
+  }
+
+  .home-hero,
+  .home-player-section,
+  .player-detail,
+  .player-card {
+    padding: 18px;
+  }
+
+  .player-list {
+    grid-template-columns: 1fr;
+  }
+
+  .player-image {
+    width: min(100%, 220px);
+    height: 280px;
+  }
+
+  .detail-image {
+    width: min(100%, 220px);
+    height: 220px;
+  }
+
+  .home-actions,
+  .detail-actions,
+  .top-actions {
+    justify-content: center;
+  }
 }

@@ -131,8 +131,11 @@ function PlayersPage() {
         )}
       </div>
 
-      <h1>MLB Player Search App</h1>
-      <p className="description">Search by player name, team, or position</p>
+      <h1>Legacy Player Data</h1>
+      <p className="description">
+        Admin-style test area for manually stored MongoDB players. The main app
+        flow uses Search, Player Detail, and Favorites.
+      </p>
 
       {token && userName && (
         <p className="status-message">Logged in as {userName}</p>
@@ -144,7 +147,7 @@ function PlayersPage() {
             className="add-player-link inline-flex items-center justify-center transition duration-200 hover:-translate-y-0.5"
             to="/players/new"
           >
-            Add Player
+            Add Manual Player
           </Link>
         ) : (
           <Link

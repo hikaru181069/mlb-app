@@ -9,7 +9,9 @@ export const searchExternalPlayers = async (searchText) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to search external players.");
+    const error = new Error(data.message || "Failed to search external players.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -20,7 +22,9 @@ export const getExternalPlayerDetail = async (mlbPlayerId) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to load external player.");
+    const error = new Error(data.message || "Failed to load external player.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -33,7 +37,9 @@ export const getExternalPlayersByTeam = async (teamId) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to load team players.");
+    const error = new Error(data.message || "Failed to load team players.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -46,7 +52,11 @@ export const getRecommendedPlayersByTeam = async (teamId) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to load recommended team players.");
+    const error = new Error(
+      data.message || "Failed to load recommended team players.",
+    );
+    error.status = response.status;
+    throw error;
   }
 
   return data;

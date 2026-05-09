@@ -40,7 +40,9 @@ function LoginPage() {
     } catch (error) {
       console.error("Login error:", error);
       setSuccessMessage("");
-      setErrorMessage(error.message || "Failed to login.");
+      setErrorMessage(
+        error.message || "Failed to login. Please check your email and password.",
+      );
     }
   };
   if (token) {

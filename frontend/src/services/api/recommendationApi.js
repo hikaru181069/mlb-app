@@ -13,7 +13,9 @@ export const getRecommendations = async (token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to load recommendations.");
+    const error = new Error(data.message || "Failed to load recommendations.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;

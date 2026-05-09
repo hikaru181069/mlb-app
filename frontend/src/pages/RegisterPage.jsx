@@ -33,7 +33,9 @@ function RegisterPage() {
       navigate("/onboarding/team");
     } catch (error) {
       console.error("Register error:", error);
-      setErrorMessage(error.message || "Failed to register.");
+      setErrorMessage(
+        error.message || "Failed to register. Please check your input.",
+      );
     }
   };
 

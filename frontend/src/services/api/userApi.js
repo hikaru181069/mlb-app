@@ -16,7 +16,9 @@ export const getCurrentUser = async (token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to load user.");
+    const error = new Error(data.message || "Failed to load user.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -31,7 +33,9 @@ export const updateFavoriteTeam = async (favoriteTeam, token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to update favorite team.");
+    const error = new Error(data.message || "Failed to update favorite team.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -45,7 +49,9 @@ export const completeOnboarding = async (token) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to complete onboarding.");
+    const error = new Error(data.message || "Failed to complete onboarding.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;

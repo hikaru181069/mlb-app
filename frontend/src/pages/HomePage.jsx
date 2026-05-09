@@ -6,7 +6,11 @@ import { getFavorites } from "../services/api/favoriteApi";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
 import { getRecommendations } from "../services/api/recommendationApi";
 import { getCurrentUser } from "../services/api/userApi";
-import { getAuthToken } from "../utils/authStorage";
+import { clearAuthData, getAuthToken } from "../utils/authStorage";
+import {
+  getApiErrorMessage,
+  isUnauthorizedError,
+} from "../services/api/apiError";
 
 function HomePage() {
   const [searchText, setSearchText] = useState("");
@@ -45,7 +49,15 @@ function HomePage() {
         }
       } catch (error) {
         console.error("Home personalization error:", error);
-        setErrorMessage("Failed to load personalized home data.");
+        if (isUnauthorizedError(error)) {
+          clearAuthData();
+          setErrorMessage("Your login session expired. Please login again.");
+          return;
+        }
+
+        setErrorMessage(
+          getApiErrorMessage(error, "Failed to load personalized home data."),
+        );
       } finally {
         setLoading(false);
       }
