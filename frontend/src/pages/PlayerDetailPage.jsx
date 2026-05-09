@@ -157,6 +157,12 @@ function PlayerDetailPage() {
     pitcherStats: player.careerStats?.pitcherStats,
   };
   const recentGames = player.recentGames || [];
+  const displayName = player.fullName || player.name;
+  const displayTeam =
+    player.team && player.team !== "Unknown" ? player.team : player.teamName;
+  const displayImage = player.imageUrl || player.image;
+  const hasCareerStats =
+    careerStats.hitterStats || careerStats.pitcherStats;
 
   return (
     <div className="app">
@@ -185,57 +191,94 @@ function PlayerDetailPage() {
       </div>
 
       <div className="player-detail mx-auto mt-8 w-full max-w-4xl">
-        {(player.imageUrl || player.image) && (
-          <img
-            className="detail-image transition duration-200 hover:scale-[1.02]"
-            src={player.imageUrl || player.image}
-            alt={player.fullName || player.name}
-          />
+        <section className="detail-hero">
+          {displayImage && (
+            <img
+              className="detail-image transition duration-200 hover:scale-[1.02]"
+              src={displayImage}
+              alt={displayName}
+            />
+          )}
+
+          <div className="detail-hero-copy">
+            {player.source && player.source !== "Manual" && (
+              <p className="source-badge">{player.source}</p>
+            )}
+            <h1>{displayName}</h1>
+            <div className="detail-meta-grid">
+              <p>
+                <span>Team</span>
+                {displayTeam || "Unknown"}
+              </p>
+              <p>
+                <span>Position</span>
+                {player.position || "Unknown"}
+              </p>
+              <p>
+                <span>Player Type</span>
+                {player.playerType || "Unknown"}
+              </p>
+            </div>
+            {player.shortBio && <p className="detail-bio">{player.shortBio}</p>}
+
+            {player.baseballSavantUrl && (
+              <a
+                className="back-link"
+                href={player.baseballSavantUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on Baseball Savant
+              </a>
+            )}
+          </div>
+        </section>
+
+        {(player.note || player.favoriteReason) && (
+          <section className="detail-section favorite-note-section">
+            <h2>My Favorite Memo</h2>
+            {player.note && (
+              <p>
+                <strong>Note:</strong> {player.note}
+              </p>
+            )}
+            {player.favoriteReason && (
+              <p>
+                <strong>Reason:</strong> {player.favoriteReason}
+              </p>
+            )}
+          </section>
         )}
 
-        <div className="space-y-3">
-          <h1>{player.fullName || player.name}</h1>
-          {player.source && player.source !== "Manual" && (
-            <p className="source-badge">{player.source}</p>
-          )}
-          <p>Team: {player.teamName || player.team}</p>
-          <p>Position: {player.position}</p>
-          {player.shortBio && <p>{player.shortBio}</p>}
-
+        <section className="detail-section">
           <h2>Current Season Stats</h2>
           <PlayerStats player={currentSeasonStats} />
+        </section>
 
+        <section className="detail-section">
           <h2>Last 5 Games</h2>
           {recentGames.length > 0 ? (
             <div className="recent-games">
               {recentGames.map((game) => (
                 <p key={`${game.date}-${game.opponent}`}>
-                  {game.date} vs {game.opponent}: {game.summary} ({game.result})
+                  <span>{game.date}</span>
+                  vs {game.opponent}: {game.summary} ({game.result})
                 </p>
               ))}
             </div>
           ) : (
             <p>Recent game stats will be added later.</p>
           )}
+        </section>
 
+        <section className="detail-section">
           <h2>Career Stats</h2>
-          <PlayerStats player={careerStats} />
-
-          {player.baseballSavantUrl && (
-            <a
-              className="back-link"
-              href={player.baseballSavantUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              View on Baseball Savant
-            </a>
+          {hasCareerStats ? (
+            <PlayerStats player={careerStats} />
+          ) : (
+            <p>Career stats will be added later.</p>
           )}
-
-          <button className="add-player-link" type="button">
-            Add to Favorites
-          </button>
-        </div>
+        </section>
       </div>
 
       <section className="similar-players">

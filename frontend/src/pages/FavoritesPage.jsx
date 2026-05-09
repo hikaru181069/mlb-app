@@ -117,7 +117,7 @@ function FavoritesPage() {
 
       <h1>Favorites</h1>
       <p className="description">
-        Your favorite players will be saved in MongoDB here.
+        Manage your saved MLB players, notes, reasons, and tags.
       </p>
 
       {!token && (
@@ -131,7 +131,28 @@ function FavoritesPage() {
         <p className="status-message">No favorites yet.</p>
       )}
 
-      <div className="player-list">
+      {token && favorites.length > 0 && (
+        <section className="favorites-summary">
+          <div>
+            <span className="summary-number">{favorites.length}</span>
+            <p>Saved Players</p>
+          </div>
+          <div>
+            <span className="summary-number">
+              {favorites.filter((favorite) => favorite.note).length}
+            </span>
+            <p>Players With Notes</p>
+          </div>
+          <div>
+            <span className="summary-number">
+              {favorites.filter((favorite) => favorite.favoriteReason).length}
+            </span>
+            <p>Players With Reasons</p>
+          </div>
+        </section>
+      )}
+
+      <div className="favorite-list">
         {favorites.map((favorite) => (
           <FavoritePlayerCard
             key={favorite._id}

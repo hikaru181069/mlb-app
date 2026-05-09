@@ -35,30 +35,61 @@ function FavoritePlayerCard({
     });
   };
 
+  const tags = favorite.tags || [];
+
   return (
     <article className="player-card favorite-card">
-      {favorite.imageUrl && (
-        <img
-          className="player-image"
-          src={favorite.imageUrl}
-          alt={favorite.fullName}
-        />
+      <div className="favorite-card-main">
+        {favorite.imageUrl && (
+          <img
+            className="player-image favorite-image"
+            src={favorite.imageUrl}
+            alt={favorite.fullName}
+          />
+        )}
+
+        <div className="favorite-card-info">
+          <p className="source-badge">{favorite.source || "MLB API"}</p>
+          <h2>{favorite.fullName}</h2>
+          <p>Team: {favorite.teamName}</p>
+          <p>Position: {favorite.position}</p>
+
+          {tags.length > 0 && (
+            <div className="tag-list">
+              {tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </div>
+          )}
+
+          <Link
+            className="back-link favorite-detail-link"
+            to={`/players/${favorite._id}`}
+          >
+            View Detail
+          </Link>
+        </div>
+      </div>
+
+      <section className="favorite-card-section">
+        <h3>Current Season Stats</h3>
+        <PlayerStats player={favorite} />
+      </section>
+
+      {(favorite.note || favorite.favoriteReason) && (
+        <section className="favorite-card-section favorite-memo-preview">
+          {favorite.note && (
+            <p>
+              <strong>Note:</strong> {favorite.note}
+            </p>
+          )}
+          {favorite.favoriteReason && (
+            <p>
+              <strong>Reason:</strong> {favorite.favoriteReason}
+            </p>
+          )}
+        </section>
       )}
-
-      <h2>{favorite.fullName}</h2>
-      <p className="source-badge">{favorite.source}</p>
-      <p>Team: {favorite.teamName}</p>
-      <p>Position: {favorite.position}</p>
-
-      <h3>Current Season Stats</h3>
-      <PlayerStats player={favorite} />
-
-      <Link
-        className="back-link favorite-detail-link"
-        to={`/players/${favorite._id}`}
-      >
-        View Detail
-      </Link>
 
       <form className="favorite-edit-form" onSubmit={handleSubmit}>
         <label>

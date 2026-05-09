@@ -5,3 +5,5 @@ backend/node_modules
 backend/.env
 frontend/dist
 frontend/public/images
+memo.txt
+.DS_Store
