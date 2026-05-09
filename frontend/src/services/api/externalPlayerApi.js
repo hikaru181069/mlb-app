@@ -28,7 +28,7 @@ export const getExternalPlayerDetail = async (mlbPlayerId) => {
 
 export const getExternalPlayersByTeam = async (teamId) => {
   const response = await fetch(
-    `${API_URL}/api/external/players/teams/${teamId}/players`,
+    `${API_URL}/api/external/players/team/${teamId}`,
   );
   const data = await response.json();
 
