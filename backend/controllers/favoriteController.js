@@ -36,6 +36,47 @@ const createFavorite = async (req, res) => {
   }
 };
 
+const createManyFavorites = async (req, res) => {
+  try {
+    const { players } = req.body;
+
+    if (!Array.isArray(players) || players.length === 0) {
+      return res.status(400).json({ message: "Players are required" });
+    }
+
+    const favorites = [];
+
+    for (const player of players) {
+      const favorite = await FavoritePlayer.findOneAndUpdate(
+        {
+          user: req.user._id,
+          mlbPlayerId: player.mlbPlayerId,
+        },
+        {
+          ...player,
+          user: req.user._id,
+        },
+        {
+          new: true,
+          runValidators: true,
+          setDefaultsOnInsert: true,
+          upsert: true,
+        },
+      );
+
+      favorites.push(favorite);
+    }
+
+    res.status(201).json(favorites);
+  } catch (error) {
+    console.error("Create many favorites error:", error.message);
+    res.status(400).json({
+      message: "Failed to create favorites",
+      error: error.message,
+    });
+  }
+};
+
 const updateFavorite = async (req, res) => {
   try {
     const favorite = await FavoritePlayer.findOneAndUpdate(
@@ -83,6 +124,7 @@ const deleteFavorite = async (req, res) => {
 };
 
 module.exports = {
+  createManyFavorites,
   getFavorites,
   createFavorite,
   updateFavorite,

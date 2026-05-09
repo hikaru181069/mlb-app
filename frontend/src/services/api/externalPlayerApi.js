@@ -25,3 +25,16 @@ export const getExternalPlayerDetail = async (mlbPlayerId) => {
 
   return data;
 };
+
+export const getExternalPlayersByTeam = async (teamId) => {
+  const response = await fetch(
+    `${API_URL}/api/external/players/teams/${teamId}/players`,
+  );
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to load team players.");
+  }
+
+  return data;
+};

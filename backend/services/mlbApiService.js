@@ -1,6 +1,7 @@
 const MLB_PLAYER_SEARCH_URL =
   "https://statsapi.mlb.com/api/v1/people/search";
 const MLB_PLAYER_STATS_URL = "https://statsapi.mlb.com/api/v1/people";
+const MLB_TEAM_URL = "https://statsapi.mlb.com/api/v1/teams";
 const CURRENT_SEASON = new Date().getFullYear().toString();
 
 const buildPlayerHeadshotUrl = (playerId) => {
@@ -166,7 +167,39 @@ const fetchExternalPlayerFullDetails = async (playerId) => {
   };
 };
 
+const fetchExternalPlayersByTeam = async (teamId) => {
+  const response = await fetch(`${MLB_TEAM_URL}/${teamId}/roster`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch team roster from MLB API");
+  }
+
+  const data = await response.json();
+  const roster = data.roster || [];
+  const firstPlayers = roster.slice(0, 12);
+
+  return Promise.all(
+    firstPlayers.map(async (rosterPlayer) => {
+      const detailedPlayer =
+        (await fetchExternalPlayerDetails(rosterPlayer.person.id)) ||
+        rosterPlayer.person;
+      const player = formatExternalPlayer(detailedPlayer);
+      const seasonStats = await fetchExternalPlayerStats({
+        playerId: player.externalId,
+      });
+      const formattedSeasonStats = formatExternalStats(seasonStats);
+
+      return {
+        ...player,
+        ...formattedSeasonStats,
+        currentSeasonStats: formattedSeasonStats,
+      };
+    }),
+  );
+};
+
 module.exports = {
+  fetchExternalPlayersByTeam,
   fetchExternalPlayers,
   fetchExternalPlayerFullDetails,
 };

@@ -7,6 +7,8 @@ const playerRoutes = require("./routes/playerRoutes");
 const authRoutes = require("./routes/authRoutes");
 const externalPlayerRoutes = require("./routes/externalPlayerRoutes");
 const favoriteRoutes = require("./routes/favoriteRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 dotenv.config();
 connectDB();
@@ -30,6 +32,8 @@ app.use("/api/players", playerRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/external/players", externalPlayerRoutes);
 app.use("/api/favorites", favoriteRoutes);
+app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend server is running");

@@ -6,7 +6,7 @@ import {
   getAuthUserName,
   saveAuthData,
 } from "../utils/authStorage";
-import { API_URL } from "../utils/apiConfig";
+import { loginUser } from "../services/api/authApi";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,34 +30,17 @@ function LoginPage() {
     event.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setSuccessMessage("");
-        setErrorMessage(data.message || "Failed to login.");
-        return;
-      }
+      const data = await loginUser({ email, password });
 
       saveAuthData(data);
 
       setErrorMessage("");
       setSuccessMessage("Login successful.");
-      navigate("/players");
+      navigate(data.hasCompletedOnboarding ? "/" : "/onboarding/team");
     } catch (error) {
       console.error("Login error:", error);
       setSuccessMessage("");
-      setErrorMessage("Failed to login.");
+      setErrorMessage(error.message || "Failed to login.");
     }
   };
   if (token) {
@@ -70,8 +53,8 @@ function LoginPage() {
         <h1>Already logged in</h1>
         <p className="status-message">Logged in as {userName || "user"}</p>
 
-        <Link className="add-player-link" to="/players">
-          Go to Players
+        <Link className="add-player-link" to="/">
+          Go to Home
         </Link>
 
         <button className="delete-button" type="button" onClick={handleLogout}>

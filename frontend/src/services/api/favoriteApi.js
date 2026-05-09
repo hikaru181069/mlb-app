@@ -41,6 +41,23 @@ export const createFavorite = async (player, token) => {
   return data;
 };
 
+export const createFavoritesBulk = async (players, token) => {
+  const response = await fetch(`${API_URL}/api/favorites/bulk`, {
+    method: "POST",
+    headers: createAuthHeaders(token),
+    body: JSON.stringify({
+      players: players.map(createFavoriteRequestBody),
+    }),
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to add favorites.");
+  }
+
+  return data;
+};
+
 export const updateFavorite = async (favoriteId, updateData, token) => {
   const response = await fetch(`${API_URL}/api/favorites/${favoriteId}`, {
     method: "PUT",

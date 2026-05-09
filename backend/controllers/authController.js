@@ -2,6 +2,29 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
+const createToken = (userId) => {
+  return jwt.sign(
+    {
+      userId,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "7d",
+    },
+  );
+};
+
+const createAuthResponse = (user) => {
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    favoriteTeam: user.favoriteTeam,
+    hasCompletedOnboarding: user.hasCompletedOnboarding,
+    token: createToken(user._id),
+  };
+};
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -20,11 +43,7 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-    });
+    res.status(201).json(createAuthResponse(user));
   } catch (error) {
     console.error("Register user error:", error.message);
     res.status(500).json({ message: "Failed to register user" });
@@ -47,22 +66,7 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign(
-      {
-        userId: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      },
-    );
-
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token,
-    });
+    res.json(createAuthResponse(user));
   } catch (error) {
     console.error("Login user error:", error.message);
     res.status(500).json({ message: "Failed to login" });
