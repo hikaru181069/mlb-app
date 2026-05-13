@@ -1,6 +1,6 @@
 const {
   getRecommendationsForUser,
-} = require("../services/recommendationService");
+} = require("../services/recommendations");
 
 const getRecommendations = async (req, res) => {
   try {

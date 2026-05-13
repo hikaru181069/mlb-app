@@ -3,7 +3,7 @@ const {
   fetchExternalPlayersByTeam,
   fetchRecommendedPlayersByTeam,
   fetchExternalPlayers,
-} = require("../services/mlbApiService");
+} = require("../services/mlb");
 
 const searchExternalPlayers = async (req, res) => {
   try {
