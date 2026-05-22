@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import PlayerCard from "../components/PlayerCard";
+import SkeletonCard from "../components/SkeletonCard";
 import { getFavorites } from "../services/api/favoriteApi";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
 import { getRecommendations } from "../services/api/recommendationApi";
@@ -12,8 +13,9 @@ import {
   isUnauthorizedError,
 } from "../services/api/apiError";
 
+const SKELETON_COUNTS = { team: 4, favorites: 5, recommendations: 3 };
+
 function HomePage() {
-  const [searchText, setSearchText] = useState("");
   const [user, setUser] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [teamPlayers, setTeamPlayers] = useState([]);
@@ -25,9 +27,7 @@ function HomePage() {
 
   useEffect(() => {
     const fetchPersonalizedHome = async () => {
-      if (!token) {
-        return;
-      }
+      if (!token) return;
 
       try {
         setLoading(true);
@@ -56,7 +56,6 @@ function HomePage() {
           setErrorMessage("Your login session expired. Please login again.");
           return;
         }
-
         setErrorMessage(
           getApiErrorMessage(error, "Failed to load personalized home data."),
         );
@@ -68,18 +67,17 @@ function HomePage() {
     fetchPersonalizedHome();
   }, [token]);
 
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-
-    if (!searchText.trim()) {
-      navigate("/search");
-      return;
+  const renderPlayerGrid = (players, skeletonCount, emptyMessage, action) => {
+    if (loading) {
+      return (
+        <div className="player-list">
+          {Array.from({ length: skeletonCount }, (_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      );
     }
 
-    navigate(`/search?keyword=${encodeURIComponent(searchText)}`);
-  };
-
-  const renderPlayerGrid = (players, emptyMessage, action) => {
     if (players.length === 0) {
       return (
         <div className="home-empty-state">
@@ -101,6 +99,7 @@ function HomePage() {
     );
   };
 
+  // --- Guest view ---
   if (!token) {
     return (
       <div className="home-page px-6 py-16">
@@ -113,7 +112,6 @@ function HomePage() {
             Search MLB players, open player details, and build your own
             personalized favorite player list.
           </p>
-
           <div className="home-actions mt-7">
             <Link className="home-link" to="/login">
               Login
@@ -130,21 +128,23 @@ function HomePage() {
     );
   }
 
+  // --- Logged-in view ---
   return (
     <div className="home-page px-6 py-16">
-      <section className="home-hero w-full max-w-4xl px-8 py-12 md:px-14 md:py-16">
+      <section className="home-hero w-full max-w-4xl px-8 py-10 md:px-14 md:py-12">
         <p className="home-kicker text-sm">Personalized Home</p>
         <h1 className="text-4xl leading-tight font-black tracking-tight md:text-6xl">
           Welcome{user?.name ? `, ${user.name}` : ""}
         </h1>
-        <p className="home-description mt-6 text-base md:text-lg">
-          {user?.favoriteTeam?.name
-            ? `Your favorite team: ${user.favoriteTeam.name}`
-            : "Set your favorite team to personalize this page."}
-        </p>
+
+        {user?.favoriteTeam?.name && (
+          <p className="home-description mt-4 text-base md:text-lg">
+            ⚾&nbsp;{user.favoriteTeam.name}
+          </p>
+        )}
 
         {user && !user.hasCompletedOnboarding && (
-          <div className="home-onboarding-callout">
+          <div className="home-onboarding-callout mt-6">
             <strong>Onboarding is not complete yet.</strong>
             <p>Choose your favorite team and at least 3 favorite players.</p>
             <Link className="home-link" to="/onboarding/team">
@@ -153,36 +153,19 @@ function HomePage() {
           </div>
         )}
 
-        <form className="home-search-form" onSubmit={handleSearchSubmit}>
-          <input
-            type="text"
-            placeholder="Search players later..."
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-          />
-          <button className="home-link" type="submit">
-            Go to Search
-          </button>
-        </form>
-
         <div className="home-actions mt-7">
           <Link className="home-link" to="/search">
             Search Players
           </Link>
-
           <Link className="home-link secondary" to="/favorites">
             View Favorites
           </Link>
-
           <Link className="home-link secondary" to="/onboarding/team">
             Edit Preferences
           </Link>
         </div>
       </section>
 
-      {loading && (
-        <p className="status-message">Loading personalized data...</p>
-      )}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
@@ -197,6 +180,7 @@ function HomePage() {
           </div>
           {renderPlayerGrid(
             teamPlayers,
+            SKELETON_COUNTS.team,
             "No favorite team players loaded yet.",
             <Link className="home-link secondary" to="/onboarding/team">
               Choose Favorite Team
@@ -207,10 +191,11 @@ function HomePage() {
         <section className="home-player-section">
           <div className="section-heading">
             <h2>Your Favorite Players</h2>
-            <p>Players saved in MongoDB from Search, Detail, or Onboarding.</p>
+            <p>Players saved from Search, Detail, or Onboarding.</p>
           </div>
           {renderPlayerGrid(
             favorites,
+            SKELETON_COUNTS.favorites,
             "No favorite players yet.",
             <Link className="home-link secondary" to="/search">
               Search Players
@@ -228,6 +213,7 @@ function HomePage() {
           </div>
           {renderPlayerGrid(
             recommendations,
+            SKELETON_COUNTS.recommendations,
             "No recommendations yet.",
             <Link className="home-link secondary" to="/search">
               Find More Players

@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { clearAuthData, getAuthToken, getAuthUserName } from "../utils/authStorage";
+import {
+  clearAuthData,
+  getAuthToken,
+  getAuthUserName,
+} from "../utils/authStorage";
 
 const navLinkClass = ({ isActive }) =>
   [
@@ -33,17 +37,20 @@ function Navbar() {
   return (
     <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-ctp-surface1/50 bg-ctp-mantle/85 backdrop-blur-lg">
       <div className="mx-auto flex h-full max-w-6xl items-center gap-4 px-4 sm:px-6">
-
         {/* Logo */}
         <NavLink
           to="/"
-          className="flex-shrink-0 text-lg font-black tracking-tight text-ctp-lavender transition-colors hover:text-ctp-blue"
+          className="shrink-0 text-lg font-black tracking-tight text-ctp-lavender transition-colors hover:text-ctp-blue"
         >
           ⚾ MLB App
         </NavLink>
 
         {/* Search — sm以上で表示 */}
-        <form onSubmit={handleSearch} className="hidden flex-1 sm:flex" style={{ maxWidth: "18rem" }}>
+        <form
+          onSubmit={handleSearch}
+          className="hidden flex-1 sm:flex"
+          style={{ maxWidth: "18rem" }}
+        >
           <input
             type="text"
             value={searchText}
@@ -116,7 +123,6 @@ function Navbar() {
             </>
           )}
         </div>
-
       </div>
     </header>
   );
