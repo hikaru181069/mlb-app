@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import AppNav from "../components/AppNav";
+
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
 import { getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -67,8 +67,6 @@ function SearchPage() {
 
   return (
     <div className="app">
-      <AppNav />
-
       <h1>Search MLB Players</h1>
       <p className="description">
         Search player information from the MLB Stats API.

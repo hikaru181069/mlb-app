@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import AppNav from "../components/AppNav";
+
 import PlayerCard from "../components/PlayerCard";
 import { getFavorites } from "../services/api/favoriteApi";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
@@ -44,7 +44,9 @@ function HomePage() {
         setRecommendations(recommendedPlayers);
 
         if (currentUser.favoriteTeam?.id) {
-          const players = await getExternalPlayersByTeam(currentUser.favoriteTeam.id);
+          const players = await getExternalPlayersByTeam(
+            currentUser.favoriteTeam.id,
+          );
           setTeamPlayers(players.slice(0, 4));
         }
       } catch (error) {
@@ -102,8 +104,6 @@ function HomePage() {
   if (!token) {
     return (
       <div className="home-page px-6 py-16">
-        <AppNav />
-
         <section className="home-hero w-full max-w-4xl px-8 py-12 md:px-14 md:py-16">
           <p className="home-kicker text-sm">MERN Portfolio Project</p>
           <h1 className="text-4xl leading-tight font-black tracking-tight md:text-6xl">
@@ -132,8 +132,6 @@ function HomePage() {
 
   return (
     <div className="home-page px-6 py-16">
-      <AppNav />
-
       <section className="home-hero w-full max-w-4xl px-8 py-12 md:px-14 md:py-16">
         <p className="home-kicker text-sm">Personalized Home</p>
         <h1 className="text-4xl leading-tight font-black tracking-tight md:text-6xl">
@@ -182,7 +180,9 @@ function HomePage() {
         </div>
       </section>
 
-      {loading && <p className="status-message">Loading personalized data...</p>}
+      {loading && (
+        <p className="status-message">Loading personalized data...</p>
+      )}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
@@ -222,7 +222,8 @@ function HomePage() {
           <div className="section-heading">
             <h2>Recommended For You</h2>
             <p>
-              Recommended from your favorite team, current stats, and saved players.
+              Recommended from your favorite team, current stats, and saved
+              players.
             </p>
           </div>
           {renderPlayerGrid(

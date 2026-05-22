@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import AppNav from "../components/AppNav";
+
 import FavoritePlayerCard from "../components/FavoritePlayerCard";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import {
@@ -92,8 +92,6 @@ function FavoritesPage() {
 
   return (
     <div className="app">
-      <AppNav />
-
       <Link className="back-link" to="/">
         ← Back to Home
       </Link>

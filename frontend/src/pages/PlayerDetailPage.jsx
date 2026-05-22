@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import AppNav from "../components/AppNav";
+
 import PlayerStats from "../components/PlayerStats";
 import PlayerCard from "../components/PlayerCard";
 import { getAuthToken } from "../utils/authStorage";
@@ -165,8 +165,6 @@ function PlayerDetailPage() {
 
   return (
     <div className="app">
-      <AppNav />
-
       <div className="detail-actions">
         <Link className="back-link" to={backPath}>
           ← {backLabel}

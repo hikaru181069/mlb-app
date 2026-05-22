@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AppNav from "../components/AppNav";
+
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
 import { completeOnboarding, getCurrentUser } from "../services/api/userApi";
 import { createFavoritesBulk } from "../services/api/favoriteApi";
@@ -96,8 +96,6 @@ function OnboardingFavoritesPage() {
 
   return (
     <div className="app">
-      <AppNav />
-
       <Link className="back-link" to="/">
         ← Back to Home
       </Link>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AppNav from "../components/AppNav";
+
 import TeamCard from "../components/TeamCard";
 import { mlbTeams } from "../services/mlbTeams";
 import { updateFavoriteTeam } from "../services/api/userApi";
@@ -39,8 +39,6 @@ function OnboardingTeamPage() {
 
   return (
     <div className="app">
-      <AppNav />
-
       <Link className="back-link" to="/">
         ← Back to Home
       </Link>

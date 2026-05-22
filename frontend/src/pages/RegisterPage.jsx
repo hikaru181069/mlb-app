@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AppNav from "../components/AppNav";
+
 import { registerUser } from "../services/api/authApi";
 import { saveAuthData } from "../utils/authStorage";
 
@@ -41,8 +41,6 @@ function RegisterPage() {
 
   return (
     <div className="app">
-      <AppNav />
-
       <Link className="back-link" to="/">
         ← Back to Home
       </Link>
