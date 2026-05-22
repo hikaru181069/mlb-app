@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
+import SkeletonCard from "../components/SkeletonCard";
 import { getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
 import { searchExternalPlayers as fetchExternalPlayers } from "../services/api/externalPlayerApi";
@@ -60,56 +61,88 @@ function SearchPage() {
       if (savedPlayer.mlbPlayerId && player.externalId) {
         return savedPlayer.mlbPlayerId === player.externalId;
       }
-
       return savedPlayer.fullName.toLowerCase() === player.name.toLowerCase();
     });
   };
 
   return (
-    <div className="app">
-      <h1>Search MLB Players</h1>
-      <p className="description">
-        Search player information from the MLB Stats API.
-      </p>
+    <div className="home-page px-6 py-12">
 
-      <form className="search-form" onSubmit={handleSearch}>
-        <input
-          type="text"
-          placeholder="Search MLB player name"
-          value={searchText}
-          onChange={(event) => setSearchText(event.target.value)}
-        />
-
-        <button className="add-player-link" type="submit">
-          Search MLB API
-        </button>
-      </form>
-
-      {loading && <p className="status-message">Loading...</p>}
-      {!loading && errorMessage && (
-        <p className="error-message">{errorMessage}</p>
-      )}
-      {!loading && !errorMessage && players.length > 0 && (
-        <p className="status-message">
-          {players.length} {players.length === 1 ? "player" : "players"} found
+      {/* Search Hero */}
+      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
+        <p className="home-kicker text-sm">MLB Stats API</p>
+        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+          Search Players
+        </h1>
+        <p className="home-description mt-4 text-base">
+          Search any MLB player by name from the official Stats API.
         </p>
-      )}
-      {!loading && !errorMessage && hasSearched && players.length === 0 && (
-        <p className="status-message">No external players found.</p>
-      )}
 
-      <div className="player-list">
-        {players.map((player) => {
-          const alreadySaved = isAlreadySaved(player);
+        <form className="mt-6 flex w-full gap-3" onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="e.g. Shohei Ohtani"
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            style={{ margin: 0 }}
+            className="flex-1 rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-5 py-2.5 text-base text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
+          />
+          <button
+            className="home-link flex-shrink-0"
+            type="submit"
+            disabled={loading}
+          >
+            Search
+          </button>
+        </form>
+      </section>
 
-          return (
-            <ExternalPlayerCard
-              key={player.externalId}
-              player={player}
-              alreadySaved={alreadySaved}
-            />
-          );
-        })}
+      {/* Results */}
+      <div className="home-content mt-2">
+
+        {/* Status messages */}
+        {!loading && errorMessage && (
+          <p className="error-message">{errorMessage}</p>
+        )}
+
+        {!loading && !errorMessage && players.length > 0 && (
+          <p className="status-message">
+            <span className="count-badge" style={{ marginLeft: 0, marginRight: 8 }}>
+              {players.length}
+            </span>
+            {players.length === 1 ? "player" : "players"} found
+          </p>
+        )}
+
+        {!loading && !errorMessage && hasSearched && players.length === 0 && (
+          <div className="home-empty-state">
+            <span className="empty-state-icon">🔍</span>
+            <p className="empty-state-title">No players found</p>
+            <p className="empty-state-desc">
+              Try a different name or check the spelling.
+            </p>
+          </div>
+        )}
+
+        {/* Skeleton or results grid */}
+        {loading ? (
+          <div className="player-list">
+            {Array.from({ length: 4 }, (_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="player-list">
+            {players.map((player) => (
+              <ExternalPlayerCard
+                key={player.externalId}
+                player={player}
+                alreadySaved={isAlreadySaved(player)}
+              />
+            ))}
+          </div>
+        )}
+
       </div>
     </div>
   );
