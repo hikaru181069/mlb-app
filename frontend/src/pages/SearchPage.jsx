@@ -78,7 +78,7 @@ function SearchPage() {
           Search any MLB player by name from the official Stats API.
         </p>
 
-        <form className="mt-6 flex w-full gap-3" onSubmit={handleSearch}>
+        <form className="mt-6 mx-auto flex w-full max-w-lg gap-3" onSubmit={handleSearch}>
           <input
             type="text"
             placeholder="e.g. Shohei Ohtani"
