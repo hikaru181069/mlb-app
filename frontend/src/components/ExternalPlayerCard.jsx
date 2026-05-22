@@ -15,14 +15,6 @@ function ExternalPlayerCard({ player, alreadySaved, detailState }) {
 
         <h2>{player.name}</h2>
 
-        {alreadySaved && <p className="saved-badge">⭐ Saved</p>}
-
-        {typeof player.active === "boolean" && (
-          <p className={player.active ? "active-badge" : "inactive-badge"}>
-            {player.active ? "Active" : "Inactive"}
-          </p>
-        )}
-
         <p>Team: {player.team}</p>
         <p>Position: {player.position}</p>
 
@@ -35,13 +27,15 @@ function ExternalPlayerCard({ player, alreadySaved, detailState }) {
         <PlayerStats player={player} />
       </Link>
 
-      <Link
-        className="home-link secondary mt-4 inline-flex items-center justify-center"
-        to={detailPath}
-        state={detailState}
-      >
-        View Detail →
-      </Link>
+      <div className="mt-4 text-center">
+        <Link
+          className={`home-link${alreadySaved ? "" : " secondary"}`}
+          to={detailPath}
+          state={detailState}
+        >
+          {alreadySaved ? "Already Saved" : "View Detail →"}
+        </Link>
+      </div>
     </article>
   );
 }
