@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { clearAuthData, getAuthToken, getAuthUserName } from "../utils/authStorage";
+import {
+  clearAuthData,
+  getAuthToken,
+  getAuthUserName,
+} from "../utils/authStorage";
 
 const navLinkClass = ({ isActive }) =>
   [
@@ -33,7 +37,6 @@ function Navbar() {
   return (
     <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-ctp-surface1/50 bg-ctp-mantle/85 backdrop-blur-lg">
       <div className="mx-auto flex h-full max-w-6xl items-center gap-4 px-4 sm:px-6">
-
         {/* Logo */}
         <NavLink
           to="/"
@@ -43,12 +46,17 @@ function Navbar() {
         </NavLink>
 
         {/* Search — sm以上で表示 */}
-        <form onSubmit={handleSearch} className="hidden flex-1 sm:flex" style={{ maxWidth: "18rem" }}>
+        <form
+          onSubmit={handleSearch}
+          className="hidden flex-1 sm:flex items-center"
+          style={{ maxWidth: "18rem" }}
+        >
           <input
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search players…"
+            style={{ margin: 0 }}
             className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-4 py-1.5 text-sm text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
           />
         </form>
@@ -116,7 +124,6 @@ function Navbar() {
             </>
           )}
         </div>
-
       </div>
     </header>
   );

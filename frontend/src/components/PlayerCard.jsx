@@ -14,7 +14,11 @@ function PlayerCard({ player }) {
       className="player-card transition duration-200 hover:-translate-y-1 hover:shadow-2xl"
       to={`/players/${playerId}`}
     >
-      {image && <img className="player-image" src={image} alt={name} />}
+      {image && (
+        <div className="player-image-wrapper">
+          <img className="player-image" src={image} alt={name} />
+        </div>
+      )}
       <h2>{name}</h2>
       {player.source && player.source !== "Manual" && (
         <p className="source-badge">{player.source}</p>
