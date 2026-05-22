@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import PlayerCard from "../components/PlayerCard";
+import SkeletonCard from "../components/SkeletonCard";
 import { getFavorites } from "../services/api/favoriteApi";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
 import { getRecommendations } from "../services/api/recommendationApi";
@@ -12,22 +13,73 @@ import {
   isUnauthorizedError,
 } from "../services/api/apiError";
 
+const SKELETON_COUNTS = { team: 4, favorites: 5, recommendations: 3 };
+
+const EMPTY_STATES = {
+  team: {
+    icon: "⚾",
+    title: "No team players loaded",
+    desc: "Choose a favorite team to see its roster here.",
+    action: { label: "Choose Team", to: "/onboarding/team" },
+  },
+  favorites: {
+    icon: "⭐",
+    title: "No favorite players yet",
+    desc: "Search for players and save them to your list.",
+    action: { label: "Search Players", to: "/search" },
+  },
+  recommendations: {
+    icon: "🤖",
+    title: "No recommendations yet",
+    desc: "Save more favorites to unlock personalized picks.",
+    action: { label: "Find Players", to: "/search" },
+  },
+};
+
+function EmptyState({ config }) {
+  return (
+    <div className="home-empty-state">
+      <span className="empty-state-icon">{config.icon}</span>
+      <p className="empty-state-title">{config.title}</p>
+      <p className="empty-state-desc">{config.desc}</p>
+      <Link className="home-link secondary" to={config.action.to}>
+        {config.action.label}
+      </Link>
+    </div>
+  );
+}
+
+function SectionHeading({ title, desc, count, viewAllTo }) {
+  return (
+    <div className="section-heading-row">
+      <div className="section-heading">
+        <h2>
+          {title}
+          {count > 0 && <span className="count-badge">{count}</span>}
+        </h2>
+        <p>{desc}</p>
+      </div>
+      {viewAllTo && (
+        <Link className="view-all-link" to={viewAllTo}>
+          View All →
+        </Link>
+      )}
+    </div>
+  );
+}
+
 function HomePage() {
-  const [searchText, setSearchText] = useState("");
   const [user, setUser] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [teamPlayers, setTeamPlayers] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
   const token = getAuthToken();
 
   useEffect(() => {
     const fetchPersonalizedHome = async () => {
-      if (!token) {
-        return;
-      }
+      if (!token) return;
 
       try {
         setLoading(true);
@@ -56,7 +108,6 @@ function HomePage() {
           setErrorMessage("Your login session expired. Please login again.");
           return;
         }
-
         setErrorMessage(
           getApiErrorMessage(error, "Failed to load personalized home data."),
         );
@@ -68,25 +119,19 @@ function HomePage() {
     fetchPersonalizedHome();
   }, [token]);
 
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-
-    if (!searchText.trim()) {
-      navigate("/search");
-      return;
-    }
-
-    navigate(`/search?keyword=${encodeURIComponent(searchText)}`);
-  };
-
-  const renderPlayerGrid = (players, emptyMessage, action) => {
-    if (players.length === 0) {
+  const renderPlayerGrid = (players, skeletonCount, emptyConfig) => {
+    if (loading) {
       return (
-        <div className="home-empty-state">
-          <p>{emptyMessage}</p>
-          {action}
+        <div className="player-list">
+          {Array.from({ length: skeletonCount }, (_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       );
+    }
+
+    if (players.length === 0) {
+      return <EmptyState config={emptyConfig} />;
     }
 
     return (
@@ -101,6 +146,7 @@ function HomePage() {
     );
   };
 
+  // --- Guest view ---
   if (!token) {
     return (
       <div className="home-page px-6 py-16">
@@ -114,7 +160,25 @@ function HomePage() {
             personalized favorite player list.
           </p>
 
-          <div className="home-actions mt-7">
+          <div className="feature-cards">
+            <div className="feature-card">
+              <span className="feature-card-icon">🔍</span>
+              <h3>Search</h3>
+              <p>Search any MLB player from the official Stats API in real time.</p>
+            </div>
+            <div className="feature-card">
+              <span className="feature-card-icon">⭐</span>
+              <h3>Track</h3>
+              <p>Save favorite players with personal notes and tags to MongoDB.</p>
+            </div>
+            <div className="feature-card">
+              <span className="feature-card-icon">🤖</span>
+              <h3>Discover</h3>
+              <p>Get personalized recommendations based on your favorites.</p>
+            </div>
+          </div>
+
+          <div className="home-actions mt-8">
             <Link className="home-link" to="/login">
               Login
             </Link>
@@ -130,21 +194,23 @@ function HomePage() {
     );
   }
 
+  // --- Logged-in view ---
   return (
     <div className="home-page px-6 py-16">
-      <section className="home-hero w-full max-w-4xl px-8 py-12 md:px-14 md:py-16">
+      <section className="home-hero w-full max-w-4xl px-8 py-10 md:px-14 md:py-12">
         <p className="home-kicker text-sm">Personalized Home</p>
         <h1 className="text-4xl leading-tight font-black tracking-tight md:text-6xl">
           Welcome{user?.name ? `, ${user.name}` : ""}
         </h1>
-        <p className="home-description mt-6 text-base md:text-lg">
-          {user?.favoriteTeam?.name
-            ? `Your favorite team: ${user.favoriteTeam.name}`
-            : "Set your favorite team to personalize this page."}
-        </p>
+
+        {user?.favoriteTeam?.name && (
+          <p className="home-description mt-4 text-base md:text-lg">
+            ⚾&nbsp;{user.favoriteTeam.name}
+          </p>
+        )}
 
         {user && !user.hasCompletedOnboarding && (
-          <div className="home-onboarding-callout">
+          <div className="home-onboarding-callout mt-6">
             <strong>Onboarding is not complete yet.</strong>
             <p>Choose your favorite team and at least 3 favorite players.</p>
             <Link className="home-link" to="/onboarding/team">
@@ -153,85 +219,63 @@ function HomePage() {
           </div>
         )}
 
-        <form className="home-search-form" onSubmit={handleSearchSubmit}>
-          <input
-            type="text"
-            placeholder="Search players later..."
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-          />
-          <button className="home-link" type="submit">
-            Go to Search
-          </button>
-        </form>
-
         <div className="home-actions mt-7">
           <Link className="home-link" to="/search">
             Search Players
           </Link>
-
           <Link className="home-link secondary" to="/favorites">
             View Favorites
           </Link>
-
           <Link className="home-link secondary" to="/onboarding/team">
             Edit Preferences
           </Link>
         </div>
       </section>
 
-      {loading && (
-        <p className="status-message">Loading personalized data...</p>
-      )}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
         <section className="home-player-section">
-          <div className="section-heading">
-            <h2>Your Favorite Team</h2>
-            <p>
-              {user?.favoriteTeam?.name
+          <SectionHeading
+            title="Your Favorite Team"
+            desc={
+              user?.favoriteTeam?.name
                 ? `${user.favoriteTeam.name} players from the MLB API.`
-                : "Choose a favorite team to show team players here."}
-            </p>
-          </div>
+                : "Choose a favorite team to show team players here."
+            }
+            count={teamPlayers.length}
+          />
           {renderPlayerGrid(
             teamPlayers,
-            "No favorite team players loaded yet.",
-            <Link className="home-link secondary" to="/onboarding/team">
-              Choose Favorite Team
-            </Link>,
+            SKELETON_COUNTS.team,
+            EMPTY_STATES.team,
           )}
         </section>
 
         <section className="home-player-section">
-          <div className="section-heading">
-            <h2>Your Favorite Players</h2>
-            <p>Players saved in MongoDB from Search, Detail, or Onboarding.</p>
-          </div>
+          <SectionHeading
+            title="Your Favorite Players"
+            desc="Players saved from Search, Detail, or Onboarding."
+            count={favorites.length}
+            viewAllTo="/favorites"
+          />
           {renderPlayerGrid(
             favorites,
-            "No favorite players yet.",
-            <Link className="home-link secondary" to="/search">
-              Search Players
-            </Link>,
+            SKELETON_COUNTS.favorites,
+            EMPTY_STATES.favorites,
           )}
         </section>
 
         <section className="home-player-section">
-          <div className="section-heading">
-            <h2>Recommended For You</h2>
-            <p>
-              Recommended from your favorite team, current stats, and saved
-              players.
-            </p>
-          </div>
+          <SectionHeading
+            title="Recommended For You"
+            desc="Recommended from your favorite team, current stats, and saved players."
+            count={recommendations.length}
+          />
           {renderPlayerGrid(
             recommendations,
-            "No recommendations yet.",
-            <Link className="home-link secondary" to="/search">
-              Find More Players
-            </Link>,
+            SKELETON_COUNTS.recommendations,
+            EMPTY_STATES.recommendations,
           )}
         </section>
       </div>

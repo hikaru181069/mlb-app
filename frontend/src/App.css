@@ -593,6 +593,120 @@ input {
   margin-top: 34px;
 }
 
+/* Section heading row: title/desc left, View All right */
+.section-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.section-heading-row .section-heading {
+  text-align: left;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ctp-subtext0);
+  background-color: var(--ctp-surface1);
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.view-all-link {
+  flex-shrink: 0;
+  color: var(--ctp-sapphire);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 4px 0;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.view-all-link:hover {
+  color: var(--ctp-blue);
+}
+
+/* Empty state */
+.home-empty-state {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  padding: 32px 18px;
+  border: 1px solid rgba(249, 226, 175, 0.36);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(249, 226, 175, 0.06), transparent),
+    rgba(49, 50, 68, 0.42);
+}
+
+.empty-state-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.empty-state-title {
+  color: var(--ctp-subtext1);
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0;
+}
+
+.empty-state-desc {
+  color: var(--ctp-subtext0);
+  font-size: 14px;
+  margin: 0;
+  text-align: center;
+}
+
+/* Feature cards (guest landing) */
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 32px auto 0;
+  width: 100%;
+  max-width: 700px;
+}
+
+.feature-card {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(137, 180, 250, 0.07), transparent),
+    var(--ctp-surface0);
+  text-align: left;
+}
+
+.feature-card-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.feature-card h3 {
+  color: var(--ctp-lavender);
+  margin: 0;
+  font-size: 16px;
+}
+
+.feature-card p {
+  color: var(--ctp-subtext0);
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .home-link {
   display: inline-block;
   color: var(--ctp-crust);
