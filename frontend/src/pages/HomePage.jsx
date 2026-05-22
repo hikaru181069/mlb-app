@@ -220,9 +220,6 @@ function HomePage() {
         )}
 
         <div className="home-actions mt-7">
-          <Link className="home-link" to="/search">
-            Search Players
-          </Link>
           <Link className="home-link secondary" to="/favorites">
             View Favorites
           </Link>
