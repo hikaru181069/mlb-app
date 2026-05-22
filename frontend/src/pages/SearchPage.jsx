@@ -8,7 +8,7 @@ import { getFavorites } from "../services/api/favoriteApi";
 import { searchExternalPlayers as fetchExternalPlayers } from "../services/api/externalPlayerApi";
 
 function SearchPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
   const [searchText, setSearchText] = useState(keyword);
   const [players, setPlayers] = useState([]);
@@ -53,7 +53,11 @@ function SearchPage() {
 
   const handleSearch = (event) => {
     event.preventDefault();
-    handleSearchExternalPlayers(searchText);
+    if (searchText.trim()) {
+      setSearchParams({ keyword: searchText.trim() });
+    } else {
+      handleSearchExternalPlayers(searchText);
+    }
   };
 
   const isAlreadySaved = (player) => {

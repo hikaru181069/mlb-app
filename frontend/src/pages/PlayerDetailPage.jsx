@@ -123,19 +123,38 @@ function PlayerDetailPage() {
 
   if (loading) {
     return (
-      <div className="app">
-        <p className="status-message">Loading...</p>
+      <div className="home-page px-6 py-12">
+        <div className="player-detail mx-auto w-full max-w-4xl animate-pulse">
+          <div className="detail-hero">
+            <div
+              className="rounded-[10%] bg-ctp-surface1"
+              style={{ width: "300px", height: "400px" }}
+            />
+            <div className="detail-hero-copy">
+              <div className="h-5 w-24 rounded-full bg-ctp-surface1" />
+              <div className="h-10 w-3/4 rounded-md bg-ctp-surface1" />
+              <div className="detail-meta-grid">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="rounded-[14px] bg-ctp-surface1" style={{ minHeight: "74px" }} />
+                ))}
+              </div>
+              <div className="h-11 w-44 rounded-full bg-ctp-surface1" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <div className="app">
+      <div className="home-page px-6 py-12">
         <p className="error-message">{errorMessage}</p>
-        <Link className="back-link" to="/players">
-          ← Back to players
-        </Link>
+        <div className="home-actions">
+          <Link className="home-link secondary" to="/">
+            ← Back to Home
+          </Link>
+        </div>
       </div>
     );
   }
@@ -164,27 +183,26 @@ function PlayerDetailPage() {
     careerStats.hitterStats || careerStats.pitcherStats;
 
   return (
-    <div className="app">
+    <div className="home-page px-6 py-12">
       <div className="detail-actions">
-        <Link className="back-link" to={backPath}>
+        <Link className="detail-nav-link" to={backPath}>
           ← {backLabel}
         </Link>
-
-        {backPath !== "/search" && (
-          <Link className="back-link" to="/search">
-            Search Players
-          </Link>
-        )}
       </div>
 
       <div className="player-detail mx-auto mt-8 w-full max-w-4xl">
         <section className="detail-hero">
           {displayImage && (
-            <img
-              className="detail-image transition duration-200 hover:scale-[1.02]"
-              src={displayImage}
-              alt={displayName}
-            />
+            <div
+              className="player-image-wrapper transition duration-200 hover:scale-[1.02]"
+              style={{ width: "min(100%, 360px)", height: "480px" }}
+            >
+              <img
+                className="player-image"
+                src={displayImage}
+                alt={displayName}
+              />
+            </div>
           )}
 
           <div className="detail-hero-copy">
@@ -192,41 +210,43 @@ function PlayerDetailPage() {
               <p className="source-badge">{player.source}</p>
             )}
             <h1>{displayName}</h1>
-            <div className="detail-meta-grid">
-              <p>
-                <span>Team</span>
-                {displayTeam || "Unknown"}
-              </p>
-              <p>
-                <span>Position</span>
-                {player.position || "Unknown"}
-              </p>
-              <p>
-                <span>Player Type</span>
-                {player.playerType || "Unknown"}
-              </p>
-            </div>
+            <dl className="detail-meta-list">
+              <div>
+                <dt>Team</dt>
+                <dd>{displayTeam || "Unknown"}</dd>
+              </div>
+              <div>
+                <dt>Position</dt>
+                <dd>{player.position || "Unknown"}</dd>
+              </div>
+              <div>
+                <dt>Player Type</dt>
+                <dd>{player.playerType || "Unknown"}</dd>
+              </div>
+            </dl>
             {player.shortBio && <p className="detail-bio">{player.shortBio}</p>}
 
-            {player.baseballSavantUrl && (
-              <a
-                className="back-link"
-                href={player.baseballSavantUrl}
-                target="_blank"
-                rel="noreferrer"
+            <div className="home-actions">
+              <button
+                className={`home-link${favoriteRecord ? " secondary" : ""}`}
+                type="button"
+                disabled={Boolean(favoriteRecord)}
+                onClick={handleAddToFavorites}
               >
-                View on Baseball Savant
-              </a>
-            )}
+                {favoriteRecord ? "✓ Already in Favorites" : "Add to Favorites"}
+              </button>
 
-            <button
-              className="add-player-link"
-              type="button"
-              disabled={Boolean(favoriteRecord)}
-              onClick={handleAddToFavorites}
-            >
-              {favoriteRecord ? "Already in Favorites" : "Add to Favorites"}
-            </button>
+              {player.baseballSavantUrl && (
+                <a
+                  className="home-link secondary"
+                  href={player.baseballSavantUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Baseball Savant ↗
+                </a>
+              )}
+            </div>
 
             {favoriteMessage && (
               <p className="status-message">{favoriteMessage}</p>
@@ -250,10 +270,21 @@ function PlayerDetailPage() {
           </section>
         )}
 
-        <section className="detail-section">
-          <h2>Current Season Stats</h2>
-          <PlayerStats player={currentSeasonStats} />
-        </section>
+        <div className="detail-stats-grid">
+          <section className="detail-section">
+            <h2>Current Season Stats</h2>
+            <PlayerStats player={currentSeasonStats} />
+          </section>
+
+          <section className="detail-section">
+            <h2>Career Stats</h2>
+            {hasCareerStats ? (
+              <PlayerStats player={careerStats} />
+            ) : (
+              <p>Career stats will be added later.</p>
+            )}
+          </section>
+        </div>
 
         <section className="detail-section">
           <h2>Last 5 Games</h2>
@@ -271,14 +302,6 @@ function PlayerDetailPage() {
           )}
         </section>
 
-        <section className="detail-section">
-          <h2>Career Stats</h2>
-          {hasCareerStats ? (
-            <PlayerStats player={careerStats} />
-          ) : (
-            <p>Career stats will be added later.</p>
-          )}
-        </section>
       </div>
 
       <section className="similar-players">
