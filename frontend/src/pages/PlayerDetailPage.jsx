@@ -304,7 +304,10 @@ function PlayerDetailPage() {
             {hasCareerStats ? (
               <PlayerStats player={careerStats} />
             ) : (
-              <p>Career stats will be added later.</p>
+              <div className="detail-coming-soon">
+                <span>📊</span>
+                <p>Career stats will be available in a future update.</p>
+              </div>
             )}
           </section>
         </div>
@@ -321,7 +324,10 @@ function PlayerDetailPage() {
               ))}
             </div>
           ) : (
-            <p>Recent game stats will be added later.</p>
+            <div className="detail-coming-soon">
+              <span>⚾</span>
+              <p>Game log integration is planned for a future update.</p>
+            </div>
           )}
         </section>
 
@@ -330,14 +336,23 @@ function PlayerDetailPage() {
       <section className="similar-players">
         <div className="section-heading">
           <h2>Similar Players</h2>
-          <p>Recommendation data will later come from FastAPI.</p>
         </div>
 
-        <div className="player-list">
-          {similarPlayers.map((similarPlayer) => (
-            <PlayerCard key={similarPlayer.playerId} player={similarPlayer} />
-          ))}
-        </div>
+        {similarPlayers.length > 0 ? (
+          <div className="player-list">
+            {similarPlayers.map((similarPlayer) => (
+              <PlayerCard key={similarPlayer.playerId} player={similarPlayer} />
+            ))}
+          </div>
+        ) : (
+          <div className="home-empty-state">
+            <span className="empty-state-icon">🤖</span>
+            <p className="empty-state-title">Coming Soon</p>
+            <p className="empty-state-desc">
+              Similar player recommendations will be powered by a FastAPI ML service.
+            </p>
+          </div>
+        )}
       </section>
     </div>
   );
