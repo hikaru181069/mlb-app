@@ -26,8 +26,8 @@ function PlayerDetailPage() {
   const [loading, setLoading] = useState(false);
 
   const token = getAuthToken();
-  const backPath = location.state?.from || "/";
-  const backLabel = location.state?.fromLabel || "Back to Home";
+  const backPath = location.state?.from || "/search";
+  const backLabel = location.state?.fromLabel || "Back to Search";
 
   useEffect(() => {
     const fetchPlayer = async () => {
