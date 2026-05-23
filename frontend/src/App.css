@@ -801,8 +801,9 @@ input {
   align-items: center;
   justify-content: center;
   margin-left: 8px;
-  padding: 3px 10px;
-  font-size: 13px;
+  margin-top: 18px;
+  padding: 10px 10px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--ctp-crust);
   background: linear-gradient(135deg, var(--ctp-blue), var(--ctp-lavender));
@@ -1084,6 +1085,40 @@ button:disabled,
   box-shadow: 0 18px 38px rgba(166, 227, 161, 0.16);
 }
 
+.favorite-edit-hero {
+  display: flex;
+  gap: 24px;
+  align-items: start;
+}
+
+.favorite-edit-info {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  flex: 1;
+}
+
+.favorite-edit-info h1 {
+  text-align: left;
+  padding: 0;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .favorite-edit-hero {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .favorite-edit-info {
+    text-align: center;
+  }
+
+  .favorite-edit-info h1 {
+    text-align: center;
+  }
+}
+
 .favorite-card {
   display: grid;
   gap: 12px;
@@ -1128,18 +1163,19 @@ button:disabled,
 .favorite-card-main {
   display: grid;
   gap: 18px;
-  align-items: center;
+  align-items: start;
+}
+
+.favorite-image-wrapper {
+  width: min(100%, 180px);
+  height: 240px;
+  margin: 0 auto;
 }
 
 .favorite-card-info {
   display: grid;
   gap: 8px;
   justify-items: center;
-}
-
-.favorite-image {
-  width: 600px;
-  height: 400px;
 }
 
 .favorite-card-section {
@@ -1179,8 +1215,26 @@ button:disabled,
   font-weight: 800;
 }
 
-.favorite-detail-link {
-  margin: 8px auto 0;
+.favorite-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.favorite-delete-link {
+  background: none;
+  border: none;
+  color: var(--ctp-subtext0);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 160ms ease;
+  font-family: var(--app-font);
+}
+
+.favorite-delete-link:hover {
+  color: var(--ctp-red);
 }
 
 .favorite-edit-form {
@@ -1218,23 +1272,13 @@ button:disabled,
   resize: vertical;
 }
 
-.favorite-edit-form button {
-  color: var(--ctp-crust);
-  background-color: var(--ctp-green);
-  border: 0;
-  border-radius: 10px;
-  padding: 11px 14px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.favorite-edit-form button:hover {
-  background-color: var(--ctp-teal);
-}
-
 @media (min-width: 760px) {
   .favorite-card-main {
     grid-template-columns: 180px 1fr;
+  }
+
+  .favorite-image-wrapper {
+    margin: 0;
   }
 }
 
