@@ -125,21 +125,44 @@ function PlayerDetailPage() {
     return (
       <div className="home-page px-6 py-12">
         <div className="player-detail mx-auto w-full max-w-4xl animate-pulse">
+          {/* Hero: 縦中央揃えのレイアウトに合わせる */}
           <div className="detail-hero">
             <div
               className="rounded-[10%] bg-ctp-surface1"
-              style={{ width: "300px", height: "400px" }}
+              style={{ width: "min(100%, 360px)", height: "480px" }}
             />
             <div className="detail-hero-copy">
-              <div className="h-5 w-24 rounded-full bg-ctp-surface1" />
-              <div className="h-10 w-3/4 rounded-md bg-ctp-surface1" />
-              <div className="detail-meta-grid">
+              <div className="mx-auto h-9 w-2/3 rounded-md bg-ctp-surface1" />
+              <div className="mx-auto flex gap-6">
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="rounded-[14px] bg-ctp-surface1" style={{ minHeight: "74px" }} />
+                  <div key={i} className="flex flex-col items-center gap-1">
+                    <div className="h-3 w-14 rounded bg-ctp-surface1" />
+                    <div className="h-5 w-20 rounded bg-ctp-surface1" />
+                  </div>
                 ))}
               </div>
-              <div className="h-11 w-44 rounded-full bg-ctp-surface1" />
+              <div className="mx-auto h-11 w-44 rounded-full bg-ctp-surface1" />
             </div>
+          </div>
+
+          {/* Stats: 2列グリッド */}
+          <div className="detail-stats-grid">
+            {[0, 1].map((i) => (
+              <div key={i} className="detail-section flex flex-col gap-3">
+                <div className="h-5 w-40 rounded bg-ctp-surface1" />
+                {[0, 1, 2].map((j) => (
+                  <div key={j} className="h-4 w-full rounded bg-ctp-surface1" />
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Last 5 Games */}
+          <div className="detail-section flex flex-col gap-3">
+            <div className="h-5 w-32 rounded bg-ctp-surface1" />
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-4 w-full rounded bg-ctp-surface1" />
+            ))}
           </div>
         </div>
       </div>
