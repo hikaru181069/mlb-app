@@ -111,7 +111,7 @@ function SearchPage() {
 
         {!loading && !errorMessage && players.length > 0 && (
           <p className="status-message">
-            <span className="count-badge" style={{ marginLeft: 0, marginRight: 8 }}>
+            <span className="count-badge count-badge--leading">
               {players.length}
             </span>
             {players.length === 1 ? "player" : "players"} found

@@ -20,9 +20,6 @@ function PlayerCard({ player }) {
         </div>
       )}
       <h2>{name}</h2>
-      {player.source && player.source !== "Manual" && (
-        <p className="source-badge">{player.source}</p>
-      )}
       <p>Team: {team}</p>
       <p>Position: {position}</p>
       {player.shortBio && <p>{player.shortBio}</p>}

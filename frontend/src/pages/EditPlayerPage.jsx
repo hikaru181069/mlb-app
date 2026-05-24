@@ -97,35 +97,50 @@ function EditPlayerPage() {
 
   if (!token) {
     return (
-      <div className="app">
-        <p className="error-message">Please login to edit a player.</p>
-
-        <Link className="back-link" to="/login">
-          Go to Login
-        </Link>
+      <div className="home-page px-6 py-12">
+        <div className="home-empty-state">
+          <span className="empty-state-icon">🔒</span>
+          <p className="empty-state-title">Login required</p>
+          <p className="empty-state-desc">Please login to edit a player.</p>
+          <Link className="home-link secondary" to="/login">Go to Login</Link>
+        </div>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="app">
-        <p className="status-message">Loading...</p>
+      <div className="home-page px-6 py-12">
+        <div className="player-form mx-auto mt-8 w-full max-w-2xl animate-pulse">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex flex-col gap-2">
+              <div className="h-4 w-24 rounded bg-ctp-surface1" />
+              <div className="h-11 w-full rounded-xl bg-ctp-surface1" />
+            </div>
+          ))}
+          <div className="h-11 w-36 rounded-full bg-ctp-surface1" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="app">
-      <Link className="back-link" to={`/players/${id}`}>
-        ← Back to detail
-      </Link>
+    <div className="home-page px-6 py-12">
+      <div className="detail-actions">
+        <Link className="detail-nav-link" to={`/players/${id}`}>
+          ← Back to detail
+        </Link>
+      </div>
 
-      <h1>Edit Legacy Player</h1>
-      <p className="status-message">
-        This page edits manually stored player data. Favorites are managed from
-        the Favorites page.
-      </p>
+      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
+        <p className="home-kicker text-sm">Legacy Data</p>
+        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+          Edit Player
+        </h1>
+        <p className="home-description mt-4 text-base">
+          Manually stored player data. Favorites are managed from the Favorites page.
+        </p>
+      </section>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 

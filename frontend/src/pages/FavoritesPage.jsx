@@ -56,7 +56,7 @@ function FavoritesPage() {
             Favorites
           </h1>
           {!loading && favorites.length > 0 && (
-            <span className="count-badge">{favorites.length}</span>
+            <span className="count-badge--favorites">{favorites.length}</span>
           )}
         </div>
         <p className="home-description mt-4 text-base">

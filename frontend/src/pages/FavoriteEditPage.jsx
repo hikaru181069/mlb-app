@@ -129,42 +129,19 @@ function FavoriteEditPage() {
 
           <div className="favorite-edit-info">
             <h1>{favorite.fullName}</h1>
-            <dl className="detail-meta-list">
-              <div>
-                <dt>Team</dt>
-                <dd>{favorite.teamName || "Unknown"}</dd>
-              </div>
-              <div>
-                <dt>Position</dt>
-                <dd>{favorite.position || "Unknown"}</dd>
-              </div>
-            </dl>
+            <p className="favorite-edit-meta">
+              {favorite.teamName || "Unknown"} · {favorite.position || "Unknown"}
+            </p>
 
             {favorite.tags?.length > 0 && (
-              <div className="tag-list">
+              <div className="tag-list" style={{ justifyContent: "flex-start" }}>
                 {favorite.tags.map((tag) => (
                   <span key={tag}>{tag}</span>
                 ))}
               </div>
             )}
-
-            <div className="home-actions" style={{ justifyContent: "flex-start" }}>
-              <Link
-                className="home-link secondary"
-                to={`/players/${favorite.mlbPlayerId}`}
-                state={{ from: `/favorites/${favoriteId}`, fromLabel: "Back to Edit" }}
-              >
-                View MLB Detail →
-              </Link>
-            </div>
           </div>
         </div>
-
-        {/* Stats */}
-        <section className="detail-section">
-          <h2>Current Season Stats</h2>
-          <PlayerStats player={favorite} />
-        </section>
 
         {/* Edit form */}
         <section className="detail-section">
@@ -208,10 +185,24 @@ function FavoriteEditPage() {
           </form>
         </section>
 
+        {/* Stats */}
+        <section className="detail-section">
+          <h2>Current Season Stats</h2>
+          <PlayerStats player={favorite} />
+        </section>
+
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        <div style={{ textAlign: "right" }}>
-          <button className="favorite-delete-link" type="button" onClick={handleDelete}>
+        {/* Bottom actions */}
+        <div className="favorite-edit-bottom-actions">
+          <Link
+            className="home-link secondary"
+            to={`/players/${favorite.mlbPlayerId}`}
+            state={{ from: `/favorites/${favoriteId}`, fromLabel: "Back to Edit" }}
+          >
+            View MLB Detail →
+          </Link>
+          <button className="home-link danger" type="button" onClick={handleDelete}>
             Delete this favorite
           </button>
         </div>

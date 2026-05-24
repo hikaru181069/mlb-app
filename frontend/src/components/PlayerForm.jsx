@@ -139,13 +139,15 @@ function PlayerForm({
         </>
       )}
 
-      <button
-        className="transition duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-        type="submit"
-        disabled={loading}
-      >
-        {loading ? "Saving..." : buttonText}
-      </button>
+      <div>
+        <button
+          className="home-link disabled:cursor-not-allowed disabled:opacity-60"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Saving..." : buttonText}
+        </button>
+      </div>
     </form>
   );
 }
