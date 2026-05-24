@@ -1049,6 +1049,57 @@ input {
   color: var(--ctp-lavender);
 }
 
+/* Search form wrapper — sits outside home-hero so dropdown is not clipped */
+.search-form-wrapper {
+  width: 100%;
+  max-width: 512px;
+}
+
+/* Search suggestions dropdown */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 16px;
+  background: var(--ctp-mantle);
+  box-shadow: 0 12px 32px rgba(17, 17, 27, 0.48);
+}
+
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.search-suggestion-item:hover {
+  background: var(--ctp-surface0);
+}
+
+.suggestion-name {
+  font-size: 0.9rem;
+  color: var(--ctp-text);
+  font-weight: 500;
+}
+
+.suggestion-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--ctp-subtext0);
+  flex-shrink: 0;
+}
+
 .player-form {
   display: grid;
   gap: 18px;

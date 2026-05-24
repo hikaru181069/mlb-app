@@ -1,7 +1,7 @@
 const {
   fetchExternalPlayerFullDetails,
 } = require("./playerDetailService");
-const { fetchExternalPlayers } = require("./playerSearchService");
+const { fetchExternalPlayers, fetchPlayerSuggestions } = require("./playerSearchService");
 const {
   fetchExternalPlayersByTeam,
   fetchRecommendedPlayersByTeam,
@@ -10,6 +10,7 @@ const {
 module.exports = {
   fetchExternalPlayerFullDetails,
   fetchExternalPlayers,
+  fetchPlayerSuggestions,
   fetchExternalPlayersByTeam,
   fetchRecommendedPlayersByTeam,
 };
