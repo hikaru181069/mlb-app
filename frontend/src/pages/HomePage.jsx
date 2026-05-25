@@ -204,9 +204,18 @@ function HomePage() {
         </h1>
 
         {user?.favoriteTeam?.name && (
-          <p className="home-description mt-4 text-base md:text-lg">
-            ⚾&nbsp;{user.favoriteTeam.name}
-          </p>
+          <div className="flex items-center justify-center gap-3 mt-4">
+            {user.favoriteTeam.id && (
+              <img
+                src={`https://www.mlbstatic.com/team-logos/${user.favoriteTeam.id}.svg`}
+                alt={user.favoriteTeam.name}
+                className="h-10 w-auto"
+              />
+            )}
+            <p className="home-description text-base md:text-lg" style={{ margin: 0 }}>
+              {user.favoriteTeam.name}
+            </p>
+          </div>
         )}
 
         {user && !user.hasCompletedOnboarding && (

@@ -8,6 +8,7 @@ import {
 } from "../utils/playerFormHandlers";
 import { getAuthToken } from "../utils/authStorage";
 import { API_URL } from "../utils/apiConfig";
+import { mlbTeams } from "../services/mlbTeams";
 
 function EditPlayerPage() {
   const { id } = useParams();
@@ -137,6 +138,24 @@ function EditPlayerPage() {
         <h1 className="text-4xl font-black tracking-tight md:text-5xl">
           Edit Player
         </h1>
+        {formData.team && (() => {
+          const matched = mlbTeams.find(
+            (t) => t.name.toLowerCase() === formData.team.toLowerCase()
+          );
+          return matched ? (
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <img
+                src={`https://www.mlbstatic.com/team-logos/${matched.id}.svg`}
+                alt={formData.team}
+                style={{ width: "48px", height: "48px", objectFit: "contain" }}
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+              <p className="home-description text-base" style={{ margin: 0 }}>
+                {formData.team}
+              </p>
+            </div>
+          ) : null;
+        })()}
         <p className="home-description mt-4 text-base">
           Manually stored player data. Favorites are managed from the Favorites page.
         </p>

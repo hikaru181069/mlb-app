@@ -236,7 +236,17 @@ function PlayerDetailPage() {
             <dl className="detail-meta-list">
               <div>
                 <dt>Team</dt>
-                <dd>{displayTeam || "Unknown"}</dd>
+                <dd className="flex items-center gap-2">
+                  {player.teamId && (
+                    <img
+                      src={`https://www.mlbstatic.com/team-logos/${player.teamId}.svg`}
+                      alt={displayTeam}
+                      style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  )}
+                  {displayTeam || "Unknown"}
+                </dd>
               </div>
               <div>
                 <dt>Position</dt>
