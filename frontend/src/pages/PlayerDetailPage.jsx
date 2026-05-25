@@ -13,6 +13,7 @@ import {
   getPlayerById,
   getSimilarPlayers,
 } from "../services/playerDataService";
+import { mlbTeams } from "../services/mlbTeams";
 
 function PlayerDetailPage() {
   const { playerId } = useParams();
@@ -26,8 +27,8 @@ function PlayerDetailPage() {
   const [loading, setLoading] = useState(false);
 
   const token = getAuthToken();
-  const backPath = location.state?.from || "/";
-  const backLabel = location.state?.fromLabel || "Back to Home";
+  const backPath = location.state?.from || "/search";
+  const backLabel = location.state?.fromLabel || "Back to Search";
 
   useEffect(() => {
     const fetchPlayer = async () => {
@@ -125,21 +126,44 @@ function PlayerDetailPage() {
     return (
       <div className="home-page px-6 py-12">
         <div className="player-detail mx-auto w-full max-w-4xl animate-pulse">
+          {/* Hero: 縦中央揃えのレイアウトに合わせる */}
           <div className="detail-hero">
             <div
               className="rounded-[10%] bg-ctp-surface1"
-              style={{ width: "300px", height: "400px" }}
+              style={{ width: "min(100%, 360px)", height: "480px" }}
             />
             <div className="detail-hero-copy">
-              <div className="h-5 w-24 rounded-full bg-ctp-surface1" />
-              <div className="h-10 w-3/4 rounded-md bg-ctp-surface1" />
-              <div className="detail-meta-grid">
+              <div className="mx-auto h-9 w-2/3 rounded-md bg-ctp-surface1" />
+              <div className="mx-auto flex gap-6">
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="rounded-[14px] bg-ctp-surface1" style={{ minHeight: "74px" }} />
+                  <div key={i} className="flex flex-col items-center gap-1">
+                    <div className="h-3 w-14 rounded bg-ctp-surface1" />
+                    <div className="h-5 w-20 rounded bg-ctp-surface1" />
+                  </div>
                 ))}
               </div>
-              <div className="h-11 w-44 rounded-full bg-ctp-surface1" />
+              <div className="mx-auto h-11 w-44 rounded-full bg-ctp-surface1" />
             </div>
+          </div>
+
+          {/* Stats: 2列グリッド */}
+          <div className="detail-stats-grid">
+            {[0, 1].map((i) => (
+              <div key={i} className="detail-section flex flex-col gap-3">
+                <div className="h-5 w-40 rounded bg-ctp-surface1" />
+                {[0, 1, 2].map((j) => (
+                  <div key={j} className="h-4 w-full rounded bg-ctp-surface1" />
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Last 5 Games */}
+          <div className="detail-section flex flex-col gap-3">
+            <div className="h-5 w-32 rounded bg-ctp-surface1" />
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-4 w-full rounded bg-ctp-surface1" />
+            ))}
           </div>
         </div>
       </div>
@@ -179,6 +203,9 @@ function PlayerDetailPage() {
   const displayTeam =
     player.team && player.team !== "Unknown" ? player.team : player.teamName;
   const displayImage = player.imageUrl || player.image;
+  const displayTeamId =
+    player.teamId ??
+    mlbTeams.find((t) => t.name.toLowerCase() === (displayTeam || "").toLowerCase())?.id;
   const hasCareerStats =
     careerStats.hitterStats || careerStats.pitcherStats;
 
@@ -213,7 +240,17 @@ function PlayerDetailPage() {
             <dl className="detail-meta-list">
               <div>
                 <dt>Team</dt>
-                <dd>{displayTeam || "Unknown"}</dd>
+                <dd className="flex items-center gap-2">
+                  {displayTeamId && (
+                    <img
+                      src={`https://www.mlbstatic.com/team-logos/${displayTeamId}.svg`}
+                      alt={displayTeam}
+                      style={{ width: "20px", height: "20px" }}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  )}
+                  {displayTeam || "Unknown"}
+                </dd>
               </div>
               <div>
                 <dt>Position</dt>
@@ -281,7 +318,10 @@ function PlayerDetailPage() {
             {hasCareerStats ? (
               <PlayerStats player={careerStats} />
             ) : (
-              <p>Career stats will be added later.</p>
+              <div className="detail-coming-soon">
+                <span>📊</span>
+                <p>Career stats will be available in a future update.</p>
+              </div>
             )}
           </section>
         </div>
@@ -298,7 +338,10 @@ function PlayerDetailPage() {
               ))}
             </div>
           ) : (
-            <p>Recent game stats will be added later.</p>
+            <div className="detail-coming-soon">
+              <span>⚾</span>
+              <p>Game log integration is planned for a future update.</p>
+            </div>
           )}
         </section>
 
@@ -307,14 +350,23 @@ function PlayerDetailPage() {
       <section className="similar-players">
         <div className="section-heading">
           <h2>Similar Players</h2>
-          <p>Recommendation data will later come from FastAPI.</p>
         </div>
 
-        <div className="player-list">
-          {similarPlayers.map((similarPlayer) => (
-            <PlayerCard key={similarPlayer.playerId} player={similarPlayer} />
-          ))}
-        </div>
+        {similarPlayers.length > 0 ? (
+          <div className="player-list">
+            {similarPlayers.map((similarPlayer) => (
+              <PlayerCard key={similarPlayer.playerId} player={similarPlayer} />
+            ))}
+          </div>
+        ) : (
+          <div className="home-empty-state">
+            <span className="empty-state-icon">🤖</span>
+            <p className="empty-state-title">Coming Soon</p>
+            <p className="empty-state-desc">
+              Similar player recommendations will be powered by a FastAPI ML service.
+            </p>
+          </div>
+        )}
       </section>
     </div>
   );

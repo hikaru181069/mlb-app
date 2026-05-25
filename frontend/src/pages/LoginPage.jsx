@@ -12,99 +12,91 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   const navigate = useNavigate();
-
   const token = getAuthToken();
   const userName = getAuthUserName();
 
   const handleLogout = () => {
     clearAuthData();
-    setSuccessMessage("");
-    setErrorMessage("");
     window.location.reload();
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     try {
       const data = await loginUser({ email, password });
-
       saveAuthData(data);
-
-      setErrorMessage("");
-      setSuccessMessage("Login successful.");
       navigate(data.hasCompletedOnboarding ? "/" : "/onboarding/team");
     } catch (error) {
       console.error("Login error:", error);
-      setSuccessMessage("");
       setErrorMessage(
         error.message || "Failed to login. Please check your email and password.",
       );
     }
   };
+
   if (token) {
     return (
-      <div className="app">
-        <Link className="back-link" to="/">
-          ← Back to Home
-        </Link>
-
-        <h1>Already logged in</h1>
-        <p className="status-message">Logged in as {userName || "user"}</p>
-
-        <Link className="add-player-link" to="/">
-          Go to Home
-        </Link>
-
-        <button className="delete-button" type="button" onClick={handleLogout}>
-          Logout and Login Again
-        </button>
+      <div className="home-page px-6 py-16">
+        <div className="home-empty-state">
+          <span className="empty-state-icon">✓</span>
+          <p className="empty-state-title">Already logged in as {userName || "user"}</p>
+          <div className="home-actions">
+            <Link className="home-link" to="/">Go to Home</Link>
+            <button className="home-link danger" type="button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="app">
-      <Link className="back-link" to="/">
-        ← Back to Home
-      </Link>
+    <div className="home-page px-6 py-16">
+      <section className="home-hero w-full max-w-md px-8 py-10 md:px-12 md:py-12">
+        <p className="home-kicker text-sm">Welcome Back</p>
+        <h1 className="text-4xl font-black tracking-tight">Login</h1>
+        <p className="home-description mt-3 text-base">
+          Sign in to access your favorites and recommendations.
+        </p>
 
-      <h1>Login</h1>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label>
+            Email
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              style={{ margin: 0 }}
+            />
+          </label>
 
-      <form
-        className="player-form mx-auto mt-8 w-full max-w-md"
-        onSubmit={handleSubmit}
-      >
-        <label>
-          Email
-          <input
-            type="email"
-            name="email"
-            placeholder="test@example.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </label>
+          <label>
+            Password
+            <input
+              type="password"
+              name="password"
+              placeholder="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              style={{ margin: 0 }}
+            />
+          </label>
 
-        <label>
-          Password
-          <input
-            type="password"
-            name="password"
-            placeholder="password123"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </label>
+          {errorMessage && <p className="error-message" style={{ margin: 0 }}>{errorMessage}</p>}
 
-        <button type="submit">Login</button>
-      </form>
+          <button className="home-link" type="submit">Login</button>
+        </form>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-      {successMessage && <p className="status-message">{successMessage}</p>}
+        <p className="auth-switch">
+          Don't have an account?{" "}
+          <Link to="/register">Register →</Link>
+        </p>
+      </section>
     </div>
   );
 }

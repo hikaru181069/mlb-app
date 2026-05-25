@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import ExternalPlayersPage from "./pages/ExternalPlayersPage";
 import SearchPage from "./pages/SearchPage";
 import FavoritesPage from "./pages/FavoritesPage";
+import FavoriteEditPage from "./pages/FavoriteEditPage";
 import RegisterPage from "./pages/RegisterPage";
 import OnboardingTeamPage from "./pages/OnboardingTeamPage";
 import OnboardingFavoritesPage from "./pages/OnboardingFavoritesPage";
@@ -25,6 +26,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
           <Route path="/onboarding/team" element={<OnboardingTeamPage />} />
           <Route
             path="/onboarding/favorites"

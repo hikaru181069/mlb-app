@@ -151,6 +151,14 @@ function HomePage() {
     return (
       <div className="home-page px-6 py-16">
         <section className="home-hero w-full max-w-4xl px-8 py-12 md:px-14 md:py-16">
+
+          <img
+            src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
+            alt="MLB"
+            className="mx-auto mb-6"
+            style={{ width: "72px", height: "72px", objectFit: "contain" }}
+          />
+
           <p className="home-kicker text-sm">MERN Portfolio Project</p>
           <h1 className="text-4xl leading-tight font-black tracking-tight md:text-6xl">
             MLB Favorite Player Hub
@@ -179,17 +187,22 @@ function HomePage() {
           </div>
 
           <div className="home-actions mt-8">
+            <Link className="home-link" to="/register">
+              Get Started
+            </Link>
             <Link className="home-link" to="/login">
               Login
             </Link>
-            <Link className="home-link secondary" to="/register">
-              Register
-            </Link>
-            <Link className="home-link secondary" to="/search">
-              Search MLB Players
-            </Link>
           </div>
+
         </section>
+
+        <div className="home-tech-stack">
+          {["MongoDB", "Express", "React", "Node.js", "MLB Stats API", "JWT"].map((tech) => (
+            <span key={tech}>{tech}</span>
+          ))}
+        </div>
+
       </div>
     );
   }
@@ -204,9 +217,17 @@ function HomePage() {
         </h1>
 
         {user?.favoriteTeam?.name && (
-          <p className="home-description mt-4 text-base md:text-lg">
-            ⚾&nbsp;{user.favoriteTeam.name}
-          </p>
+          <div className="player-card-team mt-4">
+            {user.favoriteTeam.id && (
+              <img
+                src={`https://www.mlbstatic.com/team-logos/${user.favoriteTeam.id}.svg`}
+                alt={user.favoriteTeam.name}
+                style={{ width: "24px", height: "24px" }}
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            )}
+            <span>{user.favoriteTeam.name}</span>
+          </div>
         )}
 
         {user && !user.hasCompletedOnboarding && (

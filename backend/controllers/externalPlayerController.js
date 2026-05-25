@@ -3,6 +3,7 @@ const {
   fetchExternalPlayersByTeam,
   fetchRecommendedPlayersByTeam,
   fetchExternalPlayers,
+  fetchPlayerSuggestions, // [Suggestions] 候補取得サービス
 } = require("../services/mlb");
 
 const searchExternalPlayers = async (req, res) => {
@@ -59,9 +60,32 @@ const getRecommendedPlayersByTeam = async (req, res) => {
   }
 };
 
+// [Suggestions] 入力中の候補を返すハンドラー
+// GET /api/external/players/suggestions?q=<searchText>
+// searchExternalPlayers との違い: 統計・詳細を取得しない軽量レスポンス
+// 2文字未満は空配列を返す（MLB API が結果を返さないため、エラーにしない）
+const getPlayerSuggestions = async (req, res) => {
+  try {
+    const searchText = req.query.q || "";
+
+    // バリデーション: 空または1文字の場合はエラーにせず空配列を返す
+    // フロントエンド側でも同じ制限をかけているが、APIとしても安全に処理する
+    if (!searchText.trim() || searchText.trim().length < 2) {
+      return res.json([]);
+    }
+
+    const suggestions = await fetchPlayerSuggestions(searchText);
+    res.json(suggestions);
+  } catch (error) {
+    console.error("Player suggestions error:", error.message);
+    res.status(500).json({ message: "Failed to fetch suggestions" });
+  }
+};
+
 module.exports = {
   getExternalPlayersByTeam,
   getRecommendedPlayersByTeam,
   searchExternalPlayers,
   getExternalPlayerById,
+  getPlayerSuggestions, // [Suggestions] 候補表示用
 };

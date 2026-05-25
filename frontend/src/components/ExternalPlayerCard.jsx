@@ -15,7 +15,17 @@ function ExternalPlayerCard({ player, alreadySaved, detailState }) {
 
         <h2>{player.name}</h2>
 
-        <p>Team: {player.team}</p>
+        <div className="player-card-team">
+          {player.teamId && (
+            <img
+              src={`https://www.mlbstatic.com/team-logos/${player.teamId}.svg`}
+              alt={player.team}
+              className="player-card-team-logo"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+          )}
+          <span>{player.team}</span>
+        </div>
         <p>Position: {player.position}</p>
 
         {player.recommendationReasons?.length > 0 && (

@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
 import { getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
-import { searchExternalPlayers as fetchExternalPlayers } from "../services/api/externalPlayerApi";
+import {
+  searchExternalPlayers as fetchExternalPlayers,
+  fetchPlayerSuggestions, // [Suggestions] 候補取得用の軽量API関数
+} from "../services/api/externalPlayerApi";
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,6 +20,14 @@ function SearchPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
 
+  // [Suggestions] 候補リストと表示フラグ
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // [Suggestions] debounce用タイマーID / 外クリック検知用ラッパー要素
+  const debounceRef = useRef(null);
+  const wrapperRef = useRef(null);
+
   const handleSearchExternalPlayers = async (nextSearchText) => {
     if (!nextSearchText.trim()) {
       setPlayers([]);
@@ -25,9 +36,18 @@ function SearchPage() {
       return;
     }
 
+    // MLB Stats API は1文字では結果を返さないため最低2文字必要
+    if (nextSearchText.trim().length < 2) {
+      setPlayers([]);
+      setErrorMessage("Please enter at least 2 characters.");
+      setHasSearched(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setErrorMessage("");
+      setShowSuggestions(false); // [Suggestions] 検索実行時にドロップダウンを閉じる
 
       const token = getAuthToken();
       const data = await fetchExternalPlayers(nextSearchText);
@@ -45,11 +65,49 @@ function SearchPage() {
     }
   };
 
+  // URLのkeywordが変わったら検索を実行（ブラウザ履歴・直リンク対応）
   useEffect(() => {
     if (keyword) {
       handleSearchExternalPlayers(keyword);
     }
   }, [keyword]);
+
+  // [Suggestions] 入力中に300msのdebounceをかけて候補を取得する
+  // debounce: キー入力のたびにAPIを叩かず、入力が止まってから発火させる仕組み
+  useEffect(() => {
+    const text = searchText.trim();
+
+    // 2文字未満は候補を出さない（APIが結果を返さないため）
+    if (text.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    // 前回のタイマーをキャンセルしてから新しいタイマーをセット
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      const results = await fetchPlayerSuggestions(text);
+      setSuggestions(results);
+      setShowSuggestions(results.length > 0);
+    }, 300); // 300ms待ってからAPI呼び出し
+
+    // クリーンアップ: コンポーネントが再レンダリングされたらタイマーをキャンセル
+    return () => clearTimeout(debounceRef.current);
+  }, [searchText]);
+
+  // [Suggestions] フォームの外をクリックしたらドロップダウンを閉じる
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // wrapperRef の外側がクリックされたか判定
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    // クリーンアップ: コンポーネントがアンマウントされたらイベントリスナーを解除
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -58,6 +116,13 @@ function SearchPage() {
     } else {
       handleSearchExternalPlayers(searchText);
     }
+  };
+
+  // [Suggestions] 候補をクリックしたら選手名をセットして即検索
+  const handleSuggestionClick = (suggestion) => {
+    setSearchText(suggestion.name);
+    setShowSuggestions(false);
+    setSearchParams({ keyword: suggestion.name });
   };
 
   const isAlreadySaved = (player) => {
@@ -81,16 +146,53 @@ function SearchPage() {
         <p className="home-description mt-4 text-base">
           Search any MLB player by name from the official Stats API.
         </p>
+      </section>
 
-        <form className="mt-6 mx-auto flex w-full max-w-lg gap-3" onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="e.g. Shohei Ohtani"
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-            style={{ margin: 0 }}
-            className="flex-1 rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-5 py-2.5 text-base text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
-          />
+      {/*
+        [Suggestions] フォームを home-hero の外に配置している理由:
+        home-hero に overflow: hidden が設定されており、内部に置くと
+        position: absolute のドロップダウンが切り取られてしまうため。
+        wrapperRef は「フォーム外クリック」の検知範囲として使用。
+      */}
+      <div className="search-form-wrapper" ref={wrapperRef}>
+        <form className="flex w-full gap-3" onSubmit={handleSearch}>
+
+          {/* [Suggestions] position: relative をここに置くことで
+              ドロップダウンを input の幅・位置に合わせて表示できる */}
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="e.g. Shohei Ohtani"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)} // [Suggestions] フォーカス時に再表示
+              onKeyDown={(e) => e.key === "Escape" && setShowSuggestions(false)} // [Suggestions] Escapeで閉じる
+              style={{ margin: 0 }}
+              className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-5 py-2.5 text-base text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
+            />
+
+            {/* [Suggestions] ドロップダウン候補リスト */}
+            {showSuggestions && (
+              <ul className="search-suggestions">
+                {suggestions.map((s) => (
+                  // onMouseDown を使う理由: onClick だと input の onBlur が先に発火して
+                  // ドロップダウンが消えてしまうため、mousedown で先にキャプチャする
+                  <li
+                    key={s.id}
+                    className="search-suggestion-item"
+                    onMouseDown={() => handleSuggestionClick(s)}
+                  >
+                    <span className="suggestion-name">{s.name}</span>
+                    <span className="suggestion-meta">
+                      {s.position && <span>{s.position}</span>}
+                      {s.team && <span>{s.team}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           <button
             className="home-link flex-shrink-0"
             type="submit"
@@ -99,7 +201,7 @@ function SearchPage() {
             Search
           </button>
         </form>
-      </section>
+      </div>
 
       {/* Results */}
       <div className="home-content mt-2">
@@ -111,7 +213,7 @@ function SearchPage() {
 
         {!loading && !errorMessage && players.length > 0 && (
           <p className="status-message">
-            <span className="count-badge" style={{ marginLeft: 0, marginRight: 8 }}>
+            <span className="count-badge count-badge--leading">
               {players.length}
             </span>
             {players.length === 1 ? "player" : "players"} found
