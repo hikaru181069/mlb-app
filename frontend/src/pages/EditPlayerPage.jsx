@@ -8,6 +8,7 @@ import {
 } from "../utils/playerFormHandlers";
 import { getAuthToken } from "../utils/authStorage";
 import { API_URL } from "../utils/apiConfig";
+import { mlbTeams } from "../services/mlbTeams";
 
 function EditPlayerPage() {
   const { id } = useParams();
@@ -133,11 +134,48 @@ function EditPlayerPage() {
       </div>
 
       <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">Legacy Data</p>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-          Edit Player
-        </h1>
-        <p className="home-description mt-4 text-base">
+        <p className="home-kicker text-sm">Legacy Data · Edit Player</p>
+
+        <div className="favorite-edit-hero mt-6">
+          {formData.image && (
+            <div className="player-image-wrapper flex-shrink-0" style={{ width: "140px", height: "188px" }}>
+              <img
+                className="player-image"
+                src={formData.image}
+                alt={formData.name}
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            </div>
+          )}
+
+          <div className="favorite-edit-info">
+            <h1>{formData.name || "Player Name"}</h1>
+
+            <div className="favorite-edit-meta">
+              {(() => {
+                const teamEntry = mlbTeams.find(
+                  (t) => t.name.toLowerCase() === (formData.team || "").toLowerCase()
+                );
+                return (
+                  <span className="player-card-team">
+                    {teamEntry && (
+                      <img
+                        src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
+                        alt={formData.team}
+                        className="player-card-team-logo"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    )}
+                    <span>{formData.team || "Team"}</span>
+                  </span>
+                );
+              })()}
+              <span> · {formData.position || "Position"}</span>
+            </div>
+          </div>
+        </div>
+
+        <p className="home-description mt-6 text-sm">
           Manually stored player data. Favorites are managed from the Favorites page.
         </p>
       </section>
