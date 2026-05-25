@@ -640,7 +640,7 @@ input {
 
 .home-hero {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   max-width: 820px;
   padding: 40px;
   text-align: center;
@@ -1069,6 +1069,7 @@ input {
 .search-form-wrapper {
   width: 100%;
   max-width: 512px;
+  margin: 0 auto;
 }
 
 /* Search suggestions dropdown */
