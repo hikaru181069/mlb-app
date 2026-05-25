@@ -40,9 +40,14 @@ function Navbar() {
         {/* Logo */}
         <NavLink
           to="/"
-          className="flex-shrink-0 text-lg font-black tracking-tight text-ctp-lavender transition-colors hover:text-ctp-blue"
+          className="flex-shrink-0 flex items-center gap-2 text-lg font-black tracking-tight text-ctp-lavender transition-colors hover:text-ctp-blue"
         >
-          ⚾ MLB App
+          <img
+            src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
+            alt="MLB"
+            className="h-7 w-auto"
+          />
+          MLB App
         </NavLink>
 
         {/* Search — sm以上で表示 */}
