@@ -61,6 +61,20 @@
   }
 }
 
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 @keyframes card-in {
   from {
     opacity: 0;
@@ -95,14 +109,18 @@ h1 {
 .home-hero h1 {
   background: linear-gradient(
     135deg,
-    var(--ctp-lavender) 0%,
-    var(--ctp-blue) 50%,
-    var(--ctp-sapphire) 100%
+    var(--ctp-lavender),
+    var(--ctp-blue),
+    var(--ctp-sapphire),
+    var(--ctp-teal),
+    var(--ctp-lavender)
   );
+  background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   padding-bottom: 4px;
+  animation: gradient-shift 1s ease infinite;
 }
 
 .description {
