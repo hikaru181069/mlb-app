@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import PlayerStats from "./PlayerStats";
+import { mlbTeams } from "../services/mlbTeams";
 
 function PlayerCard({ player }) {
   const playerId =
@@ -8,6 +9,9 @@ function PlayerCard({ player }) {
   const team = player.teamName || player.team;
   const position = player.position;
   const image = player.imageUrl || player.image;
+
+  const teamId = player.teamId
+    ?? mlbTeams.find((t) => t.name.toLowerCase() === (team || "").toLowerCase())?.id;
 
   return (
     <Link
@@ -20,7 +24,17 @@ function PlayerCard({ player }) {
         </div>
       )}
       <h2>{name}</h2>
-      <p>Team: {team}</p>
+      <div className="player-card-team">
+        {teamId && (
+          <img
+            src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
+            alt={team}
+            className="player-card-team-logo"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+        )}
+        <span>{team}</span>
+      </div>
       <p>Position: {position}</p>
       {player.shortBio && <p>{player.shortBio}</p>}
       {player.reason && <p className="external-note">{player.reason}</p>}

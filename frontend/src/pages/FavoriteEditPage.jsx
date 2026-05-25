@@ -8,6 +8,7 @@ import {
   getFavorites,
   updateFavorite,
 } from "../services/api/favoriteApi";
+import { mlbTeams } from "../services/mlbTeams";
 
 function FavoriteEditPage() {
   const { favoriteId } = useParams();
@@ -110,6 +111,10 @@ function FavoriteEditPage() {
     );
   }
 
+  const teamEntry = mlbTeams.find(
+    (t) => t.name.toLowerCase() === (favorite.teamName || "").toLowerCase()
+  );
+
   return (
     <div className="home-page px-6 py-12">
       <div className="detail-actions">
@@ -129,9 +134,20 @@ function FavoriteEditPage() {
 
           <div className="favorite-edit-info">
             <h1>{favorite.fullName}</h1>
-            <p className="favorite-edit-meta">
-              {favorite.teamName || "Unknown"} · {favorite.position || "Unknown"}
-            </p>
+            <div className="favorite-edit-meta">
+              <span className="player-card-team">
+                {teamEntry && (
+                  <img
+                    src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
+                    alt={favorite.teamName}
+                    className="player-card-team-logo"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                )}
+                <span>{favorite.teamName || "Unknown"}</span>
+              </span>
+              <span> · {favorite.position || "Unknown"}</span>
+            </div>
 
             {favorite.tags?.length > 0 && (
               <div className="tag-list" style={{ justifyContent: "flex-start" }}>

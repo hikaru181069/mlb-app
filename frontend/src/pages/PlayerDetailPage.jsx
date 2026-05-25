@@ -13,6 +13,7 @@ import {
   getPlayerById,
   getSimilarPlayers,
 } from "../services/playerDataService";
+import { mlbTeams } from "../services/mlbTeams";
 
 function PlayerDetailPage() {
   const { playerId } = useParams();
@@ -202,6 +203,9 @@ function PlayerDetailPage() {
   const displayTeam =
     player.team && player.team !== "Unknown" ? player.team : player.teamName;
   const displayImage = player.imageUrl || player.image;
+  const displayTeamId =
+    player.teamId ??
+    mlbTeams.find((t) => t.name.toLowerCase() === (displayTeam || "").toLowerCase())?.id;
   const hasCareerStats =
     careerStats.hitterStats || careerStats.pitcherStats;
 
@@ -236,7 +240,17 @@ function PlayerDetailPage() {
             <dl className="detail-meta-list">
               <div>
                 <dt>Team</dt>
-                <dd>{displayTeam || "Unknown"}</dd>
+                <dd className="flex items-center gap-2">
+                  {displayTeamId && (
+                    <img
+                      src={`https://www.mlbstatic.com/team-logos/${displayTeamId}.svg`}
+                      alt={displayTeam}
+                      style={{ width: "20px", height: "20px" }}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  )}
+                  {displayTeam || "Unknown"}
+                </dd>
               </div>
               <div>
                 <dt>Position</dt>
