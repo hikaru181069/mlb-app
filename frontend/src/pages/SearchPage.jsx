@@ -146,62 +146,54 @@ function SearchPage() {
         <p className="home-description mt-4 text-base">
           Search any MLB player by name from the official Stats API.
         </p>
+
+        {/* [Suggestions] wrapperRef は「フォーム外クリック」の検知範囲 */}
+        <div className="search-form-wrapper" ref={wrapperRef}>
+          <form className="flex w-full gap-3" onSubmit={handleSearch}>
+
+            {/* [Suggestions] position: relative でドロップダウンを input に揃える */}
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="e.g. Shohei Ohtani"
+                value={searchText}
+                onChange={(event) => setSearchText(event.target.value)}
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                onKeyDown={(e) => e.key === "Escape" && setShowSuggestions(false)}
+                style={{ margin: 0 }}
+                className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-5 py-2.5 text-base text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
+              />
+
+              {/* [Suggestions] onMouseDown: onBlur より先に発火させてドロップダウンを閉じさせない */}
+              {showSuggestions && (
+                <ul className="search-suggestions">
+                  {suggestions.map((s) => (
+                    <li
+                      key={s.id}
+                      className="search-suggestion-item"
+                      onMouseDown={() => handleSuggestionClick(s)}
+                    >
+                      <span className="suggestion-name">{s.name}</span>
+                      <span className="suggestion-meta">
+                        {s.position && <span>{s.position}</span>}
+                        {s.team && <span>{s.team}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <button
+              className="home-link flex-shrink-0"
+              type="submit"
+              disabled={loading}
+            >
+              Search
+            </button>
+          </form>
+        </div>
       </section>
-
-      {/*
-        [Suggestions] フォームを home-hero の外に配置している理由:
-        home-hero に overflow: hidden が設定されており、内部に置くと
-        position: absolute のドロップダウンが切り取られてしまうため。
-        wrapperRef は「フォーム外クリック」の検知範囲として使用。
-      */}
-      <div className="search-form-wrapper" ref={wrapperRef}>
-        <form className="flex w-full gap-3" onSubmit={handleSearch}>
-
-          {/* [Suggestions] position: relative をここに置くことで
-              ドロップダウンを input の幅・位置に合わせて表示できる */}
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="e.g. Shohei Ohtani"
-              value={searchText}
-              onChange={(event) => setSearchText(event.target.value)}
-              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)} // [Suggestions] フォーカス時に再表示
-              onKeyDown={(e) => e.key === "Escape" && setShowSuggestions(false)} // [Suggestions] Escapeで閉じる
-              style={{ margin: 0 }}
-              className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-5 py-2.5 text-base text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
-            />
-
-            {/* [Suggestions] ドロップダウン候補リスト */}
-            {showSuggestions && (
-              <ul className="search-suggestions">
-                {suggestions.map((s) => (
-                  // onMouseDown を使う理由: onClick だと input の onBlur が先に発火して
-                  // ドロップダウンが消えてしまうため、mousedown で先にキャプチャする
-                  <li
-                    key={s.id}
-                    className="search-suggestion-item"
-                    onMouseDown={() => handleSuggestionClick(s)}
-                  >
-                    <span className="suggestion-name">{s.name}</span>
-                    <span className="suggestion-meta">
-                      {s.position && <span>{s.position}</span>}
-                      {s.team && <span>{s.team}</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <button
-            className="home-link flex-shrink-0"
-            type="submit"
-            disabled={loading}
-          >
-            Search
-          </button>
-        </form>
-      </div>
 
       {/* Results */}
       <div className="home-content mt-2">
