@@ -125,6 +125,10 @@ function EditPlayerPage() {
     );
   }
 
+  const teamEntry = mlbTeams.find(
+    (t) => t.name.toLowerCase() === (formData.team || "").toLowerCase()
+  );
+
   return (
     <div className="home-page px-6 py-12">
       <div className="detail-actions">
@@ -152,27 +156,19 @@ function EditPlayerPage() {
             <h1>{formData.name || "Player Name"}</h1>
 
             <div className="favorite-edit-meta">
-              {(() => {
-                const teamEntry = mlbTeams.find(
-                  (t) => t.name.toLowerCase() === (formData.team || "").toLowerCase()
-                );
-                return (
-                  <span className="player-card-team">
-                    {teamEntry && (
-                      <img
-                        src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
-                        alt={formData.team}
-                        className="player-card-team-logo"
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                      />
-                    )}
-                    <span>{formData.team || "Team"}</span>
-                  </span>
-                );
-              })()}
+              <span className="player-card-team">
+                {teamEntry && (
+                  <img
+                    src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
+                    alt={formData.team}
+                    className="player-card-team-logo"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                )}
+                <span>{formData.team || "Team"}</span>
+              </span>
               <span> · {formData.position || "Position"}</span>
             </div>
-
           </div>
         </div>
       </section>

@@ -1287,6 +1287,19 @@ button:disabled,
   text-align: center;
   padding: 0;
   margin: 0;
+  background: linear-gradient(
+    135deg,
+    var(--ctp-rosewater),
+    var(--ctp-flamingo),
+    var(--ctp-pink),
+    var(--ctp-mauve),
+    var(--ctp-rosewater)
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 1s ease infinite;
 }
 
 .favorite-edit-meta {
@@ -1311,8 +1324,13 @@ button:disabled,
     align-items: center;
   }
 
+  .favorite-edit-hero .player-image-wrapper {
+    margin-bottom: 12px;
+  }
+
   .favorite-edit-info {
     text-align: center;
+    width: 100%;
   }
 
   .favorite-edit-info h1 {
@@ -1321,6 +1339,12 @@ button:disabled,
 
   .favorite-edit-meta {
     text-align: center;
+    justify-content: center;
+  }
+
+  .favorite-edit-bottom-actions {
+    flex-direction: column;
+    align-items: center;
   }
 }
 

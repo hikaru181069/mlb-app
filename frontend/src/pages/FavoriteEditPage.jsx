@@ -88,7 +88,7 @@ function FavoriteEditPage() {
         <div className="player-detail mx-auto w-full max-w-3xl animate-pulse">
           <div className="h-5 w-28 rounded bg-ctp-surface1 mb-8" />
           <div className="flex gap-6">
-            <div className="rounded-[10%] bg-ctp-surface1 flex-shrink-0" style={{ width: "180px", height: "240px" }} />
+            <div className="rounded-[10%] bg-ctp-surface1 flex-shrink-0" style={{ width: "min(260px, 100%)", height: "347px" }} />
             <div className="flex flex-col gap-3 flex-1">
               <div className="h-8 w-2/3 rounded bg-ctp-surface1" />
               <div className="h-4 w-1/2 rounded bg-ctp-surface1" />
@@ -127,7 +127,7 @@ function FavoriteEditPage() {
         {/* Hero */}
         <div className="favorite-edit-hero">
           {favorite.imageUrl && (
-            <div className="player-image-wrapper flex-shrink-0" style={{ width: "260px", height: "347px" }}>
+            <div className="player-image-wrapper flex-shrink-0" style={{ width: "min(260px, 100%)", height: "347px" }}>
               <img className="player-image" src={favorite.imageUrl} alt={favorite.fullName} />
             </div>
           )}
@@ -150,7 +150,7 @@ function FavoriteEditPage() {
             </div>
 
             {favorite.tags?.length > 0 && (
-              <div className="tag-list" style={{ justifyContent: "flex-start" }}>
+              <div className="tag-list" style={{ justifyContent: "center" }}>
                 {favorite.tags.map((tag) => (
                   <span key={tag}>{tag}</span>
                 ))}

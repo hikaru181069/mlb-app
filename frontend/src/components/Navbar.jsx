@@ -14,8 +14,17 @@ const navLinkClass = ({ isActive }) =>
       : "text-ctp-subtext1 hover:text-ctp-text hover:bg-ctp-surface0/60",
   ].join(" ");
 
+const mobileNavLinkClass = ({ isActive }) =>
+  [
+    "block w-full px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-150",
+    isActive
+      ? "text-ctp-blue bg-ctp-surface0"
+      : "text-ctp-subtext1 hover:text-ctp-text hover:bg-ctp-surface0/60",
+  ].join(" ");
+
 function Navbar() {
   const [searchText, setSearchText] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const token = getAuthToken();
   const userName = getAuthUserName();
@@ -26,6 +35,7 @@ function Navbar() {
     if (trimmed) {
       navigate(`/search?keyword=${encodeURIComponent(trimmed)}`);
       setSearchText("");
+      setMenuOpen(false);
     }
   };
 
@@ -34,13 +44,17 @@ function Navbar() {
     window.location.href = "/login";
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-ctp-surface1/50 bg-ctp-mantle/85 backdrop-blur-lg">
-      <div className="mx-auto flex h-full max-w-6xl items-center gap-4 px-4 sm:px-6">
+    <header className="fixed top-0 right-0 left-0 z-50 border-b border-ctp-surface1/50 bg-ctp-mantle/85 backdrop-blur-lg">
+      {/* ── デスクトップ / モバイル共通バー ── */}
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
         {/* Logo */}
         <NavLink
           to="/"
-          className="flex-shrink-0 flex items-center gap-2 text-lg font-black tracking-tight text-ctp-lavender transition-colors hover:text-ctp-blue"
+          onClick={closeMenu}
+          className="flex flex-shrink-0 items-center gap-2 text-lg font-black tracking-tight text-ctp-lavender transition-colors hover:text-ctp-blue"
         >
           <img
             src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
@@ -50,10 +64,10 @@ function Navbar() {
           MLB App
         </NavLink>
 
-        {/* Search — sm以上で表示 */}
+        {/* Search — sm以上のみ */}
         <form
           onSubmit={handleSearch}
-          className="hidden flex-1 sm:flex items-center"
+          className="hidden sm:flex flex-1 items-center"
           style={{ maxWidth: "18rem" }}
         >
           <input
@@ -68,28 +82,20 @@ function Navbar() {
 
         <div className="flex-1" />
 
-        {/* Nav links */}
-        <nav className="flex items-center gap-0.5">
-          <NavLink to="/" className={navLinkClass} end>
-            Home
-          </NavLink>
-          <NavLink to="/search" className={navLinkClass}>
-            Search
-          </NavLink>
+        {/* Nav links — sm以上のみ */}
+        <nav className="hidden sm:flex items-center gap-0.5">
+          <NavLink to="/" className={navLinkClass} end>Home</NavLink>
+          <NavLink to="/search" className={navLinkClass}>Search</NavLink>
           {token && (
-            <NavLink to="/favorites" className={navLinkClass}>
-              Favorites
-            </NavLink>
+            <NavLink to="/favorites" className={navLinkClass}>Favorites</NavLink>
           )}
         </nav>
 
-        {/* Auth */}
-        <div className="flex items-center gap-2">
+        {/* Auth — sm以上のみ */}
+        <div className="hidden sm:flex items-center gap-2">
           {token ? (
             <>
-              <span className="hidden text-xs text-ctp-subtext0 sm:block">
-                {userName}
-              </span>
+              <span className="text-xs text-ctp-subtext0">{userName}</span>
               <button
                 type="button"
                 onClick={handleLogout}
@@ -103,8 +109,7 @@ function Navbar() {
               <NavLink
                 to="/login"
                 className={({ isActive }) =>
-                  [
-                    "rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors",
+                  ["rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors",
                     isActive
                       ? "border-ctp-sapphire bg-ctp-sapphire/10 text-ctp-sapphire"
                       : "border-ctp-surface1 text-ctp-subtext1 hover:border-ctp-surface2 hover:text-ctp-text",
@@ -116,11 +121,8 @@ function Navbar() {
               <NavLink
                 to="/register"
                 className={({ isActive }) =>
-                  [
-                    "rounded-full px-3 py-1.5 text-sm font-semibold transition-colors",
-                    isActive
-                      ? "bg-ctp-sapphire text-ctp-base"
-                      : "bg-ctp-blue text-ctp-base hover:bg-ctp-sapphire",
+                  ["rounded-full px-3 py-1.5 text-sm font-semibold transition-colors",
+                    isActive ? "bg-ctp-sapphire text-ctp-base" : "bg-ctp-blue text-ctp-base hover:bg-ctp-sapphire",
                   ].join(" ")
                 }
               >
@@ -129,7 +131,80 @@ function Navbar() {
             </>
           )}
         </div>
+
+        {/* ハンバーガーボタン — sm未満のみ */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          className="sm:hidden flex flex-col justify-center items-center gap-1.5 w-9 h-9 rounded-md text-ctp-subtext1 hover:bg-ctp-surface0/60 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <span className={`block h-0.5 w-5 bg-current transition-transform duration-200 ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
+          <span className={`block h-0.5 w-5 bg-current transition-opacity duration-200 ${menuOpen ? "opacity-0" : ""}`} />
+          <span className={`block h-0.5 w-5 bg-current transition-transform duration-200 ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+        </button>
       </div>
+
+      {/* ── モバイルメニュー ── */}
+      {menuOpen && (
+        <div className="sm:hidden border-t border-ctp-surface1/50 bg-ctp-mantle/95 backdrop-blur-lg px-4 pb-4 pt-2">
+          {/* Search */}
+          <form onSubmit={handleSearch} className="mb-3">
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search players…"
+              style={{ margin: 0 }}
+              className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-4 py-2 text-sm text-ctp-text placeholder:text-ctp-subtext0/60 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
+            />
+          </form>
+
+          {/* Nav links */}
+          <nav className="flex flex-col gap-1 mb-3">
+            <NavLink to="/" className={mobileNavLinkClass} end onClick={closeMenu}>Home</NavLink>
+            <NavLink to="/search" className={mobileNavLinkClass} onClick={closeMenu}>Search</NavLink>
+            {token && (
+              <NavLink to="/favorites" className={mobileNavLinkClass} onClick={closeMenu}>Favorites</NavLink>
+            )}
+          </nav>
+
+          {/* Auth */}
+          <div className="flex flex-col gap-2 pt-2 border-t border-ctp-surface1/40">
+            {token ? (
+              <>
+                {userName && (
+                  <p className="text-xs text-ctp-subtext0 px-1">{userName}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full rounded-full border border-ctp-surface1 py-2 text-sm font-semibold text-ctp-subtext1 transition-colors hover:border-ctp-red/60 hover:bg-ctp-red/10 hover:text-ctp-red"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  onClick={closeMenu}
+                  className="block w-full rounded-full border border-ctp-surface1 py-2 text-center text-sm font-semibold text-ctp-subtext1 transition-colors hover:border-ctp-surface2 hover:text-ctp-text"
+                >
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/register"
+                  onClick={closeMenu}
+                  className="block w-full rounded-full bg-ctp-blue py-2 text-center text-sm font-semibold text-ctp-base transition-colors hover:bg-ctp-sapphire"
+                >
+                  Register
+                </NavLink>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
