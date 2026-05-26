@@ -138,7 +138,7 @@ function EditPlayerPage() {
 
         <div className="favorite-edit-hero mt-6">
           {formData.image && (
-            <div className="player-image-wrapper flex-shrink-0" style={{ width: "140px", height: "188px" }}>
+            <div className="player-image-wrapper flex-shrink-0" style={{ width: "180px", height: "240px" }}>
               <img
                 className="player-image"
                 src={formData.image}
@@ -172,12 +172,9 @@ function EditPlayerPage() {
               })()}
               <span> · {formData.position || "Position"}</span>
             </div>
+
           </div>
         </div>
-
-        <p className="home-description mt-6 text-sm">
-          Manually stored player data. Favorites are managed from the Favorites page.
-        </p>
       </section>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -189,6 +186,10 @@ function EditPlayerPage() {
         loading={loading}
         buttonText="Update Player"
       />
+
+      <p className="home-description text-sm text-center mt-4">
+        Manually stored player data. Favorites are managed from the Favorites page.
+      </p>
     </div>
   );
 }
