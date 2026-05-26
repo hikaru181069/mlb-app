@@ -48,18 +48,15 @@
   }
 }
 
-@keyframes hero-bg-shift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
+@property --hero-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
 
-  33% {
-    background-position: 100% 0%;
-  }
-
-  66% {
-    background-position: 100% 100%;
+@keyframes hero-rotate {
+  to {
+    --hero-angle: 360deg;
   }
 }
 
@@ -646,22 +643,24 @@ input {
   text-align: center;
   border: 1px solid rgba(137, 180, 250, 0.15);
   border-radius: 24px;
-  background: linear-gradient(
-    135deg,
-    rgba(180, 190, 254, 0.22),
-    rgba(137, 180, 250, 0.16),
-    rgba(148, 226, 213, 0.14),
-    rgba(203, 166, 247, 0.18),
-    rgba(180, 190, 254, 0.22)
-  );
+  background:
+    conic-gradient(
+      from var(--hero-angle) at 50% 50%,
+      rgba(137, 180, 250, 0.24),
+      rgba(116, 199, 236, 0.16),
+      rgba(137, 220, 235, 0.12),
+      rgba(148, 226, 213, 0.10),
+      rgba(116, 199, 236, 0.16),
+      rgba(180, 190, 254, 0.18),
+      rgba(137, 180, 250, 0.24)
+    );
   background-color: var(--ctp-mantle);
-  background-size: 300% 300%;
   box-shadow:
     0 0 0 1px rgba(137, 180, 250, 0.08),
     0 24px 60px rgba(17, 17, 27, 0.4);
   animation:
     page-rise 520ms ease both,
-    hero-bg-shift 1s ease-in-out infinite;
+    hero-rotate 10s linear infinite;
 }
 
 .home-hero > * {
