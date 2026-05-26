@@ -127,7 +127,7 @@ function FavoriteEditPage() {
         {/* Hero */}
         <div className="favorite-edit-hero">
           {favorite.imageUrl && (
-            <div className="player-image-wrapper flex-shrink-0" style={{ width: "180px", height: "240px" }}>
+            <div className="player-image-wrapper flex-shrink-0" style={{ width: "260px", height: "347px" }}>
               <img className="player-image" src={favorite.imageUrl} alt={favorite.fullName} />
             </div>
           )}
@@ -156,6 +156,16 @@ function FavoriteEditPage() {
                 ))}
               </div>
             )}
+
+            <PlayerStats player={favorite} />
+
+            <Link
+              className="home-link secondary"
+              to={`/players/${favorite.mlbPlayerId}`}
+              state={{ from: `/favorites/${favoriteId}`, fromLabel: "Back to Edit" }}
+            >
+              View MLB Detail →
+            </Link>
           </div>
         </div>
 
@@ -201,23 +211,10 @@ function FavoriteEditPage() {
           </form>
         </section>
 
-        {/* Stats */}
-        <section className="detail-section">
-          <h2>Current Season Stats</h2>
-          <PlayerStats player={favorite} />
-        </section>
-
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
         {/* Bottom actions */}
         <div className="favorite-edit-bottom-actions">
-          <Link
-            className="home-link secondary"
-            to={`/players/${favorite.mlbPlayerId}`}
-            state={{ from: `/favorites/${favoriteId}`, fromLabel: "Back to Edit" }}
-          >
-            View MLB Detail →
-          </Link>
           <button className="home-link danger" type="button" onClick={handleDelete}>
             Delete this favorite
           </button>

@@ -1280,10 +1280,11 @@ button:disabled,
   gap: 12px;
   align-content: start;
   flex: 1;
+  text-align: center;
 }
 
 .favorite-edit-info h1 {
-  text-align: left;
+  text-align: center;
   padding: 0;
   margin: 0;
 }
@@ -1293,12 +1294,13 @@ button:disabled,
   font-size: 15px;
   font-weight: 600;
   margin: 0;
+  justify-content: center;
 }
 
 .favorite-edit-bottom-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -1421,6 +1423,7 @@ button:disabled,
 .favorite-form-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 16px;
 }
 
