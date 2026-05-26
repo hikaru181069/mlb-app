@@ -9,10 +9,8 @@ import {
   getFavorites,
 } from "../services/api/favoriteApi";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
-import {
-  getPlayerById,
-  getSimilarPlayers,
-} from "../services/playerDataService";
+import { getPlayerById } from "../services/playerDataService";
+import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
 
 function PlayerDetailPage() {
@@ -47,13 +45,10 @@ function PlayerDetailPage() {
           const savedFavorite = favoritePlayers.find(
             (favorite) => favorite.mlbPlayerId === localPlayer.playerId,
           );
-          setPlayer({
-            ...localPlayer,
-            ...externalPlayer,
-          });
+          setPlayer({ ...localPlayer, ...externalPlayer });
           setFavoriteRecord(savedFavorite || null);
-          setSimilarPlayers(getSimilarPlayers(playerId));
           setErrorMessage("");
+          getSimilarPlayers(localPlayer.playerId).then(setSimilarPlayers);
           return;
         }
 
@@ -62,11 +57,10 @@ function PlayerDetailPage() {
           const savedFavorite = favoritePlayers.find(
             (favorite) => favorite.mlbPlayerId === Number(playerId),
           );
-
           setPlayer(externalPlayer);
           setFavoriteRecord(savedFavorite || null);
-          setSimilarPlayers([]);
           setErrorMessage("");
+          getSimilarPlayers(playerId).then(setSimilarPlayers);
           return;
         }
 
@@ -81,14 +75,10 @@ function PlayerDetailPage() {
         const externalPlayer = await getExternalPlayerDetail(
           favoritePlayer.mlbPlayerId,
         );
-
-        setPlayer({
-          ...favoritePlayer,
-          ...externalPlayer,
-        });
+        setPlayer({ ...favoritePlayer, ...externalPlayer });
         setFavoriteRecord(favoritePlayer);
-        setSimilarPlayers([]);
         setErrorMessage("");
+        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(setSimilarPlayers);
       } catch (error) {
         console.log("Fetch player error:", error);
         setPlayer(null);
@@ -360,10 +350,10 @@ function PlayerDetailPage() {
           </div>
         ) : (
           <div className="home-empty-state">
-            <span className="empty-state-icon">🤖</span>
-            <p className="empty-state-title">Coming Soon</p>
+            <span className="empty-state-icon">⚾</span>
+            <p className="empty-state-title">No Similar Players Found</p>
             <p className="empty-state-desc">
-              Similar player recommendations will be powered by a FastAPI ML service.
+              No comparable players were found on this player's roster.
             </p>
           </div>
         )}

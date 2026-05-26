@@ -13,6 +13,7 @@ const formatExternalPlayer = (player) => {
     externalId: player.id,
     name: player.fullName,
     team: player.currentTeam?.name || "Unknown",
+    teamId: player.currentTeam?.id || null,
     position: player.primaryPosition?.name || "Unknown",
     playerType:
       player.primaryPosition?.name === "Pitcher" ? "pitcher" : "hitter",

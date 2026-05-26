@@ -136,7 +136,6 @@ function SearchPage() {
 
   return (
     <div className="home-page px-6 py-12">
-
       {/* Search Hero */}
       <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
         <p className="home-kicker text-sm">MLB Stats API</p>
@@ -150,7 +149,6 @@ function SearchPage() {
         {/* [Suggestions] wrapperRef は「フォーム外クリック」の検知範囲 */}
         <div className="search-form-wrapper" ref={wrapperRef}>
           <form className="flex w-full gap-3" onSubmit={handleSearch}>
-
             {/* [Suggestions] position: relative でドロップダウンを input に揃える */}
             <div className="relative flex-1">
               <input
@@ -158,8 +156,12 @@ function SearchPage() {
                 placeholder="e.g. Shohei Ohtani"
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
-                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                onKeyDown={(e) => e.key === "Escape" && setShowSuggestions(false)}
+                onFocus={() =>
+                  suggestions.length > 0 && setShowSuggestions(true)
+                }
+                onKeyDown={(e) =>
+                  e.key === "Escape" && setShowSuggestions(false)
+                }
                 style={{ margin: 0 }}
                 className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-5 py-2.5 text-base text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
               />
@@ -197,7 +199,6 @@ function SearchPage() {
 
       {/* Results */}
       <div className="home-content mt-2">
-
         {/* Status messages */}
         {!loading && errorMessage && (
           <p className="error-message">{errorMessage}</p>
@@ -240,7 +241,6 @@ function SearchPage() {
             ))}
           </div>
         )}
-
       </div>
     </div>
   );
