@@ -798,6 +798,12 @@ input {
   margin-top: 34px;
 }
 
+@media (min-width: 601px) {
+  .similar-players .player-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* Section heading row: title/desc left, View All right */
 .section-heading-row {
   display: flex;
