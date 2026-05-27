@@ -99,7 +99,7 @@ function HomePage() {
           const players = await getExternalPlayersByTeam(
             currentUser.favoriteTeam.id,
           );
-          setTeamPlayers(players.slice(0, 4));
+          setTeamPlayers(players);
         }
       } catch (error) {
         console.error("Home personalization error:", error);
@@ -263,10 +263,23 @@ function HomePage() {
             }
             count={teamPlayers.length}
           />
-          {renderPlayerGrid(
-            teamPlayers,
-            SKELETON_COUNTS.team,
-            EMPTY_STATES.team,
+          {loading ? (
+            <div className="player-list-carousel">
+              {Array.from({ length: SKELETON_COUNTS.team }, (_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : teamPlayers.length === 0 ? (
+            <EmptyState config={EMPTY_STATES.team} />
+          ) : (
+            <div className="player-list-carousel">
+              {teamPlayers.map((player) => (
+                <PlayerCard
+                  key={player.playerId || player.mlbPlayerId || player.externalId}
+                  player={player}
+                />
+              ))}
+            </div>
           )}
         </section>
 
