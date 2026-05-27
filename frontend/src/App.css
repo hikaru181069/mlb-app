@@ -794,6 +794,40 @@ input {
   margin: 0;
 }
 
+/* ── Team Section: Horizontal Carousel ─────────── */
+.home-team-section .player-list {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  overflow-x: auto;
+  gap: 16px;
+  padding-bottom: 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ctp-surface1) transparent;
+}
+
+.home-team-section .player-list > * {
+  flex-shrink: 0;
+  width: 240px;
+  scroll-snap-align: start;
+}
+
+/* ── Favorites Section: 3-column Grid ───────────── */
+@media (min-width: 601px) {
+  .home-favorites-section .player-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Recommendations: 3-column Grid (same as Favorites) ── */
+@media (min-width: 601px) {
+  .home-recommendations-section .player-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .similar-players {
   margin-top: 34px;
 }

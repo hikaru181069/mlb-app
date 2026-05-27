@@ -13,7 +13,7 @@ import {
   isUnauthorizedError,
 } from "../services/api/apiError";
 
-const SKELETON_COUNTS = { team: 4, favorites: 5, recommendations: 3 };
+const SKELETON_COUNTS = { team: 4, favorites: 6, recommendations: 6 };
 
 const EMPTY_STATES = {
   team: {
@@ -92,7 +92,7 @@ function HomePage() {
         ]);
 
         setUser(currentUser);
-        setFavorites(favoritePlayers.slice(0, 5));
+        setFavorites(favoritePlayers.slice(0, 6));
         setRecommendations(recommendedPlayers);
 
         if (currentUser.favoriteTeam?.id) {
@@ -253,7 +253,7 @@ function HomePage() {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
-        <section className="home-player-section">
+        <section className="home-player-section home-team-section">
           <SectionHeading
             title="Your Favorite Team"
             desc={
@@ -270,7 +270,7 @@ function HomePage() {
           )}
         </section>
 
-        <section className="home-player-section">
+        <section className="home-player-section home-favorites-section">
           <SectionHeading
             title="Your Favorite Players"
             desc="Players saved from Search, Detail, or Onboarding."
@@ -284,7 +284,7 @@ function HomePage() {
           )}
         </section>
 
-        <section className="home-player-section">
+        <section className="home-player-section home-recommendations-section">
           <SectionHeading
             title="Recommended For You"
             desc="Recommended from your favorite team, current stats, and saved players."

@@ -7,3 +7,4 @@ frontend/dist
 frontend/public/images
 memo.txt
 .DS_Store
+.venv/
