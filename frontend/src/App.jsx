@@ -14,6 +14,7 @@ import FavoriteEditPage from "./pages/FavoriteEditPage";
 import RegisterPage from "./pages/RegisterPage";
 import OnboardingTeamPage from "./pages/OnboardingTeamPage";
 import OnboardingFavoritesPage from "./pages/OnboardingFavoritesPage";
+import TeamRosterPage from "./pages/TeamRosterPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
+          <Route path="/team-roster" element={<TeamRosterPage />} />
           <Route path="/onboarding/team" element={<OnboardingTeamPage />} />
           <Route
             path="/onboarding/favorites"
