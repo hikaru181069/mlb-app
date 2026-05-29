@@ -126,7 +126,7 @@ function FavoriteEditPage() {
         {/* Hero */}
         <div className="favorite-edit-hero">
           {favorite.imageUrl && (
-            <div className="player-image-wrapper flex-shrink-0" style={{ width: "min(260px, 100%)", height: "347px" }}>
+            <div className="player-image-wrapper favorite-edit-image flex-shrink-0">
               <img className="player-image" src={favorite.imageUrl} alt={favorite.fullName} />
             </div>
           )}

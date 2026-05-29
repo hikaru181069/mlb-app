@@ -1644,6 +1644,7 @@ button:disabled,
   .home-page {
     margin: 16px auto;
     padding: 16px;
+    overflow-x: hidden;
   }
 
   .home-hero,
@@ -1657,9 +1658,8 @@ button:disabled,
     grid-template-columns: 1fr;
   }
 
-  .player-image {
-    width: min(100%, 220px);
-    height: 280px;
+  .player-image-wrapper {
+    height: 260px;
   }
 
   .detail-image {
@@ -2999,4 +2999,101 @@ button:disabled,
 .game-result-badge--loss {
   background: rgba(243, 139, 168, 0.15);
   color: var(--ctp-red);
+}
+
+/* ── Detail hero image (responsive) ── */
+.detail-hero-image {
+  width: min(100%, 360px);
+  height: 480px;
+}
+
+.favorite-edit-image {
+  width: min(260px, 100%);
+  height: 347px;
+}
+
+/* ── Mobile improvements ── */
+@media (max-width: 640px) {
+  /* Player detail / favorite edit image: shorter on mobile */
+  .detail-hero-image {
+    width: min(100%, 240px);
+    height: 320px;
+  }
+  .favorite-edit-image {
+    width: min(100%, 200px);
+    height: 267px;
+  }
+
+  /* Stats table: tighter padding */
+  .stats-table th {
+    padding: 6px 8px;
+    font-size: 0.6rem;
+  }
+  .stats-table td {
+    padding: 10px 8px;
+    font-size: 0.875rem;
+  }
+
+  /* Recent games table: tighter padding */
+  .recent-games-table th,
+  .recent-games-table td {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  /* Player card + image: reduced shadow on mobile */
+  .player-card {
+    box-shadow: 0 4px 14px rgba(17, 17, 27, 0.28);
+  }
+  .player-image {
+    box-shadow: 0 4px 14px rgba(17, 17, 27, 0.38);
+  }
+
+  /* Action buttons: stack vertically */
+  .home-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .home-actions .home-link {
+    text-align: center;
+  }
+
+  /* Navigation: smaller text and padding */
+  .app-nav a {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  /* Hero section: less padding */
+  .home-hero {
+    padding: 24px 20px;
+  }
+
+  /* Detail section: less padding */
+  .detail-section {
+    padding: 14px;
+  }
+}
+
+/* Compare page: stack on mobile */
+@media (max-width: 580px) {
+  .cbattle-header {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  .cbattle-vs-col {
+    grid-column: 1 / -1;
+    order: -1;
+    padding: 4px 0;
+  }
+  .cbattle-vs {
+    font-size: 1.8rem;
+  }
+  .cbattle-card {
+    padding: 14px 10px;
+  }
+  .cbattle-img {
+    width: 64px;
+    height: 64px;
+  }
 }

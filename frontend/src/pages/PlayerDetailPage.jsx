@@ -203,10 +203,7 @@ function PlayerDetailPage() {
       <div className="player-detail mx-auto mt-8 w-full max-w-4xl">
         <section className="detail-hero">
           {displayImage && (
-            <div
-              className="player-image-wrapper transition duration-200 hover:scale-[1.02]"
-              style={{ width: "min(100%, 360px)", height: "480px" }}
-            >
+            <div className="player-image-wrapper detail-hero-image transition duration-200 hover:scale-[1.02]">
               <img
                 className="player-image"
                 src={displayImage}
