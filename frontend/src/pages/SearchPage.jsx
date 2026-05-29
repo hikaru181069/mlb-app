@@ -237,6 +237,10 @@ function SearchPage() {
                 key={player.externalId}
                 player={player}
                 alreadySaved={isAlreadySaved(player)}
+                detailState={{
+                  from: `/search?keyword=${encodeURIComponent(keyword)}`,
+                  fromLabel: "Back to Search",
+                }}
               />
             ))}
           </div>

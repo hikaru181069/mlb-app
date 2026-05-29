@@ -86,6 +86,8 @@ function Navbar() {
         <nav className="hidden sm:flex items-center gap-0.5">
           <NavLink to="/" className={navLinkClass} end>Home</NavLink>
           <NavLink to="/search" className={navLinkClass}>Search</NavLink>
+          <NavLink to="/stats" className={navLinkClass}>Stats</NavLink>
+          <NavLink to="/compare" className={navLinkClass}>Compare</NavLink>
           {token && (
             <NavLink to="/favorites" className={navLinkClass}>Favorites</NavLink>
           )}
@@ -164,6 +166,8 @@ function Navbar() {
           <nav className="flex flex-col gap-1 mb-3">
             <NavLink to="/" className={mobileNavLinkClass} end onClick={closeMenu}>Home</NavLink>
             <NavLink to="/search" className={mobileNavLinkClass} onClick={closeMenu}>Search</NavLink>
+            <NavLink to="/stats" className={mobileNavLinkClass} onClick={closeMenu}>Stats</NavLink>
+            <NavLink to="/compare" className={mobileNavLinkClass} onClick={closeMenu}>Compare</NavLink>
             {token && (
               <NavLink to="/favorites" className={mobileNavLinkClass} onClick={closeMenu}>Favorites</NavLink>
             )}

@@ -263,6 +263,13 @@ function PlayerDetailPage() {
                 {favoriteRecord ? "✓ Already in Favorites" : "Add to Favorites"}
               </button>
 
+              <Link
+                className="home-link secondary"
+                to={`/compare?p1=${player.externalId || player.mlbPlayerId}`}
+              >
+                Compare →
+              </Link>
+
               {player.baseballSavantUrl && (
                 <a
                   className="home-link secondary"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import FavoritePlayerCard from "../components/FavoritePlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
@@ -14,7 +14,32 @@ function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
   const token = getAuthToken();
+  const navigate = useNavigate();
+
+  const handleToggleSelect = (favorite) => {
+    const id = favorite.mlbPlayerId;
+    setSelectedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : prev.length < 2
+        ? [...prev, id]
+        : prev,
+    );
+  };
+
+  const handleCompare = () => {
+    if (selectedIds.length === 2) {
+      navigate(`/compare?p1=${selectedIds[0]}&p2=${selectedIds[1]}`);
+    }
+  };
+
+  const handleToggleCompareMode = () => {
+    setCompareMode((prev) => !prev);
+    setSelectedIds([]);
+  };
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -62,6 +87,33 @@ function FavoritesPage() {
         <p className="home-description mt-4 text-base">
           Manage your saved MLB players, notes, and tags.
         </p>
+        {!loading && favorites.length >= 2 && (
+          <div className="home-actions mt-6">
+            <button
+              type="button"
+              className={`home-link secondary${compareMode ? " home-link--active" : ""}`}
+              onClick={handleToggleCompareMode}
+            >
+              {compareMode ? "Cancel Compare" : "Compare Players"}
+            </button>
+            {compareMode && selectedIds.length === 2 && (
+              <button
+                type="button"
+                className="home-link"
+                onClick={handleCompare}
+              >
+                Compare Selected →
+              </button>
+            )}
+          </div>
+        )}
+        {compareMode && (
+          <p className="compare-mode-hint">
+            {selectedIds.length === 0 && "Select 2 players to compare."}
+            {selectedIds.length === 1 && "Select 1 more player."}
+            {selectedIds.length === 2 && "Ready! Click Compare Selected."}
+          </p>
+        )}
       </section>
 
       <div className="home-content mt-2 w-full">
@@ -98,7 +150,13 @@ function FavoritesPage() {
         {!loading && favorites.length > 0 && (
           <div className="player-list">
             {favorites.map((favorite) => (
-              <FavoritePlayerCard key={favorite._id} favorite={favorite} />
+              <FavoritePlayerCard
+                key={favorite._id}
+                favorite={favorite}
+                selectable={compareMode}
+                selected={selectedIds.includes(favorite.mlbPlayerId)}
+                onToggle={handleToggleSelect}
+              />
             ))}
           </div>
         )}
