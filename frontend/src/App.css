@@ -2368,3 +2368,529 @@ button:disabled,
   border-color: var(--ctp-sapphire) !important;
   color: var(--ctp-sapphire) !important;
 }
+
+/* ── Profile Page ── */
+
+/* hero内のアバター */
+.profile-hero-avatar {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ctp-blue), var(--ctp-lavender));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--ctp-base);
+  letter-spacing: -0.02em;
+  box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.2);
+  margin: 8px auto 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.profile-hero-avatar--btn {
+  border: none;
+  padding: 0;
+  transition: box-shadow 0.2s;
+}
+
+.profile-hero-avatar--btn:hover {
+  box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.5);
+}
+
+.profile-hero-avatar--loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.profile-hero-avatar--btn:hover .profile-avatar-overlay {
+  opacity: 1;
+}
+
+/* hero下部のYOUR ACCOUNTカード */
+.profile-identity-card {
+  margin-top: 20px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(137, 180, 250, 0.1);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* hero内の名前行 */
+.profile-hero-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+/* hero内の編集フォーム */
+.profile-hero-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.profile-edit-actions--centered {
+  justify-content: center;
+}
+
+.profile-pencil-btn {
+  font-size: 1rem;
+  color: var(--ctp-subtext0);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition:
+    color 0.15s,
+    background 0.15s;
+  line-height: 1;
+}
+
+.profile-pencil-btn:hover {
+  color: var(--ctp-blue);
+  background: rgba(137, 180, 250, 0.12);
+}
+
+/* ── Grid ── */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto 20px;
+}
+
+.profile-card {
+  padding: 22px 26px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 16px;
+  background: var(--ctp-surface0);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.15s;
+}
+
+.profile-card:hover {
+  border-color: var(--ctp-blue);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.profile-card--full {
+  grid-column: 1 / -1;
+}
+
+.profile-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ctp-subtext0);
+}
+
+/* ── Team card ── */
+.profile-team-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-team-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.profile-team-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ctp-text);
+}
+
+.profile-team-abbr {
+  font-size: 0.78rem;
+  color: var(--ctp-subtext0);
+  margin-top: 2px;
+}
+
+.profile-empty-hint {
+  font-size: 0.875rem;
+  color: var(--ctp-overlay0);
+}
+
+/* ── Stats card ── */
+.profile-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-stat-icon {
+  font-size: 1.8rem;
+  color: var(--ctp-yellow);
+  filter: drop-shadow(0 0 6px rgba(249, 226, 175, 0.4));
+}
+
+.profile-stat-value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--ctp-text);
+  line-height: 1;
+}
+
+.profile-stat-desc {
+  font-size: 0.78rem;
+  color: var(--ctp-subtext0);
+  margin-top: 3px;
+}
+
+.profile-card-link {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--ctp-blue);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.profile-card-link:hover {
+  color: var(--ctp-sapphire);
+}
+
+/* ── Security card ── */
+.profile-security-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-security-desc {
+  font-size: 0.85rem;
+  color: var(--ctp-subtext0);
+}
+
+/* ── Action buttons (Change Team / Change Password) ── */
+.profile-action-btn {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: var(--ctp-blue);
+  color: var(--ctp-base);
+  transition:
+    background 0.15s,
+    transform 0.1s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.profile-action-btn:hover {
+  background: var(--ctp-sapphire);
+  transform: translateY(-1px);
+}
+
+.profile-action-btn--secondary {
+  background: var(--ctp-lavender);
+}
+
+.profile-action-btn--secondary:hover {
+  background: var(--ctp-mauve);
+  transform: translateY(-1px);
+}
+
+/* ── Edit controls ── */
+.profile-name-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-name-input {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--ctp-text);
+  background: var(--ctp-surface1);
+  border: 1.5px solid var(--ctp-sapphire);
+  border-radius: 8px;
+  padding: 6px 12px;
+  outline: none;
+  width: 100%;
+  max-width: 300px;
+}
+
+.profile-field-error {
+  font-size: 0.78rem;
+  color: var(--ctp-red);
+}
+
+.profile-field-success {
+  font-size: 0.78rem;
+  color: var(--ctp-green);
+}
+
+.profile-edit-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.profile-btn {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
+}
+
+.profile-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-btn--save {
+  background: var(--ctp-blue);
+  color: var(--ctp-base);
+}
+
+.profile-btn--save:hover:not(:disabled) {
+  background: var(--ctp-sapphire);
+}
+
+.profile-btn--cancel {
+  background: var(--ctp-surface1);
+  color: var(--ctp-subtext1);
+}
+
+.profile-btn--cancel:hover:not(:disabled) {
+  background: var(--ctp-surface2);
+}
+
+/* ── Team picker ── */
+.profile-team-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.profile-team-grid .team-card {
+  padding: 6px 4px;
+}
+.profile-team-grid .team-card-logo {
+  width: 28px;
+  height: 28px;
+}
+.profile-team-grid .team-card-name {
+  font-size: 0.6rem;
+}
+
+/* ── Password form ── */
+.profile-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-password-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.profile-field-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--ctp-surface2);
+  background: var(--ctp-surface1);
+  color: var(--ctp-text);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.profile-field-input:focus {
+  border-color: var(--ctp-sapphire);
+}
+
+.profile-field-input--danger:focus {
+  border-color: var(--ctp-red);
+}
+
+/* ── Danger Zone (outside grid) ── */
+.profile-danger-section {
+  max-width: 720px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 8px auto 0;
+}
+
+.profile-danger-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ctp-red);
+  padding-left: 2px;
+}
+
+.profile-danger-card {
+  padding: 22px 26px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 16px;
+  background: var(--ctp-surface0);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.15s;
+}
+
+.profile-danger-card:hover {
+  border-color: var(--ctp-red);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.profile-danger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-danger-card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ctp-text);
+  margin-bottom: 4px;
+}
+
+.profile-danger-desc {
+  font-size: 0.825rem;
+  color: var(--ctp-subtext0);
+  line-height: 1.5;
+}
+
+.profile-delete-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-btn--danger {
+  background: var(--ctp-red);
+  color: var(--ctp-base);
+}
+
+.profile-btn--danger:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.profile-btn--danger-outline {
+  background: transparent;
+  color: var(--ctp-red);
+  border: 1.5px solid var(--ctp-red) !important;
+  padding: 7px 16px;
+  border-radius: 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.profile-btn--danger-outline:hover {
+  background: rgba(243, 139, 168, 0.1);
+}
+
+/* ── Responsive ── */
+@media (max-width: 580px) {
+  .profile-header-card {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .profile-name-row {
+    justify-content: center;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-card--full {
+    grid-column: 1;
+  }
+
+  .profile-password-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-security-row,
+  .profile-danger-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

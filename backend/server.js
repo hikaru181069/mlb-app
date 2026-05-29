@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
 
 const connectDB = require("./config/db");
 const playerRoutes = require("./routes/playerRoutes");
@@ -29,6 +30,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/players", playerRoutes);
 app.use("/api/auth", authRoutes);

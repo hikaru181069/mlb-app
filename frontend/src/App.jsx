@@ -17,6 +17,7 @@ import OnboardingFavoritesPage from "./pages/OnboardingFavoritesPage";
 import TeamRosterPage from "./pages/TeamRosterPage";
 import StatsPage from "./pages/StatsPage";
 import ComparePage from "./pages/ComparePage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/team-roster" element={<TeamRosterPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/compare" element={<ComparePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/onboarding/team" element={<OnboardingTeamPage />} />
           <Route
             path="/onboarding/favorites"

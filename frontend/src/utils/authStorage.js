@@ -16,6 +16,10 @@ export const getAuthUserName = () => {
   return localStorage.getItem("userName");
 };
 
+export const saveAuthUserName = (name) => {
+  localStorage.setItem("userName", name);
+};
+
 export const markOnboardingCompleted = () => {
   localStorage.setItem("hasCompletedOnboarding", "true");
 };

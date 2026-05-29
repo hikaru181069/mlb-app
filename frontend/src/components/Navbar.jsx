@@ -97,7 +97,17 @@ function Navbar() {
         <div className="hidden sm:flex items-center gap-2">
           {token ? (
             <>
-              <span className="text-xs text-ctp-subtext0">{userName}</span>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  [
+                    "text-xs font-semibold transition-colors",
+                    isActive ? "text-ctp-blue" : "text-ctp-subtext0 hover:text-ctp-text",
+                  ].join(" ")
+                }
+              >
+                {userName}
+              </NavLink>
               <button
                 type="button"
                 onClick={handleLogout}
@@ -178,7 +188,18 @@ function Navbar() {
             {token ? (
               <>
                 {userName && (
-                  <p className="text-xs text-ctp-subtext0 px-1">{userName}</p>
+                  <NavLink
+                    to="/profile"
+                    onClick={closeMenu}
+                    className={({ isActive }) =>
+                      [
+                        "text-xs font-semibold px-1 transition-colors",
+                        isActive ? "text-ctp-blue" : "text-ctp-subtext0 hover:text-ctp-text",
+                      ].join(" ")
+                    }
+                  >
+                    {userName}
+                  </NavLink>
                 )}
                 <button
                   type="button"
