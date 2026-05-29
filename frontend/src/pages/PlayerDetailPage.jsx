@@ -260,39 +260,6 @@ function PlayerDetailPage() {
               )}
             </dl>
             {player.shortBio && <p className="detail-bio">{player.shortBio}</p>}
-
-            <div className="home-actions">
-              <button
-                className={`home-link${favoriteRecord ? " secondary" : ""}`}
-                type="button"
-                disabled={Boolean(favoriteRecord)}
-                onClick={handleAddToFavorites}
-              >
-                {favoriteRecord ? "✓ Already in Favorites" : "Add to Favorites"}
-              </button>
-
-              <Link
-                className="home-link secondary"
-                to={`/compare?p1=${player.externalId || player.mlbPlayerId}`}
-              >
-                Compare →
-              </Link>
-
-              {player.baseballSavantUrl && (
-                <a
-                  className="home-link secondary"
-                  href={player.baseballSavantUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Baseball Savant ↗
-                </a>
-              )}
-            </div>
-
-            {favoriteMessage && (
-              <p className="status-message">{favoriteMessage}</p>
-            )}
           </div>
         </section>
 
@@ -353,6 +320,39 @@ function PlayerDetailPage() {
             </div>
           )}
         </section>
+
+        <div className="home-actions">
+          <button
+            className={`home-link${favoriteRecord ? " secondary" : ""}`}
+            type="button"
+            disabled={Boolean(favoriteRecord)}
+            onClick={handleAddToFavorites}
+          >
+            {favoriteRecord ? "✓ Already in Favorites" : "Add to Favorites"}
+          </button>
+
+          <Link
+            className="home-link secondary"
+            to={`/compare?p1=${player.externalId || player.mlbPlayerId}`}
+          >
+            Compare →
+          </Link>
+
+          {player.baseballSavantUrl && (
+            <a
+              className="home-link secondary"
+              href={player.baseballSavantUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Baseball Savant ↗
+            </a>
+          )}
+        </div>
+
+        {favoriteMessage && (
+          <p className="status-message">{favoriteMessage}</p>
+        )}
 
       </div>
 
