@@ -116,10 +116,9 @@ const fetchExternalPlayersByTeam = async (teamId) => {
     "Failed to fetch team roster from MLB API",
   );
   const roster = data.roster || [];
-  const firstPlayers = roster.slice(0, 12);
 
   return Promise.all(
-    firstPlayers.map(async (rosterPlayer) => {
+    roster.map(async (rosterPlayer) => {
       const detailedPlayer =
         (await fetchExternalPlayerDetails(rosterPlayer.person.id)) ||
         rosterPlayer.person;

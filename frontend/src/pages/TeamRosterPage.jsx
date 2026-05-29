@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import PlayerCard from "../components/PlayerCard";
@@ -12,6 +12,48 @@ import {
 } from "../services/api/apiError";
 
 const SKELETON_COUNT = 12;
+
+function RosterSection({ title, players, loading, skeletonCount }) {
+  if (loading) {
+    return (
+      <section className="home-player-section">
+        <div className="section-heading-row">
+          <div className="section-heading">
+            <h2>{title}</h2>
+          </div>
+        </div>
+        <div className="player-list">
+          {Array.from({ length: skeletonCount }, (_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (players.length === 0) return null;
+
+  return (
+    <section className="home-player-section">
+      <div className="section-heading-row">
+        <div className="section-heading">
+          <h2>
+            {title}
+            <span className="count-badge">{players.length}</span>
+          </h2>
+        </div>
+      </div>
+      <div className="player-list">
+        {players.map((player) => (
+          <PlayerCard
+            key={player.playerId || player.mlbPlayerId || player.externalId}
+            player={player}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function TeamRosterPage() {
   const [user, setUser] = useState(null);
@@ -54,6 +96,13 @@ function TeamRosterPage() {
 
     fetchTeamRoster();
   }, [token]);
+
+  const { pitchers, positionPlayers } = useMemo(() => {
+    return {
+      pitchers: players.filter((p) => p.playerType === "pitcher"),
+      positionPlayers: players.filter((p) => p.playerType !== "pitcher"),
+    };
+  }, [players]);
 
   if (!token) {
     return (
@@ -110,14 +159,6 @@ function TeamRosterPage() {
       <div className="home-content mt-2 w-full">
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {loading && (
-          <div className="player-list">
-            {Array.from({ length: SKELETON_COUNT }, (_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        )}
-
         {!loading && !errorMessage && !user?.favoriteTeam?.id && (
           <div className="home-empty-state">
             <span className="empty-state-icon">⚾</span>
@@ -131,16 +172,19 @@ function TeamRosterPage() {
           </div>
         )}
 
-        {!loading && players.length > 0 && (
-          <div className="player-list">
-            {players.map((player) => (
-              <PlayerCard
-                key={player.playerId || player.mlbPlayerId || player.externalId}
-                player={player}
-              />
-            ))}
-          </div>
-        )}
+        <RosterSection
+          title="Pitchers"
+          players={pitchers}
+          loading={loading}
+          skeletonCount={Math.ceil(SKELETON_COUNT / 2)}
+        />
+
+        <RosterSection
+          title="Position Players"
+          players={positionPlayers}
+          loading={loading}
+          skeletonCount={Math.ceil(SKELETON_COUNT / 2)}
+        />
       </div>
     </div>
   );
