@@ -101,7 +101,7 @@ export const deleteFavorite = async (favoriteId, token) => {
 
 const createFavoriteRequestBody = (player) => {
   return {
-    mlbPlayerId: Number(player.externalId || player.mlbPlayerId || player.id),
+    mlbPlayerId: Number(player.mlbPlayerId || player.playerId),
     fullName: player.name || player.fullName,
     teamName: player.team || player.teamName || "Unknown",
     position: player.position || "Unknown",

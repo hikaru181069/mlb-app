@@ -138,7 +138,7 @@ function HomePage() {
       <div className="player-list">
         {players.map((player) => (
           <PlayerCard
-            key={player.playerId || player.mlbPlayerId || player.externalId}
+            key={player.playerId || player.mlbPlayerId}
             player={player}
           />
         ))}
@@ -287,7 +287,7 @@ function HomePage() {
               {teamPlayers.map((player) => (
                 <PlayerCard
                   key={
-                    player.playerId || player.mlbPlayerId || player.externalId
+                    player.playerId || player.mlbPlayerId
                   }
                   player={player}
                 />

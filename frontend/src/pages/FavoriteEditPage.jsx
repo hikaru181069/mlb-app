@@ -66,7 +66,7 @@ function FavoriteEditPage() {
       setSaveMessage("Saved.");
     } catch (error) {
       console.error("Update favorite error:", error);
-      setErrorMessage("Failed to save.");
+      setErrorMessage(error.message || "Failed to save.");
     }
   };
 
@@ -77,7 +77,7 @@ function FavoriteEditPage() {
       navigate("/favorites");
     } catch (error) {
       console.error("Delete favorite error:", error);
-      setErrorMessage("Failed to delete.");
+      setErrorMessage(error.message || "Failed to delete.");
     }
   };
 

@@ -46,7 +46,7 @@ function RosterSection({ title, players, loading, skeletonCount }) {
       <div className="player-list">
         {players.map((player) => (
           <PlayerCard
-            key={player.playerId || player.mlbPlayerId || player.externalId}
+            key={player.playerId || player.mlbPlayerId}
             player={player}
           />
         ))}

@@ -97,9 +97,9 @@ const chooseBalancedPlayers = ({
   const selected = [...selectedHitters, ...selectedPitchers];
 
   if (selected.length < limit) {
-    const selectedIds = new Set(selected.map((player) => player.externalId));
+    const selectedIds = new Set(selected.map((player) => player.mlbPlayerId));
     const remainingPlayers = [...hitters, ...pitchers]
-      .filter((player) => !selectedIds.has(player.externalId))
+      .filter((player) => !selectedIds.has(player.mlbPlayerId))
       .sort((a, b) => b.recommendationScore - a.recommendationScore);
 
     selected.push(...remainingPlayers.slice(0, limit - selected.length));
@@ -124,7 +124,7 @@ const fetchExternalPlayersByTeam = async (teamId) => {
         rosterPlayer.person;
       const player = formatExternalPlayer(detailedPlayer);
       const seasonStats = await fetchExternalPlayerStats({
-        playerId: player.externalId,
+        playerId: player.mlbPlayerId,
       });
       const formattedSeasonStats = formatExternalStats(seasonStats);
 
@@ -169,7 +169,7 @@ const fetchRecommendedPlayersByTeam = async (
             ? "pitcher"
             : "hitter";
         const seasonStats = await fetchExternalPlayerStats({
-          playerId: basePlayer.externalId,
+          playerId: basePlayer.mlbPlayerId,
         });
         const formattedSeasonStats = formatExternalStats(seasonStats);
         const player = {

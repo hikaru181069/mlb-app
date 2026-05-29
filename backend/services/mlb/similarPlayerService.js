@@ -16,7 +16,7 @@ const { fetchSimilarPlayerIds } = require("../fastApiService");
  * 選手データを FastAPI に渡せる形式に変換する
  */
 const toFastApiPayload = (player) => ({
-  playerId: player.externalId,
+  playerId: player.mlbPlayerId,
   playerType: player.playerType || "hitter",
   hitterStats: {
     battingAverage: player.hitterStats?.battingAverage || 0,

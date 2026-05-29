@@ -3,7 +3,7 @@ import { mlbTeams } from "../services/mlbTeams";
 
 function PlayerCard({ player }) {
   const playerId =
-    player.playerId || player.mlbPlayerId || player.externalId || player._id;
+    player.playerId || player.mlbPlayerId || player._id;
   const name = player.fullName || player.name;
   const team = player.teamName || player.team;
   const position = player.position;

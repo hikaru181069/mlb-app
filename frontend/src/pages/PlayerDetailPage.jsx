@@ -80,9 +80,9 @@ function PlayerDetailPage() {
         setErrorMessage("");
         getSimilarPlayers(favoritePlayer.mlbPlayerId).then(setSimilarPlayers);
       } catch (error) {
-        console.log("Fetch player error:", error);
+        console.error("Fetch player error:", error);
         setPlayer(null);
-        setErrorMessage("Failed to load player.");
+        setErrorMessage(error.message || "Failed to load player.");
       } finally {
         setLoading(false);
       }
@@ -183,11 +183,6 @@ function PlayerDetailPage() {
     pitcherStats:
       player.currentSeasonStats?.pitcherStats || player.pitcherStats,
   };
-  const careerStats = {
-    playerType: player.playerType,
-    hitterStats: player.careerStats?.hitterStats,
-    pitcherStats: player.careerStats?.pitcherStats,
-  };
   const recentGames = player.recentGames || [];
   const displayName = player.fullName || player.name;
   const displayTeam =
@@ -196,8 +191,6 @@ function PlayerDetailPage() {
   const displayTeamId =
     player.teamId ??
     mlbTeams.find((t) => t.name.toLowerCase() === (displayTeam || "").toLowerCase())?.id;
-  const hasCareerStats =
-    careerStats.hitterStats || careerStats.pitcherStats;
 
   return (
     <div className="home-page px-6 py-12">
@@ -354,6 +347,38 @@ function PlayerDetailPage() {
           )}
         </section>
 
+        <div className="home-actions">
+          <button
+            className={`home-link${favoriteRecord ? " secondary" : ""}`}
+            type="button"
+            disabled={Boolean(favoriteRecord)}
+            onClick={handleAddToFavorites}
+          >
+            {favoriteRecord ? "✓ Already in Favorites" : "Add to Favorites"}
+          </button>
+
+          <Link
+            className="home-link secondary"
+            to={`/compare?p1=${player.mlbPlayerId}`}
+          >
+            Compare →
+          </Link>
+
+          {player.baseballSavantUrl && (
+            <a
+              className="home-link secondary"
+              href={player.baseballSavantUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Baseball Savant ↗
+            </a>
+          )}
+        </div>
+
+        {favoriteMessage && (
+          <p className="status-message">{favoriteMessage}</p>
+        )}
       </div>
 
       <section className="similar-players">

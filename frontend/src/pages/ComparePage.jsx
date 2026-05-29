@@ -132,7 +132,7 @@ function PlayerBattleCard({ player, side }) {
           className="cbattle-img"
         />
       )}
-      <Link to={`/players/${player.externalId}`} className="cbattle-name">
+      <Link to={`/players/${player.mlbPlayerId}`} className="cbattle-name">
         {player.name || player.fullName}
       </Link>
       <div className="cbattle-meta">
@@ -242,7 +242,7 @@ function ComparePage() {
   const bothLoaded = player1 && player2;
 
   // players が変わるたびに VS アニメーションをリセットするキー
-  const animKey = `${player1?.externalId ?? "x"}-${player2?.externalId ?? "x"}`;
+  const animKey = `${player1?.mlbPlayerId ?? "x"}-${player2?.mlbPlayerId ?? "x"}`;
 
   const leftHitter  = player1?.currentSeasonStats?.hitterStats  || player1?.hitterStats;
   const leftPitcher = player1?.currentSeasonStats?.pitcherStats || player1?.pitcherStats;

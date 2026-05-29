@@ -8,7 +8,7 @@ const addUniqueRecommendations = ({
 }) => {
   for (const candidate of candidates) {
     const playerId =
-      candidate.externalId || candidate.mlbPlayerId || candidate.playerId;
+      candidate.mlbPlayerId || candidate.playerId;
 
     if (!playerId || existingIds.has(Number(playerId))) {
       continue;
