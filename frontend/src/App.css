@@ -28,6 +28,11 @@
   --ctp-base: #1e1e2e;
   --ctp-mantle: #181825;
   --ctp-crust: #11111b;
+
+  /* Easing curves */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
 }
 
 :focus-visible {
@@ -39,7 +44,7 @@
 @keyframes page-rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(24px);
   }
 
   to {
@@ -77,12 +82,12 @@
 @keyframes card-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: translateY(20px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -92,7 +97,7 @@
   padding: 24px;
   font-family: var(--app-font);
   color: var(--ctp-text);
-  animation: page-rise 420ms ease both;
+  animation: page-rise 560ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 h1 {
@@ -102,7 +107,8 @@ h1 {
   color: var(--ctp-lavender);
   padding: 24px 0 6px;
   font-size: clamp(32px, 6vw, 56px);
-  line-height: 1.05;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .home-hero h1 {
@@ -164,20 +170,20 @@ h1 {
   display: block;
   text-decoration: none;
   box-shadow: 0 14px 30px rgba(17, 17, 27, 0.28);
-  animation: card-in 360ms ease both;
+  animation: card-in 480ms var(--ease-out) both;
   transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease;
+    transform 240ms var(--ease-spring),
+    border-color 200ms var(--ease-smooth),
+    box-shadow 240ms var(--ease-smooth);
 }
 
 .player-card:hover {
-  border-color: rgba(137, 180, 250, 0.6);
-  transform: translateY(-3px);
+  border-color: rgba(137, 180, 250, 0.5);
+  transform: translateY(-5px);
   box-shadow:
-    0 0 0 1px rgba(137, 180, 250, 0.2),
-    0 8px 30px rgba(137, 180, 250, 0.12),
-    0 20px 44px rgba(17, 17, 27, 0.48);
+    0 0 0 1px rgba(137, 180, 250, 0.15),
+    0 8px 24px rgba(137, 180, 250, 0.1),
+    0 24px 48px rgba(17, 17, 27, 0.44);
 }
 
 .player-card-link {
@@ -190,7 +196,9 @@ h1 {
   color: var(--ctp-blue);
   margin-top: 0;
   margin-bottom: 12px;
-  font-size: 23px;
+  font-size: 1.2rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
   text-align: center;
 }
 
@@ -417,15 +425,23 @@ input {
   text-decoration: none;
   border: 1px solid var(--ctp-surface1);
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 8px 14px;
   background-color: rgba(49, 50, 68, 0.55);
   font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+  transition:
+    color 180ms var(--ease-smooth),
+    background-color 180ms var(--ease-smooth),
+    border-color 180ms var(--ease-smooth),
+    transform 180ms var(--ease-spring);
 }
 
 .app-nav a:hover {
   color: var(--ctp-crust);
   background-color: var(--ctp-blue);
   border-color: var(--ctp-blue);
+  transform: translateY(-1px);
 }
 
 .detail-actions {
@@ -578,8 +594,10 @@ input {
 
 .detail-section h2 {
   color: var(--ctp-lavender);
-  margin: 0 0 12px;
-  font-size: 20px;
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .player-detail .stats {
@@ -659,7 +677,7 @@ input {
     0 0 0 1px rgba(137, 180, 250, 0.08),
     0 24px 60px rgba(17, 17, 27, 0.4);
   animation:
-    page-rise 520ms ease both,
+    page-rise 600ms cubic-bezier(0.4, 0, 0.2, 1) both,
     hero-rotate 10s linear infinite;
 }
 
@@ -993,9 +1011,9 @@ input {
   font-family: var(--app-font);
   box-shadow: 0 4px 14px rgba(166, 227, 161, 0.22);
   transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    background 160ms ease;
+    transform 200ms var(--ease-spring),
+    box-shadow 200ms var(--ease-smooth),
+    background 200ms var(--ease-smooth);
 }
 
 .home-link:hover {
