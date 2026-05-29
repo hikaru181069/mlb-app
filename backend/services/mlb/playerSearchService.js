@@ -24,7 +24,7 @@ const fetchExternalPlayers = async (searchText) => {
         searchResultPlayer;
       const player = formatExternalPlayer(detailedPlayer);
       const seasonStats = await fetchExternalPlayerStats({
-        playerId: player.externalId,
+        playerId: player.mlbPlayerId,
       });
       const formattedSeasonStats = formatExternalStats(seasonStats);
 

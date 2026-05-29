@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 function ExternalPlayerCard({ player, alreadySaved, detailState }) {
-  const detailPath = `/players/${player.externalId}`;
+  const detailPath = `/players/${player.mlbPlayerId}`;
   const h = player.hitterStats;
   const p = player.pitcherStats;
 

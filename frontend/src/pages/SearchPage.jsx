@@ -59,7 +59,7 @@ function SearchPage() {
     } catch (error) {
       console.error("External player search error:", error);
       setPlayers([]);
-      setErrorMessage("Failed to search external players.");
+      setErrorMessage(error.message || "Failed to search external players.");
     } finally {
       setLoading(false);
     }
@@ -127,8 +127,8 @@ function SearchPage() {
 
   const isAlreadySaved = (player) => {
     return savedPlayers.some((savedPlayer) => {
-      if (savedPlayer.mlbPlayerId && player.externalId) {
-        return savedPlayer.mlbPlayerId === player.externalId;
+      if (savedPlayer.mlbPlayerId && player.mlbPlayerId) {
+        return savedPlayer.mlbPlayerId === player.mlbPlayerId;
       }
       return savedPlayer.fullName.toLowerCase() === player.name.toLowerCase();
     });
@@ -234,7 +234,7 @@ function SearchPage() {
           <div className="player-list">
             {players.map((player) => (
               <ExternalPlayerCard
-                key={player.externalId}
+                key={player.mlbPlayerId}
                 player={player}
                 alreadySaved={isAlreadySaved(player)}
                 detailState={{

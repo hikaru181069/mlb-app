@@ -1,6 +1,6 @@
 const formatRecommendation = (player, reason) => {
   return {
-    playerId: player.externalId || player.mlbPlayerId || player.playerId,
+    playerId: player.mlbPlayerId || player.playerId,
     fullName: player.name || player.fullName,
     team: player.team || player.teamName || "Unknown",
     position: player.position || "Unknown",

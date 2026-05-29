@@ -56,13 +56,13 @@ function OnboardingFavoritesPage() {
 
   const handleTogglePlayer = (player) => {
     const alreadySelected = selectedPlayers.some(
-      (selectedPlayer) => selectedPlayer.externalId === player.externalId,
+      (selectedPlayer) => selectedPlayer.mlbPlayerId === player.mlbPlayerId,
     );
 
     if (alreadySelected) {
       setSelectedPlayers((currentPlayers) =>
         currentPlayers.filter(
-          (selectedPlayer) => selectedPlayer.externalId !== player.externalId,
+          (selectedPlayer) => selectedPlayer.mlbPlayerId !== player.mlbPlayerId,
         ),
       );
       return;
@@ -117,13 +117,13 @@ function OnboardingFavoritesPage() {
       <div className="player-list">
         {players.map((player) => {
           const selected = selectedPlayers.some(
-            (selectedPlayer) => selectedPlayer.externalId === player.externalId,
+            (selectedPlayer) => selectedPlayer.mlbPlayerId === player.mlbPlayerId,
           );
 
           return (
             <div
               className={`selectable-player ${selected ? "selected" : ""}`}
-              key={player.externalId}
+              key={player.mlbPlayerId}
             >
               <ExternalPlayerCard
                 player={player}
