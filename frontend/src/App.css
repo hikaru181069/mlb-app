@@ -2894,3 +2894,109 @@ button:disabled,
     align-items: flex-start;
   }
 }
+
+/* ── PlayerStats component ── */
+.stats-table-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stats-table-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ctp-subtext0);
+}
+
+.stats-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--ctp-surface1);
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.stats-table th {
+  padding: 8px 14px;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ctp-subtext0);
+  background: var(--ctp-surface1);
+  border-bottom: 1px solid var(--ctp-surface2);
+  white-space: nowrap;
+}
+
+.stats-table td {
+  padding: 12px 14px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ctp-text);
+  white-space: nowrap;
+}
+
+/* ── Recent Games Table ── */
+.recent-games-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--ctp-surface1);
+}
+
+.recent-games-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.recent-games-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ctp-subtext0);
+  background: var(--ctp-surface1);
+  border-bottom: 1px solid var(--ctp-surface2);
+}
+
+.recent-games-table td {
+  padding: 10px 14px;
+  color: var(--ctp-text);
+  border-bottom: 1px solid var(--ctp-surface1);
+}
+
+.recent-games-table tr:last-child td {
+  border-bottom: none;
+}
+
+.recent-games-table tr:hover td {
+  background: rgba(137, 180, 250, 0.04);
+}
+
+.game-result-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.game-result-badge--win {
+  background: rgba(166, 227, 161, 0.15);
+  color: var(--ctp-green);
+}
+
+.game-result-badge--loss {
+  background: rgba(243, 139, 168, 0.15);
+  color: var(--ctp-red);
+}

@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import PlayerStats from "./PlayerStats";
 import { mlbTeams } from "../services/mlbTeams";
 
 function PlayerCard({ player }) {
@@ -9,6 +8,8 @@ function PlayerCard({ player }) {
   const team = player.teamName || player.team;
   const position = player.position;
   const image = player.imageUrl || player.image;
+  const h = player.hitterStats;
+  const p = player.pitcherStats;
 
   const teamId = player.teamId
     ?? mlbTeams.find((t) => t.name.toLowerCase() === (team || "").toLowerCase())?.id;
@@ -44,7 +45,16 @@ function PlayerCard({ player }) {
         </p>
       )}
 
-      <PlayerStats player={player} />
+      {player.playerType === "hitter" && h && (
+        <div className="stats">
+          <p>AVG: {h.battingAverage} | HR: {h.homeRuns} | RBI: {h.rbis}</p>
+        </div>
+      )}
+      {player.playerType === "pitcher" && p && (
+        <div className="stats">
+          <p>ERA: {p.era} | SO: {p.strikeouts} | IP: {p.inningsPitched}</p>
+        </div>
+      )}
     </Link>
   );
 }

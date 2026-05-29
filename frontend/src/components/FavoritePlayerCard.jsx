@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import PlayerStats from "./PlayerStats";
 import { mlbTeams } from "../services/mlbTeams";
 
 function FavoritePlayerCard({ favorite, selectable = false, selected = false, onToggle }) {
+  const h = favorite.hitterStats;
+  const p = favorite.pitcherStats;
   const editPath = `/favorites/${favorite._id}`;
   const teamEntry = mlbTeams.find(
     (t) => t.name.toLowerCase() === (favorite.teamName || "").toLowerCase()
@@ -60,7 +61,16 @@ function FavoritePlayerCard({ favorite, selectable = false, selected = false, on
           </div>
         )}
 
-        <PlayerStats player={favorite} />
+        {favorite.playerType === "hitter" && h && (
+          <div className="stats">
+            <p>AVG: {h.battingAverage} | HR: {h.homeRuns} | RBI: {h.rbis}</p>
+          </div>
+        )}
+        {favorite.playerType === "pitcher" && p && (
+          <div className="stats">
+            <p>ERA: {p.era} | SO: {p.strikeouts} | IP: {p.inningsPitched}</p>
+          </div>
+        )}
       </Link>
 
       {!selectable && (

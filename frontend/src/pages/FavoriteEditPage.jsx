@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import PlayerStats from "../components/PlayerStats";
 import { getAuthToken } from "../utils/authStorage";
 import {
   deleteFavorite,
@@ -157,7 +156,16 @@ function FavoriteEditPage() {
               </div>
             )}
 
-            <PlayerStats player={favorite} />
+            {favorite.playerType === "hitter" && favorite.hitterStats && (
+              <div className="stats">
+                <p>AVG: {favorite.hitterStats.battingAverage} | HR: {favorite.hitterStats.homeRuns} | RBI: {favorite.hitterStats.rbis}</p>
+              </div>
+            )}
+            {favorite.playerType === "pitcher" && favorite.pitcherStats && (
+              <div className="stats">
+                <p>ERA: {favorite.pitcherStats.era} | SO: {favorite.pitcherStats.strikeouts} | IP: {favorite.pitcherStats.inningsPitched}</p>
+              </div>
+            )}
 
             <Link
               className="home-link secondary"

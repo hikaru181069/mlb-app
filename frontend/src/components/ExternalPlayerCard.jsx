@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import PlayerStats from "./PlayerStats";
 
 function ExternalPlayerCard({ player, alreadySaved, detailState }) {
   const detailPath = `/players/${player.externalId}`;
+  const h = player.hitterStats;
+  const p = player.pitcherStats;
 
   return (
     <article className="player-card">
@@ -34,7 +35,16 @@ function ExternalPlayerCard({ player, alreadySaved, detailState }) {
           </p>
         )}
 
-        <PlayerStats player={player} />
+        {player.playerType === "hitter" && h && (
+          <div className="stats">
+            <p>AVG: {h.battingAverage} | HR: {h.homeRuns} | RBI: {h.rbis}</p>
+          </div>
+        )}
+        {player.playerType === "pitcher" && p && (
+          <div className="stats">
+            <p>ERA: {p.era} | SO: {p.strikeouts} | IP: {p.inningsPitched}</p>
+          </div>
+        )}
       </Link>
 
       <div className="mt-4 text-center">

@@ -38,20 +38,37 @@ const formatExternalStats = (stats = []) => {
   return {
     hitterStats: hittingSplit
       ? {
-          gamesPlayed: hittingSplit.stat.gamesPlayed,
+          gamesPlayed:    hittingSplit.stat.gamesPlayed,
+          atBats:         hittingSplit.stat.atBats,
+          runs:           hittingSplit.stat.runs,
+          hits:           hittingSplit.stat.hits,
+          doubles:        hittingSplit.stat.doubles,
+          triples:        hittingSplit.stat.triples,
+          homeRuns:       hittingSplit.stat.homeRuns,
+          rbis:           hittingSplit.stat.rbi,
+          baseOnBalls:    hittingSplit.stat.baseOnBalls,
+          strikeOuts:     hittingSplit.stat.strikeOuts,
+          stolenBases:    hittingSplit.stat.stolenBases,
           battingAverage: hittingSplit.stat.avg,
-          ops: hittingSplit.stat.ops,
-          homeRuns: hittingSplit.stat.homeRuns,
-          rbis: hittingSplit.stat.rbi,
+          obp:            hittingSplit.stat.obp,
+          slg:            hittingSplit.stat.slg,
+          ops:            hittingSplit.stat.ops,
         }
       : undefined,
     pitcherStats: pitchingSplit
       ? {
-          gamesPlayed: pitchingSplit.stat.gamesPlayed,
-          wins: pitchingSplit.stat.wins,
-          era: pitchingSplit.stat.era,
-          strikeouts: pitchingSplit.stat.strikeOuts,
+          gamesPlayed:    pitchingSplit.stat.gamesPlayed,
+          gamesStarted:   pitchingSplit.stat.gamesStarted,
+          wins:           pitchingSplit.stat.wins,
+          losses:         pitchingSplit.stat.losses,
+          saves:          pitchingSplit.stat.saves,
           inningsPitched: pitchingSplit.stat.inningsPitched,
+          hits:           pitchingSplit.stat.hits,
+          earnedRuns:     pitchingSplit.stat.earnedRuns,
+          baseOnBalls:    pitchingSplit.stat.baseOnBalls,
+          strikeouts:     pitchingSplit.stat.strikeOuts,
+          era:            pitchingSplit.stat.era,
+          whip:           pitchingSplit.stat.whip,
         }
       : undefined,
   };

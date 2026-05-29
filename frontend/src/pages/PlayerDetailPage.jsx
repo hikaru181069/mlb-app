@@ -246,10 +246,18 @@ function PlayerDetailPage() {
                 <dt>Position</dt>
                 <dd>{player.position || "Unknown"}</dd>
               </div>
-              <div>
-                <dt>Player Type</dt>
-                <dd>{player.playerType || "Unknown"}</dd>
-              </div>
+              {player.height && (
+                <div>
+                  <dt>Height</dt>
+                  <dd>{player.height}</dd>
+                </div>
+              )}
+              {player.weight && (
+                <div>
+                  <dt>Weight</dt>
+                  <dd>{player.weight} lbs</dd>
+                </div>
+              )}
             </dl>
             {player.shortBio && <p className="detail-bio">{player.shortBio}</p>}
 
@@ -304,35 +312,39 @@ function PlayerDetailPage() {
           </section>
         )}
 
-        <div className="detail-stats-grid">
-          <section className="detail-section">
-            <h2>Current Season Stats</h2>
-            <PlayerStats player={currentSeasonStats} />
-          </section>
-
-          <section className="detail-section">
-            <h2>Career Stats</h2>
-            {hasCareerStats ? (
-              <PlayerStats player={careerStats} />
-            ) : (
-              <div className="detail-coming-soon">
-                <span>📊</span>
-                <p>Career stats will be available in a future update.</p>
-              </div>
-            )}
-          </section>
-        </div>
+        <section className="detail-section">
+          <h2>Current Season Stats</h2>
+          <PlayerStats player={currentSeasonStats} />
+        </section>
 
         <section className="detail-section">
           <h2>Last 5 Games</h2>
           {recentGames.length > 0 ? (
-            <div className="recent-games">
-              {recentGames.map((game) => (
-                <p key={`${game.date}-${game.opponent}`}>
-                  <span>{game.date}</span>
-                  vs {game.opponent}: {game.summary} ({game.result})
-                </p>
-              ))}
+            <div className="recent-games-table-wrap">
+              <table className="recent-games-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Opponent</th>
+                    <th>Result</th>
+                    <th>Line</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentGames.map((game) => (
+                    <tr key={`${game.date}-${game.opponent}`}>
+                      <td>{game.date}</td>
+                      <td>vs {game.opponent}</td>
+                      <td>
+                        <span className={`game-result-badge game-result-badge--${game.result === "W" ? "win" : "loss"}`}>
+                          {game.result}
+                        </span>
+                      </td>
+                      <td>{game.summary}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="detail-coming-soon">
