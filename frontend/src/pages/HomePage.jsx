@@ -151,7 +151,6 @@ function HomePage() {
     return (
       <div className="home-page px-6 py-16">
         <section className="home-hero w-full max-w-4xl px-8 py-12 md:px-14 md:py-16">
-
           <img
             src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
             alt="MLB"
@@ -172,12 +171,16 @@ function HomePage() {
             <div className="feature-card">
               <span className="feature-card-icon">🔍</span>
               <h3>Search</h3>
-              <p>Search any MLB player from the official Stats API in real time.</p>
+              <p>
+                Search any MLB player from the official Stats API in real time.
+              </p>
             </div>
             <div className="feature-card">
               <span className="feature-card-icon">⭐</span>
               <h3>Track</h3>
-              <p>Save favorite players with personal notes and tags to MongoDB.</p>
+              <p>
+                Save favorite players with personal notes and tags to MongoDB.
+              </p>
             </div>
             <div className="feature-card">
               <span className="feature-card-icon">🤖</span>
@@ -194,15 +197,20 @@ function HomePage() {
               Login
             </Link>
           </div>
-
         </section>
 
         <div className="home-tech-stack">
-          {["MongoDB", "Express", "React", "Node.js", "MLB Stats API", "JWT"].map((tech) => (
+          {[
+            "MongoDB",
+            "Express",
+            "React",
+            "Node.js",
+            "MLB Stats API",
+            "JWT",
+          ].map((tech) => (
             <span key={tech}>{tech}</span>
           ))}
         </div>
-
       </div>
     );
   }
@@ -223,7 +231,9 @@ function HomePage() {
                 src={`https://www.mlbstatic.com/team-logos/${user.favoriteTeam.id}.svg`}
                 alt={user.favoriteTeam.name}
                 style={{ width: "24px", height: "24px" }}
-                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
               />
             )}
             <span>{user.favoriteTeam.name}</span>
@@ -276,7 +286,9 @@ function HomePage() {
             <div className="player-list-carousel">
               {teamPlayers.map((player) => (
                 <PlayerCard
-                  key={player.playerId || player.mlbPlayerId || player.externalId}
+                  key={
+                    player.playerId || player.mlbPlayerId || player.externalId
+                  }
                   player={player}
                 />
               ))}

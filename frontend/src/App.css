@@ -120,6 +120,7 @@ h1 {
   background-clip: text;
   padding-bottom: 4px;
   animation: gradient-shift 1s ease infinite;
+  font-style: italic;
 }
 
 .description {
