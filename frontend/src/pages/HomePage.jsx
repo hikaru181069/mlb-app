@@ -12,6 +12,7 @@ import {
   getApiErrorMessage,
   isUnauthorizedError,
 } from "../services/api/apiError";
+import { useReveal } from "../hooks/useReveal";
 
 const SKELETON_COUNTS = { team: 4, favorites: 6, recommendations: 6 };
 
@@ -75,6 +76,9 @@ function HomePage() {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [teamRef, teamVisible] = useReveal();
+  const [favRef, favVisible] = useReveal();
+  const [recRef, recVisible] = useReveal();
   const token = getAuthToken();
 
   useEffect(() => {
@@ -263,7 +267,7 @@ function HomePage() {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
-        <section className="home-player-section home-team-section">
+        <section ref={teamRef} className={`home-player-section home-team-section reveal${teamVisible ? " visible" : ""}`}>
           <SectionHeading
             title="Your Favorite Team"
             desc={
@@ -296,7 +300,7 @@ function HomePage() {
           )}
         </section>
 
-        <section className="home-player-section home-favorites-section">
+        <section ref={favRef} className={`home-player-section home-favorites-section reveal reveal-delay-1${favVisible ? " visible" : ""}`}>
           <SectionHeading
             title="Your Favorite Players"
             desc="Players saved from Search, Detail, or Onboarding."
@@ -310,7 +314,7 @@ function HomePage() {
           )}
         </section>
 
-        <section className="home-player-section home-recommendations-section">
+        <section ref={recRef} className={`home-player-section home-recommendations-section reveal reveal-delay-2${recVisible ? " visible" : ""}`}>
           <SectionHeading
             title="Recommended For You"
             desc="Recommended from your favorite team, current stats, and saved players."

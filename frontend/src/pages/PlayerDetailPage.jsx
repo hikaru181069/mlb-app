@@ -12,6 +12,7 @@ import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getPlayerById } from "../services/playerDataService";
 import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
+import { useReveal } from "../hooks/useReveal";
 
 function PlayerDetailPage() {
   const { playerId } = useParams();
@@ -22,6 +23,10 @@ function PlayerDetailPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [favoriteMessage, setFavoriteMessage] = useState("");
   const [favoriteRecord, setFavoriteRecord] = useState(null);
+  const [statsRef, statsVisible] = useReveal();
+  const [gamesRef, gamesVisible] = useReveal();
+  const [actionsRef, actionsVisible] = useReveal();
+  const [similarRef, similarVisible] = useReveal();
   const [loading, setLoading] = useState(false);
 
   const token = getAuthToken();
@@ -269,12 +274,12 @@ function PlayerDetailPage() {
           </section>
         )}
 
-        <section className="detail-section">
+        <section ref={statsRef} className={`detail-section reveal${statsVisible ? " visible" : ""}`}>
           <h2>Current Season Stats</h2>
           <PlayerStats player={currentSeasonStats} />
         </section>
 
-        <section className="detail-section">
+        <section ref={gamesRef} className={`detail-section reveal reveal-delay-1${gamesVisible ? " visible" : ""}`}>
           <h2>Last 5 Games</h2>
           {recentGames.length > 0 ? (
             <div className="recent-games-table-wrap">
@@ -345,7 +350,7 @@ function PlayerDetailPage() {
         )}
       </div>
 
-      <section className="similar-players">
+      <section ref={similarRef} className={`similar-players reveal${similarVisible ? " visible" : ""}`}>
         <div className="section-heading">
           <h2>Similar Players</h2>
         </div>
