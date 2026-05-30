@@ -25,7 +25,6 @@ function PlayerDetailPage() {
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [statsRef, statsVisible] = useReveal();
   const [gamesRef, gamesVisible] = useReveal();
-  const [actionsRef, actionsVisible] = useReveal();
   const [similarRef, similarVisible] = useReveal();
   const [loading, setLoading] = useState(false);
 
