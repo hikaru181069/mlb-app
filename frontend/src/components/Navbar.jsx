@@ -8,9 +8,9 @@ import {
 
 const navLinkClass = ({ isActive }) =>
   [
-    "px-3 py-1.5 rounded-md text-sm font-semibold transition-colors duration-150",
+    "relative px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200",
     isActive
-      ? "text-ctp-blue bg-ctp-surface0"
+      ? "text-ctp-blue bg-ctp-surface0 after:absolute after:bottom-0.5 after:left-2 after:right-2 after:h-px after:rounded-full after:bg-ctp-blue after:content-['']"
       : "text-ctp-subtext1 hover:text-ctp-text hover:bg-ctp-surface0/60",
   ].join(" ");
 

@@ -244,6 +244,8 @@ input {
   width: min(100%, 260px);
   height: 340px;
   margin: 0 auto 20px;
+  overflow: hidden;
+  border-radius: 10%;
 }
 
 .player-image-wrapper::after {
@@ -275,9 +277,12 @@ input {
   height: 100%;
   object-fit: cover;
   display: block;
-  border: 2px solid var(--ctp-surface2);
-  border-radius: 10%;
   box-shadow: 0 14px 30px rgba(17, 17, 27, 0.38);
+  transition: transform 400ms var(--ease-smooth);
+}
+
+.player-card:hover .player-image {
+  transform: scale(1.04);
 }
 
 .stats {
@@ -1012,6 +1017,12 @@ input {
   background: linear-gradient(135deg, var(--ctp-teal), var(--ctp-sapphire));
   box-shadow: 0 6px 22px rgba(148, 226, 213, 0.32);
   transform: translateY(-1px);
+}
+
+.home-link:active {
+  transform: scale(0.96) translateY(0);
+  box-shadow: none;
+  transition-duration: 80ms;
 }
 
 .home-link.secondary {
@@ -3039,7 +3050,52 @@ button:disabled,
     animation: none;
   }
 }
+
 .reveal-delay-3 { transition-delay: 240ms; }
+
+/* ── Phase 3: Micro-interactions ── */
+
+/* ボタンプレス感 */
+.home-link:active,
+button:active {
+  transform: scale(0.96);
+  transition-duration: 80ms;
+}
+
+/* カード画像ズームのクリップ */
+.player-image-wrapper {
+  overflow: hidden;
+}
+
+/* スタッツテーブル行ホバー */
+.stats-table tr:hover td {
+  background: rgba(137, 180, 250, 0.06);
+  transition: background 150ms var(--ease-smooth);
+}
+
+/* detail-section ホバー */
+.detail-section {
+  transition: border-color 220ms var(--ease-smooth);
+}
+.detail-section:hover {
+  border-color: rgba(137, 180, 250, 0.25);
+}
+
+/* favorite 追加済みボタン フェードイン */
+@keyframes badge-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.home-link[disabled] {
+  animation: badge-pop 300ms var(--ease-spring) both;
+}
 
 /* ── Detail hero image (responsive) ── */
 .detail-hero-image {
