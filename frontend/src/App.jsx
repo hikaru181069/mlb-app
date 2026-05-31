@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
@@ -19,33 +19,42 @@ import StatsPage from "./pages/StatsPage";
 import ComparePage from "./pages/ComparePage";
 import ProfilePage from "./pages/ProfilePage";
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <div key={location.key} className="page-transition">
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
+        <Route path="/team-roster" element={<TeamRosterPage />} />
+        <Route path="/stats" element={<StatsPage />} />
+        <Route path="/compare" element={<ComparePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/onboarding/team" element={<OnboardingTeamPage />} />
+        <Route
+          path="/onboarding/favorites"
+          element={<OnboardingFavoritesPage />}
+        />
+        <Route path="/players" element={<PlayersPage />} />
+        <Route path="/external-players" element={<ExternalPlayersPage />} />
+        <Route path="/players/new" element={<AddPlayerPage />} />
+        <Route path="/players/:id/edit" element={<EditPlayerPage />} />
+        <Route path="/players/:playerId" element={<PlayerDetailPage />} />
+      </Routes>
+    </div>
+  );
+}
+
 function App() {
   return (
     <>
       <Navbar />
       <main className="pt-16">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
-          <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
-          <Route path="/team-roster" element={<TeamRosterPage />} />
-          <Route path="/stats" element={<StatsPage />} />
-          <Route path="/compare" element={<ComparePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/onboarding/team" element={<OnboardingTeamPage />} />
-          <Route
-            path="/onboarding/favorites"
-            element={<OnboardingFavoritesPage />}
-          />
-          <Route path="/players" element={<PlayersPage />} />
-          <Route path="/external-players" element={<ExternalPlayersPage />} />
-          <Route path="/players/new" element={<AddPlayerPage />} />
-          <Route path="/players/:id/edit" element={<EditPlayerPage />} />
-          <Route path="/players/:playerId" element={<PlayerDetailPage />} />
-        </Routes>
+        <AnimatedRoutes />
       </main>
     </>
   );
