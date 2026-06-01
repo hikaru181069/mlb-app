@@ -151,67 +151,60 @@ function HomePage() {
   };
 
   // --- Guest view ---
+  // [Phase 9] fantinel.dev を参考に、2カラムの全幅ヒーローにリデザイン。
+  // 左側: 大きなタイトル + 説明 + CTA
+  // 右側: MLB ロゴ（フローティングアニメーション付き装飾）
   if (!token) {
     return (
-      <div className="home-page px-6 py-16">
-        <section className="home-hero w-full max-w-4xl px-8 py-12 md:px-14 md:py-16">
-          <img
-            src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
-            alt="MLB"
-            className="mx-auto mb-6"
-            style={{ width: "72px", height: "72px", objectFit: "contain" }}
-          />
-
-          <p className="home-kicker text-sm">MERN Portfolio Project</p>
-          <h1 className="text-4xl leading-tight font-black tracking-tight md:text-6xl">
-            MLB Favorite Player Hub
-          </h1>
-          <p className="home-description mt-6 text-base md:text-lg">
-            Search MLB players, open player details, and build your own
-            personalized favorite player list.
-          </p>
-
-          <div className="feature-cards">
-            <div className="feature-card">
-              <span className="feature-card-icon">🔍</span>
-              <h3>Search</h3>
-              <p>
-                Search any MLB player from the official Stats API in real time.
-              </p>
-            </div>
-            <div className="feature-card">
-              <span className="feature-card-icon">⭐</span>
-              <h3>Track</h3>
-              <p>
-                Save favorite players with personal notes and tags to MongoDB.
-              </p>
-            </div>
-            <div className="feature-card">
-              <span className="feature-card-icon">🤖</span>
-              <h3>Discover</h3>
-              <p>Get personalized recommendations based on your favorites.</p>
+      <div className="home-page px-6 py-10">
+        {/* 2カラムヒーロー（モバイルは1カラムに折りたたむ） */}
+        <section className="guest-hero">
+          <div className="guest-hero-text">
+            <p className="home-kicker text-sm">MERN Portfolio Project</p>
+            <h1 className="guest-hero-title">
+              MLB Favorite<br />Player Hub
+            </h1>
+            <p className="home-description mt-4 text-base md:text-lg">
+              Search MLB players, explore stats, and build your own
+              personalized favorite player list.
+            </p>
+            <div className="home-actions mt-8">
+              <Link className="home-link" to="/register">Get Started</Link>
+              <Link className="home-link secondary" to="/login">Login</Link>
             </div>
           </div>
 
-          <div className="home-actions mt-8">
-            <Link className="home-link" to="/register">
-              Get Started
-            </Link>
-            <Link className="home-link" to="/login">
-              Login
-            </Link>
+          {/* 右側: 大きな MLB ロゴ（デスクトップのみ表示） */}
+          <div className="guest-hero-visual" aria-hidden="true">
+            <img
+              src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
+              alt=""
+              className="guest-hero-logo"
+            />
           </div>
         </section>
 
+        {/* フィーチャーカード */}
+        <div className="feature-cards guest-feature-cards">
+          <div className="feature-card">
+            <span className="feature-card-icon">🔍</span>
+            <h3>Search</h3>
+            <p>Search any MLB player from the official Stats API in real time.</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-card-icon">⭐</span>
+            <h3>Track</h3>
+            <p>Save favorite players with personal notes and tags to MongoDB.</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-card-icon">🤖</span>
+            <h3>Discover</h3>
+            <p>Get personalized recommendations based on your favorites.</p>
+          </div>
+        </div>
+
         <div className="home-tech-stack">
-          {[
-            "MongoDB",
-            "Express",
-            "React",
-            "Node.js",
-            "MLB Stats API",
-            "JWT",
-          ].map((tech) => (
+          {["MongoDB", "Express", "React", "Node.js", "MLB Stats API", "JWT"].map((tech) => (
             <span key={tech}>{tech}</span>
           ))}
         </div>
