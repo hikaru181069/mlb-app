@@ -3474,3 +3474,36 @@ button:active {
     animation: none;
   }
 }
+
+/* ── [Phase 10] Shimmer skeleton loading ────────────────────────────────────
+   animate-pulse（フェードのみ）より本物らしいローディング感を出す。
+   光が左から右へ流れるグラデーションアニメーション。
+   Facebook / LinkedIn の skeleton loader と同じ手法。
+
+   仕組み:
+   - background を "暗い → 明るい → 暗い" の3色グラデーションで作る
+   - background-size を要素幅より大きくして「光の帯」を作る
+   - background-position を左から右へ移動させることで光が流れる
+   ─────────────────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    var(--ctp-surface0) 25%,
+    var(--ctp-surface1) 50%,
+    var(--ctp-surface0) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+    background: var(--ctp-surface1);
+  }
+}
