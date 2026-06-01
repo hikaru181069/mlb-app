@@ -260,69 +260,46 @@ input {
   color: var(--ctp-red);
 }
 
-/* [Phase 7] Polaroid-style player photos
-   fantinel.dev の写真セクションを参考に、カード画像をポラロイド風にする。
-   ダークテーマとのコントラストを出すため、クリーム色のフレームを採用。
-   ─────────────────────────────────────────────────────────────────────────
-   構造:
-     .player-image-wrapper  ← ポラロイドのフレーム（padding で余白を作る）
-       img.player-image     ← 写真本体（border-radius なし・四角く見せる）
-       img.player-image-team-badge ← チームロゴ（フレーム下部中央に配置）
-   ───────────────────────────────────────────────────────────────────────── */
 .player-image-wrapper {
   position: relative;
-  width: min(100%, 240px);
+  width: min(100%, 260px);
+  height: 340px;
   margin: 0 auto 20px;
-  /* ポラロイドフレーム: 上・左右は薄め、下は広めの余白でキャプション風に */
-  background: #f0e8d8;
-  padding: 8px 8px 36px;
-  border-radius: 3px;
   overflow: hidden;
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.55),
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.06);
-  /* わずかな傾きでポラロイドらしさを演出 */
-  transform: rotate(-1.5deg);
-  transition:
-    transform 320ms var(--ease-spring),
-    box-shadow 320ms var(--ease-smooth);
+  border-radius: 10%;
 }
 
-/* ::after の暗いグラデーションはポラロイドフレームと相性が悪いため非表示に */
 .player-image-wrapper::after {
-  display: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10%;
+  background: linear-gradient(
+    to top,
+    rgba(17, 17, 27, 0.55) 0%,
+    transparent 45%
+  );
+  pointer-events: none;
 }
 
-/* チームバッジをポラロイドの下部（キャプション部分）中央に配置 */
 .player-image-team-badge {
   position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 22px;
-  height: 22px;
+  bottom: 10px;
+  left: 10px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   z-index: 2;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
 }
 
 .player-image {
   width: 100%;
-  height: 240px;
+  height: 100%;
   object-fit: cover;
   display: block;
-  /* ポラロイド内の写真は角丸なし */
-  border-radius: 0;
+  box-shadow: 0 14px 30px rgba(17, 17, 27, 0.38);
   transition: transform 400ms var(--ease-smooth);
-}
-
-/* ホバーで傾きをリセット → まっすぐ正面に向く演出 */
-.player-card:hover .player-image-wrapper {
-  transform: rotate(0deg);
-  box-shadow:
-    0 14px 40px rgba(0, 0, 0, 0.6),
-    0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .player-card:hover .player-image {
