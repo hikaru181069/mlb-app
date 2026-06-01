@@ -838,6 +838,32 @@ input {
 .home-favorites-section       .section-heading h2 { color: var(--ctp-blue); }
 .home-recommendations-section .section-heading h2 { color: var(--ctp-teal); }
 
+/* [Phase 8] セクションカードにカラーアクセント
+   左辺ボーダー + 薄い背景ティントで、各セクションを視覚的に区別する。
+   fantinel.dev がコンテンツ種類ごとに色を変えているのと同じ考え方。
+   border-left は border ショートハンドを上書きするため、
+   border-radius の左上・左下に clip されないよう border-radius はそのまま保持。 */
+.home-team-section {
+  border-left: 3px solid var(--ctp-mauve);
+  background:
+    linear-gradient(135deg, rgba(203, 166, 247, 0.07), transparent 40%),
+    var(--ctp-mantle);
+}
+
+.home-favorites-section {
+  border-left: 3px solid var(--ctp-blue);
+  background:
+    linear-gradient(135deg, rgba(137, 180, 250, 0.07), transparent 40%),
+    var(--ctp-mantle);
+}
+
+.home-recommendations-section {
+  border-left: 3px solid var(--ctp-teal);
+  background:
+    linear-gradient(135deg, rgba(148, 226, 213, 0.07), transparent 40%),
+    var(--ctp-mantle);
+}
+
 /* ── Team Carousel ───────────────────────────────── */
 .player-list-carousel {
   width: 100%;
