@@ -3494,7 +3494,7 @@ button:active {
   background: linear-gradient(
     90deg,
     var(--ctp-surface0) 25%,
-    var(--ctp-surface1) 50%,
+    rgba(255, 255, 255, 0.08) 50%,  /* 白のグローで光の帯を見えやすくする */
     var(--ctp-surface0) 75%
   );
   background-size: 600px 100%;
