@@ -162,25 +162,27 @@ function HomePage() {
           <div className="guest-hero-text">
             <p className="home-kicker text-sm">MERN Portfolio Project</p>
             <h1 className="guest-hero-title">
-              MLB Favorite<br />Player Hub
+              MLB Favorite
+              <br />
+              Player Hub
             </h1>
             <p className="home-description mt-4 text-base md:text-lg">
-              Search MLB players, explore stats, and build your own
-              personalized favorite player list.
+              Search MLB players, explore stats, and build your own personalized
+              favorite player list.
             </p>
             <div className="home-actions mt-8">
-              <Link className="home-link" to="/register">Get Started</Link>
-              <Link className="home-link secondary" to="/login">Login</Link>
+              <Link className="home-link" to="/register">
+                Get Started
+              </Link>
+              <Link className="home-link secondary" to="/login">
+                Login
+              </Link>
             </div>
           </div>
 
           {/* 右側: 大きな MLB ロゴ（デスクトップのみ表示） */}
           <div className="guest-hero-visual" aria-hidden="true">
-            <img
-              src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
-              alt=""
-              className="guest-hero-logo"
-            />
+            <img src="/logo-pop.JPG" alt="" className="guest-hero-logo" />
           </div>
         </section>
 
@@ -189,12 +191,16 @@ function HomePage() {
           <div className="feature-card">
             <span className="feature-card-icon">🔍</span>
             <h3>Search</h3>
-            <p>Search any MLB player from the official Stats API in real time.</p>
+            <p>
+              Search any MLB player from the official Stats API in real time.
+            </p>
           </div>
           <div className="feature-card">
             <span className="feature-card-icon">⭐</span>
             <h3>Track</h3>
-            <p>Save favorite players with personal notes and tags to MongoDB.</p>
+            <p>
+              Save favorite players with personal notes and tags to MongoDB.
+            </p>
           </div>
           <div className="feature-card">
             <span className="feature-card-icon">🤖</span>
@@ -204,7 +210,14 @@ function HomePage() {
         </div>
 
         <div className="home-tech-stack">
-          {["MongoDB", "Express", "React", "Node.js", "MLB Stats API", "JWT"].map((tech) => (
+          {[
+            "MongoDB",
+            "Express",
+            "React",
+            "Node.js",
+            "MLB Stats API",
+            "JWT",
+          ].map((tech) => (
             <span key={tech}>{tech}</span>
           ))}
         </div>
@@ -260,7 +273,10 @@ function HomePage() {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
-        <section ref={teamRef} className={`home-player-section home-team-section reveal${teamVisible ? " visible" : ""}`}>
+        <section
+          ref={teamRef}
+          className={`home-player-section home-team-section reveal${teamVisible ? " visible" : ""}`}
+        >
           <SectionHeading
             title="Your Favorite Team"
             desc={
@@ -283,9 +299,7 @@ function HomePage() {
             <div className="player-list-carousel">
               {teamPlayers.map((player) => (
                 <PlayerCard
-                  key={
-                    player.playerId || player.mlbPlayerId
-                  }
+                  key={player.playerId || player.mlbPlayerId}
                   player={player}
                 />
               ))}
@@ -293,7 +307,10 @@ function HomePage() {
           )}
         </section>
 
-        <section ref={favRef} className={`home-player-section home-favorites-section reveal reveal-delay-1${favVisible ? " visible" : ""}`}>
+        <section
+          ref={favRef}
+          className={`home-player-section home-favorites-section reveal reveal-delay-1${favVisible ? " visible" : ""}`}
+        >
           <SectionHeading
             title="Your Favorite Players"
             desc="Players saved from Search, Detail, or Onboarding."
@@ -307,7 +324,10 @@ function HomePage() {
           )}
         </section>
 
-        <section ref={recRef} className={`home-player-section home-recommendations-section reveal reveal-delay-2${recVisible ? " visible" : ""}`}>
+        <section
+          ref={recRef}
+          className={`home-player-section home-recommendations-section reveal reveal-delay-2${recVisible ? " visible" : ""}`}
+        >
           <SectionHeading
             title="Recommended For You"
             desc="Recommended from your favorite team, current stats, and saved players."
