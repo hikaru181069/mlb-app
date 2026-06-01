@@ -20,6 +20,10 @@ import StatsPage from "./pages/StatsPage";
 import ComparePage from "./pages/ComparePage";
 import ProfilePage from "./pages/ProfilePage";
 
+// [Phase 4] ページ遷移アニメーション
+// location.key を React の key に渡すことで、ページが変わるたびにコンポーネントが
+// 再マウントされ、CSS アニメーション (page-transition) が毎回リセットされる。
+// Navbar は AnimatedRoutes の外にあるため、ナビ時にちらつかない。
 function AnimatedRoutes() {
   const location = useLocation();
   return (
@@ -52,9 +56,14 @@ function AnimatedRoutes() {
 
 function App() {
   return (
+    // [Phase 5] ToastProvider でアプリ全体をラップ
+    // Navbar も内側に入れることで、Navbar 内でも useToast() が使える
     <ToastProvider>
+      {/* [Phase 6] Navbar は左サイドバーとして固定表示される */}
       <Navbar />
-      <main className="pt-16">
+      {/* pt-14: モバイル時のトップバー(56px)分を上に確保
+          md:pt-0 md:ml-52: デスクトップではサイドバー幅(208px)分だけ右にオフセット */}
+      <main className="pt-14 md:pt-0 md:ml-52">
         <AnimatedRoutes />
       </main>
     </ToastProvider>

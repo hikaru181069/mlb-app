@@ -3215,7 +3215,15 @@ button:active {
   }
 }
 
-/* ── Toast Notifications ── */
+/* ── [Phase 5] Toast Notifications ───────────────────────────────────────────
+   右下から滑り込み、自動で消えるフローティング通知。
+   ToastContext.jsx の leaving フラグと連動して 2 段階で消える：
+   1. leaving: true → toast-out アニメーション開始 (280ms)
+   2. 300ms 後に DOM から削除
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* 登場: 画面右外 (translateX 100% + gap) から中央へ滑り込む
+   cubic-bezier(0.34, 1.56, 0.64, 1) = spring 感のある ease-out */
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -3227,6 +3235,7 @@ button:active {
   }
 }
 
+/* 退場: 元の位置から右外へ滑り出す */
 @keyframes toast-out {
   from {
     opacity: 1;
@@ -3238,6 +3247,9 @@ button:active {
   }
 }
 
+/* コンテナ: 右下固定、z-index を高くして他の要素の上に出す
+   pointer-events: none でコンテナ自体はクリックを透過させる
+   （個々の .toast には pointer-events: auto を設定する） */
 .toast-container {
   position: fixed;
   bottom: 24px;
@@ -3263,14 +3275,18 @@ button:active {
   font-size: 0.85rem;
   font-weight: 500;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  pointer-events: auto;
+  pointer-events: auto; /* コンテナの none を上書きして閉じるボタンをクリック可能に */
   animation: toast-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* leaving クラスが付くと退場アニメーションに切り替わる */
 .toast--leaving {
   animation: toast-out 280ms cubic-bezier(0.4, 0, 1, 1) both;
 }
 
+/* color-mix(): 2 つの色を指定割合で混ぜる CSS 関数
+   例: ctp-green 12% + ctp-surface0 88% = 薄緑の背景
+   テーマカラーを使い回せるので、ダークテーマとの相性が良い */
 .toast--success {
   background: color-mix(in srgb, var(--ctp-green) 12%, var(--ctp-surface0));
   border-color: color-mix(in srgb, var(--ctp-green) 30%, transparent);
