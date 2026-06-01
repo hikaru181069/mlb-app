@@ -13,15 +13,16 @@ import { getPlayerById } from "../services/playerDataService";
 import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
 import { useReveal } from "../hooks/useReveal";
+import { useToast } from "../contexts/ToastContext";
 
 function PlayerDetailPage() {
   const { playerId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [player, setPlayer] = useState(null);
   const [similarPlayers, setSimilarPlayers] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [favoriteMessage, setFavoriteMessage] = useState("");
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [statsRef, statsVisible] = useReveal();
   const [gamesRef, gamesVisible] = useReveal();
@@ -36,7 +37,6 @@ function PlayerDetailPage() {
     const fetchPlayer = async () => {
       try {
         setLoading(true);
-        setFavoriteMessage("");
         setFavoriteRecord(null);
         const token = getAuthToken();
         const favoritePlayers = await getFavorites(token);
@@ -101,18 +101,17 @@ function PlayerDetailPage() {
     }
 
     if (favoriteRecord) {
-      setFavoriteMessage("This player is already in your favorites.");
+      addToast("Already in your favorites.", "info");
       return;
     }
 
     try {
-      setFavoriteMessage("");
       const favorite = await createFavorite(player, token);
       setFavoriteRecord(favorite);
-      setFavoriteMessage("Added to favorites.");
+      addToast("Added to favorites!", "success");
     } catch (error) {
       console.error("Add favorite error:", error);
-      setFavoriteMessage(error.message || "Failed to add favorite.");
+      addToast(error.message || "Failed to add favorite.", "error");
     }
   };
 
@@ -344,9 +343,6 @@ function PlayerDetailPage() {
           )}
         </div>
 
-        {favoriteMessage && (
-          <p className="status-message">{favoriteMessage}</p>
-        )}
       </div>
 
       <section ref={similarRef} className={`similar-players reveal${similarVisible ? " visible" : ""}`}>

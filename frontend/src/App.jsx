@@ -1,4 +1,5 @@
 import { Route, Routes, useLocation } from "react-router-dom";
+import { ToastProvider } from "./contexts/ToastContext";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
@@ -51,12 +52,12 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <>
+    <ToastProvider>
       <Navbar />
       <main className="pt-16">
         <AnimatedRoutes />
       </main>
-    </>
+    </ToastProvider>
   );
 }
 

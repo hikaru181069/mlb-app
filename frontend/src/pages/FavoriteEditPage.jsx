@@ -8,16 +8,17 @@ import {
   updateFavorite,
 } from "../services/api/favoriteApi";
 import { mlbTeams } from "../services/mlbTeams";
+import { useToast } from "../contexts/ToastContext";
 
 function FavoriteEditPage() {
   const { favoriteId } = useParams();
   const navigate = useNavigate();
   const token = getAuthToken();
+  const { addToast } = useToast();
 
   const [favorite, setFavorite] = useState(null);
   const [formData, setFormData] = useState({ note: "", favoriteReason: "", tags: "" });
   const [loading, setLoading] = useState(true);
-  const [saveMessage, setSaveMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -55,7 +56,6 @@ function FavoriteEditPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setSaveMessage("");
       setErrorMessage("");
       const updated = await updateFavorite(favoriteId, {
         note: formData.note,
@@ -63,10 +63,10 @@ function FavoriteEditPage() {
         tags: formData.tags.split(",").map((t) => t.trim()).filter(Boolean),
       }, token);
       setFavorite(updated);
-      setSaveMessage("Saved.");
+      addToast("Memo saved!", "success");
     } catch (error) {
       console.error("Update favorite error:", error);
-      setErrorMessage(error.message || "Failed to save.");
+      addToast(error.message || "Failed to save.", "error");
     }
   };
 
@@ -77,7 +77,7 @@ function FavoriteEditPage() {
       navigate("/favorites");
     } catch (error) {
       console.error("Delete favorite error:", error);
-      setErrorMessage(error.message || "Failed to delete.");
+      addToast(error.message || "Failed to delete.", "error");
     }
   };
 
@@ -214,7 +214,6 @@ function FavoriteEditPage() {
 
             <div className="favorite-form-actions">
               <button className="home-link" type="submit">Save Memo</button>
-              {saveMessage && <p className="status-message" style={{ margin: 0 }}>{saveMessage}</p>}
             </div>
           </form>
         </section>
