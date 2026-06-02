@@ -272,8 +272,6 @@ function HomePage() {
         </div>
       </section>
 
-      <WaveDivider />
-
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
