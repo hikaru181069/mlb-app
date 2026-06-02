@@ -6,26 +6,25 @@
 //   → 両方選択済み → GET /api/matchup?pitcherId=X&batterId=Y
 //   → 対戦成績カードを表示
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getMatchupStats } from "../services/api/matchupApi";
 
-// 表示するスタット定義
-const MATCHUP_STATS = [
-  { key: "gamesPlayed",     label: "G",    desc: "Games"         },
-  { key: "atBats",          label: "AB",   desc: "At Bats"       },
-  { key: "hits",            label: "H",    desc: "Hits"          },
-  { key: "homeRuns",        label: "HR",   desc: "Home Runs"     },
-  { key: "rbi",             label: "RBI",  desc: "RBI"           },
-  { key: "strikeOuts",      label: "SO",   desc: "Strikeouts"    },
-  { key: "baseOnBalls",     label: "BB",   desc: "Walks"         },
-  { key: "avg",             label: "AVG",  desc: "Batting Avg"   },
-  { key: "obp",             label: "OBP",  desc: "On-Base %"     },
-  { key: "slg",             label: "SLG",  desc: "Slugging %"    },
-  { key: "ops",             label: "OPS",  desc: "OPS"           },
-  { key: "numberOfPitches", label: "#P",   desc: "Pitches"       },
+// レートスタット: 棒グラフで視覚化（max は現実的な上限値）
+const RATE_STATS = [
+  { key: "avg", label: "AVG", desc: "Batting Average", max: 1.0 },
+  { key: "obp", label: "OBP", desc: "On-Base %",       max: 1.0 },
+  { key: "slg", label: "SLG", desc: "Slugging %",      max: 4.0 },
+  { key: "ops", label: "OPS", desc: "OPS",             max: 5.0 },
+];
+
+// カウント統計: シンプルな数値表示
+const COUNT_STATS = [
+  { key: "rbi",             label: "RBI",  desc: "RBI"       },
+  { key: "baseOnBalls",     label: "BB",   desc: "Walks"     },
+  { key: "numberOfPitches", label: "#P",   desc: "Pitches"   },
 ];
 
 // 選手カード（選択済みの場合に表示）
@@ -64,19 +63,79 @@ function SelectedPlayerCard({ player, role }) {
   );
 }
 
-// 対戦成績グリッド
-function MatchupStatsGrid({ stats }) {
+// 棒グラフ行（Compare ページのバースタイルを参考）
+function RateBar({ statDef, value }) {
+  const num = parseFloat(value);
+  const pct = isNaN(num) ? 0 : Math.min((num / statDef.max) * 100, 100);
+  const ready = useRef(false);
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 80);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="mbar-row">
+      {/* ラベル */}
+      <span className="mbar-label">{statDef.label}</span>
+
+      {/* バートラック */}
+      <div className="mbar-track">
+        <div
+          className="mbar-fill"
+          style={{ width: animated ? `${pct}%` : "0%" }}
+        />
+      </div>
+
+      {/* 値 */}
+      <span className="mbar-value">{value ?? "—"}</span>
+    </div>
+  );
+}
+
+// 対戦成績（新デザイン）
+function MatchupStatsGrid({ stats, pitcher, batter }) {
   return (
     <div className="matchup-stats-wrap">
       <p className="matchup-stats-title">Career Matchup Stats</p>
-      <div className="matchup-stats-grid">
-        {MATCHUP_STATS.map(({ key, label, desc }) => (
-          <div key={key} className="matchup-stat-cell">
-            <span className="matchup-stat-label">{label}</span>
-            <span className="matchup-stat-value">{stats[key] ?? "—"}</span>
-            <span className="matchup-stat-desc">{desc}</span>
+
+      {/* ① サマリー行: 主要カウントをピルで一覧 */}
+      <div className="mstats-summary">
+        {[
+          { label: "G",  value: stats.gamesPlayed },
+          { label: "AB", value: stats.atBats       },
+          { label: "H",  value: stats.hits          },
+          { label: "HR", value: stats.homeRuns      },
+          { label: "SO", value: stats.strikeOuts    },
+        ].map(({ label, value }) => (
+          <div key={label} className="mstats-pill">
+            <span className="mstats-pill-value">{value ?? "—"}</span>
+            <span className="mstats-pill-label">{label}</span>
           </div>
         ))}
+      </div>
+
+      {/* ② レートスタット: 棒グラフ */}
+      <div className="mstats-bars">
+        <p className="mstats-section-title">Rate Stats</p>
+        {RATE_STATS.map((s) => (
+          <RateBar key={s.key} statDef={s} value={stats[s.key]} />
+        ))}
+      </div>
+
+      {/* ③ 補足カウント */}
+      <div className="mstats-counts">
+        <p className="mstats-section-title">Additional</p>
+        <div className="mstats-count-row">
+          {COUNT_STATS.map(({ key, label, desc }) => (
+            <div key={key} className="mstats-count-cell">
+              <span className="mstats-count-value">{stats[key] ?? "—"}</span>
+              <span className="mstats-count-label">{label}</span>
+              <span className="mstats-count-desc">{desc}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

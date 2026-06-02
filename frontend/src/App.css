@@ -3597,16 +3597,17 @@ button:active {
 }
 
 /* 対戦成績グリッド */
+/* 対戦成績カード全体 */
 .matchup-stats-wrap {
   background: var(--ctp-surface0);
   border: 1px solid var(--ctp-surface1);
   border-radius: 16px;
   overflow: hidden;
-  animation: card-in 400ms var(--ease-out) both;
+  animation: cbattle-stats-in 0.45s ease 0.3s both;
 }
 
 .matchup-stats-title {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -3616,44 +3617,132 @@ button:active {
   margin: 0;
 }
 
-.matchup-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 0;
+/* ① サマリー行: G / AB / H / HR / SO をピルで横並び */
+.mstats-summary {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--ctp-surface1);
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.matchup-stat-cell {
+.mstats-pill {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 18px 12px;
-  border-right: 1px solid var(--ctp-surface1);
-  border-bottom: 1px solid var(--ctp-surface1);
-  transition: background 150ms;
+  min-width: 52px;
 }
 
-.matchup-stat-cell:hover {
-  background: rgba(137, 180, 250, 0.04);
+.mstats-pill-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--ctp-blue);
+  line-height: 1;
 }
 
-.matchup-stat-label {
+.mstats-pill-label {
   font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ctp-subtext0);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ② レートスタット: 棒グラフ（Compare ページのバースタイルを参考） */
+.mstats-bars {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ctp-surface1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mstats-section-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ctp-overlay0);
+  margin: 0 0 4px;
+}
+
+/* 棒グラフ行: ラベル | トラック | 値 */
+.mbar-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 64px;
+  align-items: center;
+  gap: 10px;
+}
+
+.mbar-label {
+  font-size: 0.78rem;
   font-weight: 800;
+  color: var(--ctp-subtext1);
+  text-align: right;
+  letter-spacing: 0.03em;
+}
+
+.mbar-track {
+  height: 8px;
+  background: var(--ctp-surface1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ctp-sapphire), var(--ctp-blue));
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mbar-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ctp-lavender);
+  text-align: left;
+}
+
+/* ③ 補足カウント */
+.mstats-counts {
+  padding: 16px 20px;
+}
+
+.mstats-count-row {
+  display: flex;
+  gap: 0;
+}
+
+.mstats-count-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-right: 1px solid var(--ctp-surface1);
+}
+.mstats-count-cell:last-child { border-right: none; }
+
+.mstats-count-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ctp-teal);
+  line-height: 1;
+}
+
+.mstats-count-label {
+  font-size: 0.7rem;
+  font-weight: 700;
   color: var(--ctp-subtext0);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.matchup-stat-value {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--ctp-blue);
-  line-height: 1;
-}
-
-.matchup-stat-desc {
-  font-size: 0.65rem;
+.mstats-count-desc {
+  font-size: 0.62rem;
   color: var(--ctp-overlay0);
 }
 
@@ -3663,9 +3752,7 @@ button:active {
     justify-items: center;
   }
   .matchup-vs-badge { font-size: 1.5rem; }
-  .matchup-stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  .mstats-summary { justify-content: center; }
 }
 
 /* ── [Phase 5] Toast Notifications ───────────────────────────────────────────
