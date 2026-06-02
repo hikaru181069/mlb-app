@@ -255,7 +255,6 @@ function Navbar() {
           </>
         ) : (
           <>
-            {/* Login: アウトライン / Register: 塗りつぶし — 同じ形で統一感を出す */}
             <NavLink
               to="/login"
               onClick={close}
@@ -266,7 +265,7 @@ function Navbar() {
             <NavLink
               to="/register"
               onClick={close}
-              className="flex w-full items-center justify-center rounded-lg bg-ctp-sapphire px-3 py-2 text-sm font-semibold text-ctp-base transition-all duration-150 hover:bg-ctp-blue"
+              className="flex w-full items-center justify-center rounded-lg border border-ctp-surface2 px-3 py-2 text-sm font-semibold text-ctp-subtext1 transition-all duration-150 hover:border-ctp-sapphire hover:text-ctp-sapphire"
             >
               Register
             </NavLink>
