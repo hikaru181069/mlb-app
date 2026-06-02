@@ -1,6 +1,30 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+// [Phase 13] Wave セクション区切りコンポーネント
+// 2層の SVG パスを異なる速度でスクロールさせてパラレックス効果を出す。
+// パターンを2回繰り返した viewBox (2400) を translateX(-50%) でループ。
+function WaveDivider() {
+  return (
+    <div className="section-wave" aria-hidden="true">
+      {/* Layer 1: ゆっくり左スクロール */}
+      <svg className="wave-svg wave-svg--1" viewBox="0 0 2400 60" preserveAspectRatio="none">
+        <path
+          d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 C1400,60 1600,0 1800,30 C2000,60 2200,0 2400,30 L2400,60 L0,60 Z"
+          fill="rgba(137,180,250,0.07)"
+        />
+      </svg>
+      {/* Layer 2: 逆方向・別速度で奥行きを演出 */}
+      <svg className="wave-svg wave-svg--2" viewBox="0 0 2400 60" preserveAspectRatio="none">
+        <path
+          d="M0,40 C300,20 600,55 900,35 C1050,25 1150,45 1200,40 C1500,20 1800,55 2100,35 C2250,25 2350,45 2400,40 L2400,60 L0,60 Z"
+          fill="rgba(180,190,254,0.05)"
+        />
+      </svg>
+    </div>
+  );
+}
+
 import PlayerCard from "../components/PlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -186,13 +210,7 @@ function HomePage() {
           </div>
         </section>
 
-        {/* [Phase 13] Wave セクション区切り: ヒーローとフィーチャーカードの間 */}
-        <div className="section-wave" aria-hidden="true">
-          <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z" fill="rgba(137,180,250,0.06)" />
-            <path d="M0,40 C300,20 600,55 900,35 C1050,25 1150,45 1200,40 L1200,60 L0,60 Z" fill="rgba(180,190,254,0.04)" />
-          </svg>
-        </div>
+        <WaveDivider />
 
         {/* フィーチャーカード */}
         <div className="feature-cards guest-feature-cards">
@@ -278,13 +296,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* [Phase 13] Wave セクション区切り */}
-      <div className="section-wave" aria-hidden="true">
-        <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z" fill="rgba(137,180,250,0.06)" />
-          <path d="M0,40 C300,20 600,55 900,35 C1050,25 1150,45 1200,40 L1200,60 L0,60 Z" fill="rgba(180,190,254,0.04)" />
-        </svg>
-      </div>
+      <WaveDivider />
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 

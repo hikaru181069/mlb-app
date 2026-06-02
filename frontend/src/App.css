@@ -672,24 +672,55 @@ input {
   padding: 48px 24px;
 }
 
-/* [Phase 13] Wave セクション区切り
-   fantinel.dev のウェーブデザインを参考に、ヒーローとコンテンツの間に
-   有機的な曲線を挿入してセクションを柔らかくつなぐ。
-   SVG の path を2層重ねることで奥行きを出す。 */
+/* [Phase 13] Wave セクション区切り（アニメーション版）
+   2つの SVG を2倍幅で並べ、translateX(-50%) へ移動することでシームレスにループ。
+   Layer 1 と Layer 2 を逆方向・異なる速度にするとパラレックス効果が生まれる。
+
+   仕組み:
+   - viewBox="0 0 2400 60": 1200幅のパターンを2回繰り返す
+   - アニメーションで translateX(0 → -50%): 1パターン分だけ左へ移動して元に戻る
+   - overflow: hidden でコンテナ外にはみ出た部分を隠す */
+
+@keyframes wave-drift {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 .section-wave {
-  width: calc(100% + 3rem); /* px-6 (1.5rem × 2) を相殺して全幅に */
+  position: relative;
+  width: calc(100% + 3rem); /* px-6 を相殺して全幅に */
   margin-left: -1.5rem;
   margin-right: -1.5rem;
   margin-top: 1rem;
   margin-bottom: -0.5rem;
-  line-height: 0;
-  overflow: hidden;
+  height: 60px;
+  overflow: hidden; /* はみ出た SVG を隠す */
 }
 
-.section-wave svg {
-  display: block;
-  width: 100%;
+/* 各 wave SVG: 200% 幅でパターン2回分を描画 */
+.wave-svg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
   height: 60px;
+}
+
+/* Layer 1: 10秒で左へスクロール */
+.wave-svg--1 {
+  animation: wave-drift 10s linear infinite;
+}
+
+/* Layer 2: 14秒・逆方向 → 2層が互いにすれ違う奥行き感 */
+.wave-svg--2 {
+  animation: wave-drift 14s linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-svg--1,
+  .wave-svg--2 {
+    animation: none;
+  }
 }
 
 /* [Phase 9] ゲストヒーロー: 2カラム全幅レイアウト
