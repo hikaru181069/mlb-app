@@ -75,6 +75,11 @@ const CompareIcon = () => (
     <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
   </svg>
 );
+const MatchupIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </svg>
+);
 const StarIcon = () => (
   <svg
     width="16"
@@ -128,6 +133,7 @@ const NAV_ITEMS = [
   { to: "/search", label: "Search", Icon: SearchIcon },
   { to: "/stats", label: "Stats", Icon: StatsIcon },
   { to: "/compare", label: "Compare", Icon: CompareIcon },
+  { to: "/matchup", label: "Matchup", Icon: MatchupIcon },
 ];
 
 // NavLink の isActive に応じてクラスを切り替えるヘルパー関数

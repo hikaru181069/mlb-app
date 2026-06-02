@@ -331,6 +331,20 @@ function PlayerDetailPage() {
             Compare →
           </Link>
 
+          {/* Matchup 導線:
+              投手 → /matchup?pitcher=id (打者を選んで対戦成績を見る)
+              打者 → /matchup?batter=id  (投手を選んで対戦成績を見る) */}
+          <Link
+            className="home-link secondary"
+            to={
+              player.playerType === "pitcher"
+                ? `/matchup?pitcher=${player.mlbPlayerId}`
+                : `/matchup?batter=${player.mlbPlayerId}`
+            }
+          >
+            Matchup →
+          </Link>
+
           {player.baseballSavantUrl && (
             <a
               className="home-link secondary"

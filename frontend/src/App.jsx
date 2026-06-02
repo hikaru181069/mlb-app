@@ -18,6 +18,7 @@ import OnboardingFavoritesPage from "./pages/OnboardingFavoritesPage";
 import TeamRosterPage from "./pages/TeamRosterPage";
 import StatsPage from "./pages/StatsPage";
 import ComparePage from "./pages/ComparePage";
+import MatchupPage from "./pages/MatchupPage";
 import ProfilePage from "./pages/ProfilePage";
 
 // [Phase 4] ページ遷移アニメーション
@@ -38,6 +39,7 @@ function AnimatedRoutes() {
         <Route path="/team-roster" element={<TeamRosterPage />} />
         <Route path="/stats" element={<StatsPage />} />
         <Route path="/compare" element={<ComparePage />} />
+        <Route path="/matchup" element={<MatchupPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/onboarding/team" element={<OnboardingTeamPage />} />
         <Route
