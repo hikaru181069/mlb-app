@@ -54,6 +54,40 @@ function AnimatedRoutes() {
   );
 }
 
+// [Phase 14] Footer
+// fantinel.dev 参考: 技術スタック・作者情報をコンパクトにまとめたフッター。
+// サイドバーと同じ ml-52 オフセットを適用してコンテンツ幅に揃える。
+function Footer() {
+  const techStack = ["MongoDB", "Express", "React", "Node.js", "FastAPI", "MLB Stats API", "JWT"];
+  return (
+    <footer className="site-footer md:ml-52">
+      <div className="footer-inner">
+        {/* 左: ロゴ + キャッチコピー */}
+        <div className="footer-brand">
+          <img
+            src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
+            alt="MLB"
+            className="footer-logo"
+          />
+          <span className="footer-title">MLB App</span>
+        </div>
+
+        {/* 中央: 技術スタックバッジ */}
+        <div className="footer-stack">
+          {techStack.map((tech) => (
+            <span key={tech} className="footer-badge">{tech}</span>
+          ))}
+        </div>
+
+        {/* 右: クレジット */}
+        <p className="footer-credit">
+          Built by Hikaru · MERN Portfolio
+        </p>
+      </div>
+    </footer>
+  );
+}
+
 function App() {
   return (
     // [Phase 5] ToastProvider でアプリ全体をラップ
@@ -66,6 +100,7 @@ function App() {
       <main className="pt-14 md:pt-0 md:ml-52">
         <AnimatedRoutes />
       </main>
+      <Footer />
     </ToastProvider>
   );
 }
