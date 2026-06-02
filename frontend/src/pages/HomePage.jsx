@@ -186,6 +186,14 @@ function HomePage() {
           </div>
         </section>
 
+        {/* [Phase 13] Wave セクション区切り: ヒーローとフィーチャーカードの間 */}
+        <div className="section-wave" aria-hidden="true">
+          <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z" fill="rgba(137,180,250,0.06)" />
+            <path d="M0,40 C300,20 600,55 900,35 C1050,25 1150,45 1200,40 L1200,60 L0,60 Z" fill="rgba(180,190,254,0.04)" />
+          </svg>
+        </div>
+
         {/* フィーチャーカード */}
         <div className="feature-cards guest-feature-cards">
           <div className="feature-card">
@@ -269,6 +277,14 @@ function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* [Phase 13] Wave セクション区切り */}
+      <div className="section-wave" aria-hidden="true">
+        <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z" fill="rgba(137,180,250,0.06)" />
+          <path d="M0,40 C300,20 600,55 900,35 C1050,25 1150,45 1200,40 L1200,60 L0,60 Z" fill="rgba(180,190,254,0.04)" />
+        </svg>
+      </div>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 

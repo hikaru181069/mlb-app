@@ -672,6 +672,26 @@ input {
   padding: 48px 24px;
 }
 
+/* [Phase 13] Wave セクション区切り
+   fantinel.dev のウェーブデザインを参考に、ヒーローとコンテンツの間に
+   有機的な曲線を挿入してセクションを柔らかくつなぐ。
+   SVG の path を2層重ねることで奥行きを出す。 */
+.section-wave {
+  width: calc(100% + 3rem); /* px-6 (1.5rem × 2) を相殺して全幅に */
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  margin-top: 1rem;
+  margin-bottom: -0.5rem;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.section-wave svg {
+  display: block;
+  width: 100%;
+  height: 60px;
+}
+
 /* [Phase 9] ゲストヒーロー: 2カラム全幅レイアウト
    fantinel.dev スタイルの「最初の印象が強い」ヒーローを再現。
    カードに閉じ込めず、左にテキスト・右にビジュアルで画面を使い切る。 */
