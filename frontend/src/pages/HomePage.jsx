@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-
 import PlayerCard from "../components/PlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -183,10 +182,9 @@ function HomePage() {
 
           {/* 右側: 大きな MLB ロゴ（デスクトップのみ表示） */}
           <div className="guest-hero-visual" aria-hidden="true">
-            <img src="/logo-pop.JPG" alt="" className="guest-hero-logo" />
+            <img src="/yozo.png" alt="" className="guest-hero-logo" />
           </div>
         </section>
-
 
         {/* フィーチャーカード */}
         <div className="feature-cards guest-feature-cards">

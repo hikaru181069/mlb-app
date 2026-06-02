@@ -793,12 +793,15 @@ input {
 }
 
 .guest-hero-logo {
-  /* 円形クリップ: JPG の白背景を隠してアバター写真風に仕上げる */
+  /* 人物写真: 円形クロップで fantinel.dev のアバタースタイルに近づける。
+     object-position: center 15% で顔が円の中央に来るよう調整。
+     portrait 写真は上部に顔があるため、デフォルトの center center より
+     やや上にずらすのがポイント。 */
   width: min(100%, 220px);
   height: min(100%, 220px);
   object-fit: cover;
+  object-position: center 15%;
   border-radius: 50%;
-  /* Catppuccin カラーのリング */
   outline: 3px solid rgba(137, 180, 250, 0.3);
   outline-offset: 4px;
   box-shadow:
