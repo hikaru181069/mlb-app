@@ -1,3 +1,6 @@
+// [Phase 12] Onboarding Step 1: チーム選択
+// 旧来の .app クラスから home-page/home-hero パターンに統一。
+// ステップインジケーターでユーザーが今どこにいるか把握できるようにした。
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -18,12 +21,10 @@ function OnboardingTeamPage() {
       navigate("/login");
       return;
     }
-
     if (!selectedTeam) {
       setErrorMessage("Please choose one favorite team.");
       return;
     }
-
     try {
       setLoading(true);
       setErrorMessage("");
@@ -38,37 +39,56 @@ function OnboardingTeamPage() {
   };
 
   return (
-    <div className="app">
-      <Link className="back-link" to="/">
-        ← Back to Home
-      </Link>
-
-      <h1>Choose Your Favorite Team</h1>
-      <p className="status-message">
-        Choose one team. We will use it to suggest players during onboarding.
-      </p>
-
-      <div className="team-grid">
-        {mlbTeams.map((team) => (
-          <TeamCard
-            key={team.id}
-            team={team}
-            selected={selectedTeam?.id === team.id}
-            handleSelectTeam={setSelectedTeam}
-          />
-        ))}
+    <div className="home-page px-6 py-10">
+      {/* ステップインジケーター */}
+      <div className="onboarding-steps">
+        <span className="onboarding-step onboarding-step--active">
+          1. Choose Team
+        </span>
+        <span className="onboarding-step-sep">→</span>
+        <span className="onboarding-step onboarding-step--pending">
+          2. Pick Players
+        </span>
       </div>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
+        <p className="home-kicker text-sm">Step 1 of 2</p>
+        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+          Choose Your Team
+        </h1>
+        <p className="home-description mt-4 text-base">
+          We'll use this to suggest players in the next step.
+        </p>
+      </section>
 
-      <button
-        className="add-player-link onboarding-action"
-        type="button"
-        disabled={loading}
-        onClick={handleSubmit}
-      >
-        {loading ? "Saving..." : "Save Team and Continue"}
-      </button>
+      <div className="home-content mt-2 w-full">
+        <div className="team-grid">
+          {mlbTeams.map((team) => (
+            <TeamCard
+              key={team.id}
+              team={team}
+              selected={selectedTeam?.id === team.id}
+              handleSelectTeam={setSelectedTeam}
+            />
+          ))}
+        </div>
+
+        {errorMessage && <p className="error-message mt-4">{errorMessage}</p>}
+
+        <div className="home-actions mt-8">
+          <button
+            className="home-link"
+            type="button"
+            disabled={loading || !selectedTeam}
+            onClick={handleSubmit}
+          >
+            {loading ? "Saving…" : "Continue →"}
+          </button>
+          <Link className="home-link secondary" to="/">
+            Cancel
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

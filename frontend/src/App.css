@@ -1460,6 +1460,83 @@ button:disabled,
   flex-shrink: 0;
 }
 
+/* [Phase 12] Onboarding ステップインジケーター + 選択カウント */
+
+/* Step 1 → Step 2 の横並びインジケーター */
+.onboarding-steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.onboarding-step {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--ctp-surface1);
+  color: var(--ctp-subtext0);
+  background: transparent;
+}
+
+/* 現在のステップ: アクティブカラー */
+.onboarding-step--active {
+  border-color: var(--ctp-blue);
+  color: var(--ctp-blue);
+  background: rgba(137, 180, 250, 0.08);
+}
+
+/* 完了済みステップ: グリーン */
+.onboarding-step--done {
+  border-color: var(--ctp-green);
+  color: var(--ctp-green);
+  background: rgba(166, 227, 161, 0.08);
+}
+
+/* 未到達ステップ: グレー */
+.onboarding-step--pending {
+  color: var(--ctp-overlay0);
+  border-color: var(--ctp-surface1);
+}
+
+.onboarding-step-sep {
+  color: var(--ctp-overlay0);
+  font-size: 0.75rem;
+}
+
+/* 選択カウントバッジ（Step 2） */
+.onboarding-count-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.onboarding-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid var(--ctp-surface1);
+  color: var(--ctp-subtext1);
+  background: var(--ctp-surface0);
+  transition: all 300ms var(--ease-smooth);
+}
+
+/* 3人以上選択で緑に切り替わる */
+.onboarding-count-badge--ok {
+  border-color: var(--ctp-green);
+  color: var(--ctp-green);
+  background: rgba(166, 227, 161, 0.1);
+}
+
+.onboarding-count-hint {
+  font-size: 0.8rem;
+  color: var(--ctp-subtext0);
+}
+
 .onboarding-count--ok {
   background: linear-gradient(135deg, var(--ctp-green), var(--ctp-teal));
   color: var(--ctp-crust);
