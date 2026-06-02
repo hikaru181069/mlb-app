@@ -797,8 +797,8 @@ input {
      object-position: center 15% で顔が円の中央に来るよう調整。
      portrait 写真は上部に顔があるため、デフォルトの center center より
      やや上にずらすのがポイント。 */
-  width: min(100%, 220px);
-  height: min(100%, 220px);
+  width: min(100%, 340px);
+  height: min(100%, 340px);
   object-fit: cover;
   object-position: center 15%;
   border-radius: 50%;
