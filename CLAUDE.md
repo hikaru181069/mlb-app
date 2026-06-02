@@ -11,6 +11,15 @@ npm run dev    # Start with nodemon (auto-reload)
 npm start      # Production start
 ```
 
+**FastAPI** (run from `fastapi-service/`):
+
+```bash
+# ルートの .venv を使う
+/Users/hikarusato/mlb-app/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+ポート: 8000 / ヘルスチェック: `curl http://localhost:8000/`
+
 **Frontend** (run from `frontend/`):
 
 ```bash
