@@ -151,56 +151,44 @@ function HomePage() {
   };
 
   // --- Guest view ---
-  // [Phase 9] fantinel.dev を参考に、2カラムの全幅ヒーローにリデザイン。
-  // 左側: 大きなタイトル + 説明 + CTA
-  // 右側: MLB ロゴ（フローティングアニメーション付き装飾）
+  // フルブリードヒーロー: 画像でページを覆い、タイトルをオーバーレイで表示
   if (!token) {
     return (
-      <div className="home-page px-6 py-10">
-        {/* 2カラムヒーロー（モバイルは1カラムに折りたたむ） */}
-        <section className="guest-hero">
-          <div className="guest-hero-text">
+      <div className="home-page">
+        {/* フルブリードヒーロー */}
+        <section className="guest-fullbleed-hero">
+          {/* 背景画像 */}
+          <img src="/yozo.png" alt="" className="guest-hero-bg-img" />
+          {/* 暗いグラデーションオーバーレイ（テキスト可読性を確保） */}
+          <div className="guest-hero-overlay" />
+          {/* タイトル・CTA（オーバーレイの上） */}
+          <div className="guest-hero-content">
             <p className="home-kicker text-sm">MERN Portfolio Project</p>
             <h1 className="guest-hero-title">
-              MLB Favorite
-              <br />
-              Player Hub
+              MLB Favorite<br />Player Hub
             </h1>
             <p className="home-description mt-4 text-base md:text-lg">
-              Search MLB players, explore stats, and build your own personalized
-              favorite player list.
+              Search MLB players, explore stats, and build your own
+              personalized favorite player list.
             </p>
             <div className="home-actions mt-8">
-              <Link className="home-link" to="/register">
-                Get Started
-              </Link>
-              <Link className="home-link secondary" to="/login">
-                Login
-              </Link>
+              <Link className="home-link" to="/register">Get Started</Link>
+              <Link className="home-link secondary" to="/login">Login</Link>
             </div>
-          </div>
-
-          {/* 右側: 大きな MLB ロゴ（デスクトップのみ表示） */}
-          <div className="guest-hero-visual" aria-hidden="true">
-            <img src="/yozo.png" alt="" className="guest-hero-logo" />
           </div>
         </section>
 
         {/* フィーチャーカード */}
-        <div className="feature-cards guest-feature-cards">
+        <div className="feature-cards guest-feature-cards px-6">
           <div className="feature-card">
             <span className="feature-card-icon">🔍</span>
             <h3>Search</h3>
-            <p>
-              Search any MLB player from the official Stats API in real time.
-            </p>
+            <p>Search any MLB player from the official Stats API in real time.</p>
           </div>
           <div className="feature-card">
             <span className="feature-card-icon">⭐</span>
             <h3>Track</h3>
-            <p>
-              Save favorite players with personal notes and tags to MongoDB.
-            </p>
+            <p>Save favorite players with personal notes and tags to MongoDB.</p>
           </div>
           <div className="feature-card">
             <span className="feature-card-icon">🤖</span>
@@ -209,15 +197,8 @@ function HomePage() {
           </div>
         </div>
 
-        <div className="home-tech-stack">
-          {[
-            "MongoDB",
-            "Express",
-            "React",
-            "Node.js",
-            "MLB Stats API",
-            "JWT",
-          ].map((tech) => (
+        <div className="home-tech-stack px-6">
+          {["MongoDB", "Express", "React", "Node.js", "MLB Stats API", "JWT"].map((tech) => (
             <span key={tech}>{tech}</span>
           ))}
         </div>

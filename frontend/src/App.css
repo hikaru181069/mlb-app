@@ -744,6 +744,74 @@ input {
   }
 }
 
+/* ── フルブリードヒーロー ────────────────────────────────────────────────────
+   画像でページを覆い、タイトルをオーバーレイの上に配置するデザイン。
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* セクション本体: サイドバーの px-6 を突き破って全幅に広げる */
+.guest-fullbleed-hero {
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: flex-end; /* テキストを下寄せ */
+  justify-content: center;
+  overflow: hidden;
+  /* home-page の px-6 を打ち消して全幅に */
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  width: calc(100% + 3rem);
+  margin-bottom: 2.5rem;
+}
+
+/* 背景画像: absolute で全面を覆う */
+.guest-hero-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%; /* 顔が中央上部に来るよう調整 */
+}
+
+/* グラデーションオーバーレイ
+   上部は薄く（顔が見える）、下部は濃く（テキストが読みやすい）*/
+.guest-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(17, 17, 27, 0.1)  0%,
+    rgba(17, 17, 27, 0.05) 25%,
+    rgba(17, 17, 27, 0.5)  60%,
+    rgba(17, 17, 27, 0.92) 100%
+  );
+}
+
+/* テキストコンテンツ: オーバーレイの上（z-index: 1） */
+.guest-hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 2rem 2rem 4rem;
+  max-width: 700px;
+  width: 100%;
+  animation: page-rise 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* フィーチャーカードの max-width を揃える */
+.guest-feature-cards {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto 0;
+}
+
+@media (max-width: 640px) {
+  .guest-fullbleed-hero {
+    min-height: 75vh;
+    align-items: flex-end;
+  }
+}
+
 /* [Phase 9] ゲストヒーロー: 2カラム全幅レイアウト
    fantinel.dev スタイルの「最初の印象が強い」ヒーローを再現。
    カードに閉じ込めず、左にテキスト・右にビジュアルで画面を使い切る。 */
