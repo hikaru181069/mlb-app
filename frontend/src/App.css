@@ -3581,6 +3581,7 @@ button:active {
 
 /* 対戦成績カード全体 */
 .matchup-stats-wrap {
+  margin-top: 28px; /* 選手カードとの間に余白 */
   background: var(--ctp-surface0);
   border: 1px solid var(--ctp-surface1);
   border-radius: 16px;
