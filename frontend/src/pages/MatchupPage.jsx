@@ -27,27 +27,25 @@ const COUNT_STATS = [
   { key: "numberOfPitches", label: "#P",   desc: "Pitches"   },
 ];
 
-// 選手カード（選択済みの場合に表示）
-function SelectedPlayerCard({ player, role }) {
-  const isLeft = role === "pitcher";
+// 選手カード: Compare ページの cbattle-card と同じ構造・CSS クラスを使う
+function SelectedPlayerCard({ player, side }) {
   return (
-    <div className={`matchup-player-card matchup-player-card--${role}`}>
-      <p className="matchup-role-label">{role === "pitcher" ? "⚾ Pitcher" : "🏏 Batter"}</p>
+    <div className={`cbattle-card cbattle-card--${side}`}>
       {player.image && (
         <img
           src={player.image}
           alt={player.name || player.fullName}
-          className="matchup-player-img"
+          className="cbattle-img"
         />
       )}
       <Link
         to={`/players/${player.mlbPlayerId}`}
         state={{ from: "/matchup", fromLabel: "Back to Matchup" }}
-        className="matchup-player-name"
+        className="cbattle-name"
       >
         {player.name || player.fullName}
       </Link>
-      <div className="matchup-player-meta">
+      <div className="cbattle-meta">
         {player.teamId && (
           <img
             src={`https://www.mlbstatic.com/team-logos/${player.teamId}.svg`}
@@ -57,7 +55,7 @@ function SelectedPlayerCard({ player, role }) {
           />
         )}
         <span>{player.team}</span>
-        <span className="matchup-player-pos">{player.position}</span>
+        <span className="cbattle-pos">{player.position}</span>
       </div>
     </div>
   );
@@ -259,12 +257,20 @@ function MatchupPage() {
               />
             </div>
 
-            {/* 選択済みカード */}
+            {/* 選択済みカード: Compare ページと同じ cbattle-header 構造 */}
             {bothSelected && (
-              <div className="matchup-header">
-                <SelectedPlayerCard player={pitcher} role="pitcher" />
-                <div className="matchup-vs-badge">VS</div>
-                <SelectedPlayerCard player={batter} role="batter" />
+              <div className="cbattle-wrap">
+                <div className="cbattle-header">
+                  <div className="cbattle-side cbattle-side--left">
+                    <SelectedPlayerCard player={pitcher} side="left" />
+                  </div>
+                  <div className="cbattle-vs-col">
+                    <span className="cbattle-vs">VS</span>
+                  </div>
+                  <div className="cbattle-side cbattle-side--right">
+                    <SelectedPlayerCard player={batter} side="right" />
+                  </div>
+                </div>
               </div>
             )}
 
