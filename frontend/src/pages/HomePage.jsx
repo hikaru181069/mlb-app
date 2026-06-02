@@ -151,18 +151,11 @@ function HomePage() {
   };
 
   // --- Guest view ---
-  // フルブリードヒーロー: 画像でページを覆い、タイトルをオーバーレイで表示
   if (!token) {
     return (
-      <div className="home-page">
-        {/* フルブリードヒーロー */}
-        <section className="guest-fullbleed-hero">
-          {/* 背景画像 */}
-          <img src="/yozo.png" alt="" className="guest-hero-bg-img" />
-          {/* 暗いグラデーションオーバーレイ（テキスト可読性を確保） */}
-          <div className="guest-hero-overlay" />
-          {/* タイトル・CTA（オーバーレイの上） */}
-          <div className="guest-hero-content">
+      <div className="home-page px-6 py-10">
+        <section className="guest-hero">
+          <div className="guest-hero-text">
             <p className="home-kicker text-sm">MERN Portfolio Project</p>
             <h1 className="guest-hero-title">
               MLB Favorite<br />Player Hub
@@ -176,10 +169,18 @@ function HomePage() {
               <Link className="home-link secondary" to="/login">Login</Link>
             </div>
           </div>
+
+          {/* 右側: MLB ロゴ（デスクトップのみ表示） */}
+          <div className="guest-hero-visual" aria-hidden="true">
+            <img
+              src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
+              alt=""
+              className="guest-hero-logo"
+            />
+          </div>
         </section>
 
-        {/* フィーチャーカード */}
-        <div className="feature-cards guest-feature-cards px-6">
+        <div className="feature-cards guest-feature-cards">
           <div className="feature-card">
             <span className="feature-card-icon">🔍</span>
             <h3>Search</h3>
@@ -197,7 +198,7 @@ function HomePage() {
           </div>
         </div>
 
-        <div className="home-tech-stack px-6">
+        <div className="home-tech-stack">
           {["MongoDB", "Express", "React", "Node.js", "MLB Stats API", "JWT"].map((tech) => (
             <span key={tech}>{tech}</span>
           ))}
