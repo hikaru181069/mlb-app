@@ -8,6 +8,7 @@ const {
   fetchExternalPlayerDetails,
   fetchExternalPlayerStats,
 } = require("./playerStatsService");
+const { fetchRecommendationScores } = require("../fastApiService");
 
 const toNumber = (value) => {
   const number = Number(value);
@@ -172,17 +173,12 @@ const fetchRecommendedPlayersByTeam = async (
           playerId: basePlayer.mlbPlayerId,
         });
         const formattedSeasonStats = formatExternalStats(seasonStats);
-        const player = {
+        // スコアリングは後で FastAPI にまとめて投げるので、ここでは選手を返すだけ
+        return {
           ...basePlayer,
           playerType,
           ...formattedSeasonStats,
           currentSeasonStats: formattedSeasonStats,
-        };
-        const recommendation = calculateRecommendationScore(player);
-
-        return {
-          ...player,
-          ...recommendation,
         };
       } catch (error) {
         console.error(
@@ -195,10 +191,34 @@ const fetchRecommendedPlayersByTeam = async (
   );
 
   const validPlayers = players.filter(Boolean);
-  const hitters = validPlayers
+
+  // 推薦スコアは FastAPI にまとめて計算してもらう（全選手を1リクエストでバッチ処理）。
+  // FastAPI が落ちていれば scoreMap が null になり、ローカル計算にフォールバックする。
+  const scoringPayload = validPlayers.map((player) => ({
+    playerId: Number(player.mlbPlayerId),
+    name: player.name,
+    playerType: player.playerType,
+    active: player.active,
+    hitterStats: player.hitterStats,
+    pitcherStats: player.pitcherStats,
+  }));
+  const scoreMap = await fetchRecommendationScores(scoringPayload);
+
+  const scoredPlayers = validPlayers.map((player) => {
+    const remote = scoreMap?.get(Number(player.mlbPlayerId));
+    const recommendation = remote
+      ? {
+          recommendationScore: remote.recommendationScore,
+          recommendationReasons: remote.recommendationReasons,
+        }
+      : calculateRecommendationScore(player); // FastAPI 未起動/欠落時のフォールバック
+    return { ...player, ...recommendation };
+  });
+
+  const hitters = scoredPlayers
     .filter((player) => player.playerType === "hitter")
     .sort((a, b) => b.recommendationScore - a.recommendationScore);
-  const pitchers = validPlayers
+  const pitchers = scoredPlayers
     .filter((player) => player.playerType === "pitcher")
     .sort((a, b) => b.recommendationScore - a.recommendationScore);
 

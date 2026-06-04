@@ -143,3 +143,102 @@ def find_similar_players(request: SimilarRequest):
     top_ids = [player_id for player_id, _ in scored[: request.topN]]
 
     return SimilarResponse(similarPlayerIds=top_ids)
+
+
+# ── 推薦スコア（ルールベース） ────────────────────────────────────────────────
+# Express の calculateRecommendationScore を移植したもの。
+# 数式は現行 JS と 1:1 で同一（移行で挙動を変えないため）。
+# 推薦で使う指標は /similar と異なるため、専用の Pydantic モデルを定義する。
+
+
+class RecHitterStats(BaseModel):
+    gamesPlayed: float = 0
+    homeRuns: float = 0
+    battingAverage: float = 0
+    ops: float = 0
+
+
+class RecPitcherStats(BaseModel):
+    gamesPlayed: float = 0
+    wins: float = 0
+    strikeouts: float = 0
+    era: float = 0
+
+
+class RecPlayer(BaseModel):
+    playerId: int
+    name: str = ""
+    playerType: str = "hitter"  # "hitter" | "pitcher"
+    active: bool = False
+    hitterStats: RecHitterStats = RecHitterStats()
+    pitcherStats: RecPitcherStats = RecPitcherStats()
+
+
+class RecommendRequest(BaseModel):
+    players: list[RecPlayer]
+
+
+class ScoredPlayer(BaseModel):
+    playerId: int
+    recommendationScore: int
+    recommendationReasons: list[str]
+
+
+class RecommendResponse(BaseModel):
+    players: list[ScoredPlayer]
+
+
+POPULAR = {"Shohei Ohtani", "Mookie Betts", "Freddie Freeman", "Aaron Judge"}
+
+
+def has_stats(stats: BaseModel) -> bool:
+    """JS の hasStats 相当: いずれかの値が 0/None でなければ True"""
+    return any(v for v in stats.model_dump().values())
+
+
+def score_player(p: RecPlayer) -> ScoredPlayer:
+    reasons = ["Recommended from your favorite team"]
+    score = 0.0
+
+    if p.active:
+        score += 20
+        reasons.append("Active roster player")
+
+    if has_stats(p.hitterStats) or has_stats(p.pitcherStats):
+        score += 18
+        reasons.append("Has current season stats")
+
+    if p.playerType == "hitter":
+        h = p.hitterStats
+        score += min(h.gamesPlayed, 80) * 0.25
+        score += h.homeRuns * 1.5
+        score += h.battingAverage * 40
+        score += h.ops * 30
+        if h.homeRuns >= 10 or h.ops >= 0.75:
+            reasons.append("Strong hitter profile")
+
+    if p.playerType == "pitcher":
+        pi = p.pitcherStats
+        score += min(pi.gamesPlayed, 40) * 0.5
+        score += pi.wins * 2
+        score += pi.strikeouts * 0.25
+        if pi.era > 0:
+            score += max(0, 5 - pi.era) * 8
+        if pi.strikeouts >= 40 or (0 < pi.era <= 3.5):
+            reasons.append("Strong pitcher profile")
+
+    if p.name in POPULAR:
+        score += 25
+        reasons.append("Popular star player")
+
+    return ScoredPlayer(
+        playerId=p.playerId,
+        recommendationScore=round(score),
+        recommendationReasons=reasons,
+    )
+
+
+@app.post("/recommend", response_model=RecommendResponse)
+def recommend(req: RecommendRequest):
+    """各選手の推薦スコアと理由を計算して返す（バランス選抜は Express 側）"""
+    return RecommendResponse(players=[score_player(p) for p in req.players])
