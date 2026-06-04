@@ -1,15 +1,18 @@
+// チームロスタービューア（汎用）
+// URL: /team-roster?teamId=147
+//
+// 任意のチームのロスターを表示する公開ページ。
+// teamId クエリパラメータでチームを指定する（League / Home から遷移）。
+// ロスターは MLB Stats API の公開データなのでログイン不要。
+
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import PlayerCard from "../components/PlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
-import { getCurrentUser } from "../services/api/userApi";
-import { clearAuthData, getAuthToken } from "../utils/authStorage";
-import {
-  getApiErrorMessage,
-  isUnauthorizedError,
-} from "../services/api/apiError";
+import { mlbTeams } from "../services/mlbTeams";
+import { getApiErrorMessage } from "../services/api/apiError";
 
 const SKELETON_COUNT = 12;
 
@@ -56,46 +59,42 @@ function RosterSection({ title, players, loading, skeletonCount }) {
 }
 
 function TeamRosterPage() {
-  const [user, setUser] = useState(null);
+  const [searchParams] = useSearchParams();
+  const teamId = searchParams.get("teamId");
+
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const token = getAuthToken();
+
+  // teamId から mlbTeams のチーム情報を引く（名前・略称の表示用）
+  const team = useMemo(
+    () => mlbTeams.find((t) => t.id === Number(teamId)),
+    [teamId],
+  );
 
   useEffect(() => {
-    const fetchTeamRoster = async () => {
-      if (!token) return;
+    // teamId がなければ何もしない（下で「チーム未選択」を案内）
+    if (!teamId) return;
 
+    const fetchTeamRoster = async () => {
       try {
         setLoading(true);
         setErrorMessage("");
-
-        const currentUser = await getCurrentUser(token);
-        setUser(currentUser);
-
-        if (currentUser.favoriteTeam?.id) {
-          const teamPlayers = await getExternalPlayersByTeam(
-            currentUser.favoriteTeam.id,
-          );
-          setPlayers(teamPlayers);
-        }
+        const teamPlayers = await getExternalPlayersByTeam(teamId);
+        setPlayers(teamPlayers);
       } catch (error) {
         console.error("Team roster fetch error:", error);
-        if (isUnauthorizedError(error)) {
-          clearAuthData();
-          setErrorMessage("Your login session expired. Please login again.");
-          return;
-        }
         setErrorMessage(
           getApiErrorMessage(error, "Failed to load team roster."),
         );
+        setPlayers([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTeamRoster();
-  }, [token]);
+  }, [teamId]);
 
   const { pitchers, positionPlayers } = useMemo(() => {
     return {
@@ -104,17 +103,18 @@ function TeamRosterPage() {
     };
   }, [players]);
 
-  if (!token) {
+  // teamId 未指定: チーム選択を促す
+  if (!teamId) {
     return (
       <div className="home-page px-6 py-12">
         <div className="home-empty-state">
-          <span className="empty-state-icon">🔒</span>
-          <p className="empty-state-title">Login required</p>
+          <span className="empty-state-icon">⚾</span>
+          <p className="empty-state-title">No team selected</p>
           <p className="empty-state-desc">
-            Please login to view your favorite team's roster.
+            Pick a team from the League standings to see its roster.
           </p>
-          <Link className="home-link secondary" to="/login">
-            Go to Login
+          <Link className="home-link secondary" to="/league">
+            Go to League
           </Link>
         </div>
       </div>
@@ -126,18 +126,16 @@ function TeamRosterPage() {
       <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
         <p className="home-kicker text-sm">Team Roster</p>
         <div className="flex items-center justify-center gap-3">
-          {user?.favoriteTeam?.id && (
-            <img
-              src={`https://www.mlbstatic.com/team-logos/${user.favoriteTeam.id}.svg`}
-              alt={user.favoriteTeam.name}
-              style={{ width: "48px", height: "48px" }}
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          )}
+          <img
+            src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
+            alt={team?.name ?? "Team"}
+            style={{ width: "48px", height: "48px" }}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
           <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-            {user?.favoriteTeam?.name ?? "Your Team"}
+            {team?.name ?? "Team"}
           </h1>
           {!loading && players.length > 0 && (
             <span className="count-badge">{players.length}</span>
@@ -147,11 +145,8 @@ function TeamRosterPage() {
           Full roster from the MLB Stats API.
         </p>
         <div className="home-actions mt-6">
-          <Link className="home-link secondary" to="/">
-            ← Back to Home
-          </Link>
-          <Link className="home-link secondary" to="/onboarding/team">
-            Change Team
+          <Link className="home-link secondary" to="/league">
+            ← Back to League
           </Link>
         </div>
       </section>
@@ -159,16 +154,13 @@ function TeamRosterPage() {
       <div className="home-content mt-2 w-full">
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {!loading && !errorMessage && !user?.favoriteTeam?.id && (
+        {!loading && !errorMessage && players.length === 0 && (
           <div className="home-empty-state">
             <span className="empty-state-icon">⚾</span>
-            <p className="empty-state-title">No favorite team set</p>
+            <p className="empty-state-title">No players found</p>
             <p className="empty-state-desc">
-              Choose a favorite team to see its full roster here.
+              Could not load the roster for this team.
             </p>
-            <Link className="home-link secondary" to="/onboarding/team">
-              Choose Team
-            </Link>
           </div>
         )}
 

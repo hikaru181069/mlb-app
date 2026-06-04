@@ -267,7 +267,11 @@ function HomePage() {
                 : "Choose a favorite team to show team players here."
             }
             count={teamPlayers.length}
-            viewAllTo={user?.favoriteTeam?.id ? "/team-roster" : undefined}
+            viewAllTo={
+              user?.favoriteTeam?.id
+                ? `/team-roster?teamId=${user.favoriteTeam.id}`
+                : undefined
+            }
           />
           {loading ? (
             <div className="player-list-carousel">
