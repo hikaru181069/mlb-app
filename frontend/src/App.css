@@ -3903,11 +3903,25 @@ button:active {
 
 /* ── League Page ──────────────────────────────────────────────────────────── */
 
-/* Standings: 地区カードを2カラムグリッドで */
+/* Standings: AL / NL を横に分け、地区カードは各リーグ内で縦並び */
 .standings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+}
+
+.standings-league-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.standings-league-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--ctp-text);
 }
 
 .standings-division {
@@ -3928,8 +3942,8 @@ button:active {
   letter-spacing: 0.04em;
 }
 .standings-division-title span {
-  color: var(--ctp-subtext0);
-  font-weight: 600;
+  color: inherit;
+  font-weight: inherit;
 }
 
 .standings-table {
@@ -4127,6 +4141,10 @@ button:active {
 .score-team-row--winner .score-team-score { color: var(--ctp-blue); }
 
 @media (max-width: 480px) {
+  .standings-grid {
+    grid-template-columns: 1fr;
+  }
+
   .standings-hide-sm { display: none; }
   .standings-row {
     grid-template-columns: 1fr 28px 28px 48px 40px;

@@ -25,6 +25,8 @@ const DIVISION_ORDER = [
   "National League West",
 ];
 
+const LEAGUE_ORDER = ["American League", "National League"];
+
 // ── Standings タブ ───────────────────────────────────────────────────────────
 function StandingsTab({ season }) {
   const [divisions, setDivisions] = useState([]);
@@ -56,52 +58,62 @@ function StandingsTab({ season }) {
   if (loading) return <p className="compare-loading">Loading standings…</p>;
   if (error) return <p className="error-message">{error}</p>;
 
+  const divisionsByLeague = LEAGUE_ORDER.map((league) => ({
+    league,
+    divisions: divisions.filter((div) => div.league === league),
+  }));
+
   return (
     <div className="standings-grid">
-      {divisions.map((div) => (
-        <div key={div.divisionId} className="standings-division">
-          <p className="standings-division-title">
-            {div.league} <span>{div.division}</span>
-          </p>
-          <div className="standings-table">
-            {/* ヘッダー行 */}
-            <div className="standings-row standings-row--head">
-              <span className="standings-team-col">Team</span>
-              <span>W</span>
-              <span>L</span>
-              <span>PCT</span>
-              <span>GB</span>
-              <span className="standings-hide-sm">L10</span>
-              <span className="standings-hide-sm">STRK</span>
-            </div>
-            {/* 球団行 */}
-            {div.teams.map((t, idx) => (
-              <div
-                key={t.teamId}
-                className={`standings-row${idx === 0 ? " standings-row--leader" : ""}`}
-              >
-                <Link
-                  to={`/team-roster?teamId=${t.teamId}`}
-                  className="standings-team-col standings-team-link"
-                >
-                  <img
-                    src={`https://www.mlbstatic.com/team-logos/${t.teamId}.svg`}
-                    alt={t.teamName}
-                    className="standings-team-logo"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
-                  />
-                  <span className="standings-team-name">{t.teamName}</span>
-                </Link>
-                <span className="standings-stat">{t.wins}</span>
-                <span className="standings-stat">{t.losses}</span>
-                <span className="standings-stat">{t.pct}</span>
-                <span className="standings-stat">{t.gamesBack}</span>
-                <span className="standings-stat standings-hide-sm">{t.lastTen}</span>
-                <span className="standings-stat standings-hide-sm">{t.streak}</span>
+      {divisionsByLeague.map(({ league, divisions: leagueDivisions }) => (
+        <section key={league} className="standings-league-column">
+          <h2 className="standings-league-title">{league}</h2>
+          {leagueDivisions.map((div) => (
+            <div key={div.divisionId} className="standings-division">
+              <p className="standings-division-title">
+                <span>{div.division}</span>
+              </p>
+              <div className="standings-table">
+                {/* ヘッダー行 */}
+                <div className="standings-row standings-row--head">
+                  <span className="standings-team-col">Team</span>
+                  <span>W</span>
+                  <span>L</span>
+                  <span>PCT</span>
+                  <span>GB</span>
+                  <span className="standings-hide-sm">L10</span>
+                  <span className="standings-hide-sm">STRK</span>
+                </div>
+                {/* 球団行 */}
+                {div.teams.map((t, idx) => (
+                  <div
+                    key={t.teamId}
+                    className={`standings-row${idx === 0 ? " standings-row--leader" : ""}`}
+                  >
+                    <Link
+                      to={`/team-roster?teamId=${t.teamId}`}
+                      className="standings-team-col standings-team-link"
+                    >
+                      <img
+                        src={`https://www.mlbstatic.com/team-logos/${t.teamId}.svg`}
+                        alt={t.teamName}
+                        className="standings-team-logo"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                      <span className="standings-team-name">{t.teamName}</span>
+                    </Link>
+                    <span className="standings-stat">{t.wins}</span>
+                    <span className="standings-stat">{t.losses}</span>
+                    <span className="standings-stat">{t.pct}</span>
+                    <span className="standings-stat">{t.gamesBack}</span>
+                    <span className="standings-stat standings-hide-sm">{t.lastTen}</span>
+                    <span className="standings-stat standings-hide-sm">{t.streak}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ))}
+        </section>
       ))}
     </div>
   );
