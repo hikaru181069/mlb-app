@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import PlayerCard from "../components/PlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
+import ScoreCard from "../components/ScoreCard";
 import { getFavorites } from "../services/api/favoriteApi";
-import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
 import { getRecommendations } from "../services/api/recommendationApi";
 import { getCurrentUser } from "../services/api/userApi";
+import { getTeam, getTeamSchedule } from "../services/api/teamApi";
+import { getScores } from "../services/api/leagueApi";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import {
   getApiErrorMessage,
@@ -14,13 +16,23 @@ import {
 } from "../services/api/apiError";
 import { useReveal } from "../hooks/useReveal";
 
-const SKELETON_COUNTS = { team: 4, favorites: 6, recommendations: 6 };
+const SKELETON_COUNTS = { team: 2, favorites: 6, recommendations: 6, today: 4 };
+
+// 案3: ホームを各機能の「ハブ」にするクイックアクション。
+// My Team はお気に入りチームがある時だけ先頭に差し込む（下の QuickActions 内で対応）。
+const QUICK_ACTIONS = [
+  { to: "/search", icon: "🔍", label: "Search" },
+  { to: "/league", icon: "🏆", label: "League" },
+  { to: "/compare", icon: "⚖️", label: "Compare" },
+  { to: "/matchup", icon: "⚔️", label: "Matchup" },
+  { to: "/favorites", icon: "⭐", label: "Favorites" },
+];
 
 const EMPTY_STATES = {
   team: {
     icon: "⚾",
-    title: "No team players loaded",
-    desc: "Choose a favorite team to see its roster here.",
+    title: "No favorite team yet",
+    desc: "Choose a favorite team to see its summary here.",
     action: { label: "Choose Team", to: "/onboarding/team" },
   },
   favorites: {
@@ -69,18 +81,101 @@ function SectionHeading({ title, desc, count, viewAllTo }) {
   );
 }
 
+// ── 案3: クイックアクション ───────────────────────────────────────────────────
+function QuickActions({ favoriteTeamId }) {
+  const actions = favoriteTeamId
+    ? [{ to: `/team/${favoriteTeamId}`, icon: "🛡️", label: "My Team" }, ...QUICK_ACTIONS]
+    : QUICK_ACTIONS;
+
+  return (
+    <div className="quick-actions">
+      {actions.map((a) => (
+        <Link key={a.to} to={a.to} className="quick-action">
+          <span className="quick-action-icon">{a.icon}</span>
+          <span className="quick-action-label">{a.label}</span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+// ── 案1: My Team サマリー ─────────────────────────────────────────────────────
+// ラベル付きのミニ試合カード（Last / Next）
+function TeamGame({ label, game }) {
+  return (
+    <div className="team-game">
+      <span className="team-game-label">{label}</span>
+      <ScoreCard game={game} />
+    </div>
+  );
+}
+
+function TeamSummary({ team, lastGame, nextGame }) {
+  const record = team.record;
+
+  return (
+    <div className="team-summary">
+      <div className="team-summary-head">
+        <Link to={`/team/${team.id}`} className="team-summary-team">
+          <img
+            src={`https://www.mlbstatic.com/team-logos/${team.id}.svg`}
+            alt={team.name}
+            className="team-summary-logo"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+          <span className="team-summary-name">{team.name}</span>
+        </Link>
+
+        {record && (
+          <div className="team-stat-row">
+            <div className="team-stat">
+              <span className="team-stat-value">
+                {record.wins}-{record.losses}
+              </span>
+              <span className="team-stat-label">Record</span>
+            </div>
+            <div className="team-stat">
+              <span className="team-stat-value">#{record.divisionRank}</span>
+              <span className="team-stat-label">Div Rank</span>
+            </div>
+            <div className="team-stat">
+              <span className="team-stat-value">{record.lastTen}</span>
+              <span className="team-stat-label">L10</span>
+            </div>
+            <div className="team-stat">
+              <span className="team-stat-value">{record.streak}</span>
+              <span className="team-stat-label">Streak</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {(lastGame || nextGame) && (
+        <div className="team-summary-games">
+          {lastGame && <TeamGame label="Last" game={lastGame} />}
+          {nextGame && <TeamGame label="Next" game={nextGame} />}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HomePage() {
   const [user, setUser] = useState(null);
   const [favorites, setFavorites] = useState([]);
-  const [teamPlayers, setTeamPlayers] = useState([]);
+  const [teamInfo, setTeamInfo] = useState(null);
+  const [teamSchedule, setTeamSchedule] = useState([]);
+  const [todayGames, setTodayGames] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [teamRef, teamVisible] = useReveal();
+  const [todayRef, todayVisible] = useReveal();
   const [favRef, favVisible] = useReveal();
   const [recRef, recVisible] = useReveal();
   const token = getAuthToken();
 
+  // 個人化データ（ユーザー・お気に入り・おすすめ・My Team サマリー）をまとめて取得
   useEffect(() => {
     const fetchPersonalizedHome = async () => {
       if (!token) return;
@@ -99,11 +194,14 @@ function HomePage() {
         setFavorites(favoritePlayers.slice(0, 6));
         setRecommendations(recommendedPlayers);
 
+        // My Team サマリー用に「基本情報＋成績」と「日程」を取得
         if (currentUser.favoriteTeam?.id) {
-          const players = await getExternalPlayersByTeam(
-            currentUser.favoriteTeam.id,
-          );
-          setTeamPlayers(players);
+          const [teamData, scheduleData] = await Promise.all([
+            getTeam(currentUser.favoriteTeam.id),
+            getTeamSchedule(currentUser.favoriteTeam.id),
+          ]);
+          setTeamInfo(teamData);
+          setTeamSchedule(scheduleData.games);
         }
       } catch (error) {
         console.error("Home personalization error:", error);
@@ -122,6 +220,34 @@ function HomePage() {
 
     fetchPersonalizedHome();
   }, [token]);
+
+  // 案2: Today's MLB は個人化と独立。失敗してもホーム全体を壊さないよう別 effect。
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+    const fetchTodayScores = async () => {
+      try {
+        const data = await getScores();
+        if (active) setTodayGames(data.games);
+      } catch {
+        // Today's MLB は補助的なので失敗は黙って無視（セクションを出さないだけ）
+      }
+    };
+    fetchTodayScores();
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  // 日程から「直近の結果」と「次の試合」を導出（API は日付昇順で返す）
+  const { lastGame, nextGame } = useMemo(() => {
+    const finals = teamSchedule.filter((g) => g.abstractState === "Final");
+    const upcoming = teamSchedule.filter((g) => g.abstractState !== "Final");
+    return {
+      lastGame: finals.length ? finals[finals.length - 1] : null,
+      nextGame: upcoming.length ? upcoming[0] : null,
+    };
+  }, [teamSchedule]);
 
   const renderPlayerGrid = (players, skeletonCount, emptyConfig) => {
     if (loading) {
@@ -209,10 +335,11 @@ function HomePage() {
 
   // --- Logged-in view ---
   return (
-    <div className="home-page px-6 py-16">
-      <section className="home-hero w-full max-w-4xl px-8 py-10 md:px-14 md:py-12">
+    <div className="home-page px-6 py-12">
+      {/* 案3: 圧縮したヒーロー（あいさつ + チーム chip + オンボーディング催促のみ） */}
+      <section className="home-hero home-hero--compact w-full max-w-4xl px-8 py-8 md:px-14 md:py-10">
         <p className="home-kicker text-sm">Personalized Home</p>
-        <h1 className="text-4xl leading-tight font-black tracking-tight md:text-6xl">
+        <h1 className="text-3xl leading-tight font-black tracking-tight md:text-5xl">
           Welcome{user?.name ? `, ${user.name}` : ""}
         </h1>
 
@@ -241,20 +368,17 @@ function HomePage() {
             </Link>
           </div>
         )}
-
-        <div className="home-actions mt-7">
-          <Link className="home-link secondary" to="/favorites">
-            View Favorites
-          </Link>
-          <Link className="home-link secondary" to="/onboarding/team">
-            Edit Preferences
-          </Link>
-        </div>
       </section>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className="home-content">
+        {/* 案3: クイックアクション */}
+        <section className="home-quick-section">
+          <QuickActions favoriteTeamId={user?.favoriteTeam?.id} />
+        </section>
+
+        {/* 案1: My Team サマリー */}
         <section
           ref={teamRef}
           className={`home-player-section home-team-section reveal${teamVisible ? " visible" : ""}`}
@@ -263,14 +387,11 @@ function HomePage() {
             title="Your Favorite Team"
             desc={
               user?.favoriteTeam?.name
-                ? `${user.favoriteTeam.name} players from the MLB API.`
-                : "Choose a favorite team to show team players here."
+                ? `${user.favoriteTeam.name} — record, last and next game.`
+                : "Choose a favorite team to show its summary here."
             }
-            count={teamPlayers.length}
             viewAllTo={
-              user?.favoriteTeam?.id
-                ? `/team-roster?teamId=${user.favoriteTeam.id}`
-                : undefined
+              user?.favoriteTeam?.id ? `/team/${user.favoriteTeam.id}` : undefined
             }
           />
           {loading ? (
@@ -279,20 +400,38 @@ function HomePage() {
                 <SkeletonCard key={i} />
               ))}
             </div>
-          ) : teamPlayers.length === 0 ? (
-            <EmptyState config={EMPTY_STATES.team} />
+          ) : user?.favoriteTeam?.id && teamInfo ? (
+            <TeamSummary
+              team={teamInfo}
+              lastGame={lastGame}
+              nextGame={nextGame}
+            />
           ) : (
-            <div className="player-list-carousel">
-              {teamPlayers.map((player) => (
-                <PlayerCard
-                  key={player.playerId || player.mlbPlayerId}
-                  player={player}
-                />
-              ))}
-            </div>
+            <EmptyState config={EMPTY_STATES.team} />
           )}
         </section>
 
+        {/* 案2: Today's MLB */}
+        {todayGames.length > 0 && (
+          <section
+            ref={todayRef}
+            className={`home-player-section reveal reveal-delay-1${todayVisible ? " visible" : ""}`}
+          >
+            <SectionHeading
+              title="Today's MLB"
+              desc="Scores from around the league."
+              count={todayGames.length}
+              viewAllTo="/league"
+            />
+            <div className="scores-grid">
+              {todayGames.slice(0, 6).map((g) => (
+                <ScoreCard key={g.gamePk} game={g} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* お気に入り選手 */}
         <section
           ref={favRef}
           className={`home-player-section home-favorites-section reveal reveal-delay-1${favVisible ? " visible" : ""}`}
@@ -310,6 +449,7 @@ function HomePage() {
           )}
         </section>
 
+        {/* おすすめ */}
         <section
           ref={recRef}
           className={`home-player-section home-recommendations-section reveal reveal-delay-2${recVisible ? " visible" : ""}`}

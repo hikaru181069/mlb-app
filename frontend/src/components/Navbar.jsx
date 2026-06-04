@@ -3,13 +3,14 @@
 // デスクトップ (md+): 常に表示される固定サイドバー (w-52 = 208px)
 // モバイル (<md): ハンバーガーボタンで左からスライドインするオーバーレイ方式
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   clearAuthData,
   getAuthToken,
   getAuthUserName,
 } from "../utils/authStorage";
+import { getCurrentUser } from "../services/api/userApi";
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 // アイコンライブラリを入れずに済むよう、必要な分だけ SVG を直書きする。
@@ -83,6 +84,12 @@ const MatchupIcon = () => (
 const LeagueIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0012 0V2z" />
+  </svg>
+);
+// お気に入りチーム（My Team）用の盾アイコン
+const TeamIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l8 3v6c0 5-3.5 8-8 11-4.5-3-8-6-8-11V5z" />
   </svg>
 );
 const StarIcon = () => (
@@ -161,6 +168,28 @@ function Navbar() {
   const token = getAuthToken();
   const userName = getAuthUserName();
 
+  // ログイン中はお気に入りチームを取得し、"My Team" リンクを出す。
+  // favoriteTeam は localStorage に無く User ドキュメント側にあるため API で取得する。
+  const [favoriteTeam, setFavoriteTeam] = useState(null);
+
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+    const fetchFavoriteTeam = async () => {
+      try {
+        const user = await getCurrentUser(token);
+        if (active) setFavoriteTeam(user.favoriteTeam ?? null);
+      } catch {
+        // ナビは補助的なので失敗しても黙って無視する（リンクを出さないだけ）
+        if (active) setFavoriteTeam(null);
+      }
+    };
+    fetchFavoriteTeam();
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
   // ナビリンクをクリックしたらサイドバーを閉じる（モバイル用）
   const close = () => setOpen(false);
 
@@ -213,6 +242,17 @@ function Navbar() {
             {label}
           </NavLink>
         ))}
+        {/* My Team はログイン済み & お気に入りチーム設定済みの場合のみ表示 */}
+        {token && favoriteTeam?.id && (
+          <NavLink
+            to={`/team/${favoriteTeam.id}`}
+            className={sidebarLinkClass}
+            onClick={close}
+          >
+            <TeamIcon />
+            My Team
+          </NavLink>
+        )}
         {/* Favorites はログイン済みの場合のみ表示 */}
         {token && (
           <NavLink to="/favorites" className={sidebarLinkClass} onClick={close}>

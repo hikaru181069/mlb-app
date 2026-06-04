@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getStandings, getScores } from "../services/api/leagueApi";
+import ScoreCard from "../components/ScoreCard";
 
 const TABS = [
   { key: "standings", label: "Standings" },
@@ -91,7 +92,7 @@ function StandingsTab({ season }) {
                     className={`standings-row${idx === 0 ? " standings-row--leader" : ""}`}
                   >
                     <Link
-                      to={`/team-roster?teamId=${t.teamId}`}
+                      to={`/team/${t.teamId}`}
                       className="standings-team-col standings-team-link"
                     >
                       <img
@@ -120,46 +121,6 @@ function StandingsTab({ season }) {
 }
 
 // ── Scores タブ ──────────────────────────────────────────────────────────────
-// 1試合分のスコアカード
-function ScoreCard({ game }) {
-  const { away, home, status, abstractState } = game;
-  const isFinal = abstractState === "Final";
-  const isLive = abstractState === "Live";
-
-  return (
-    <div className="score-card">
-      <div className="score-card-status">
-        <span className={`score-status-badge${isLive ? " score-status-badge--live" : ""}`}>
-          {isLive ? "● LIVE" : status}
-        </span>
-      </div>
-      {[away, home].map((team, i) => {
-        // 試合終了時、勝者をハイライト
-        const isWinner = isFinal && team.isWinner;
-        return (
-          <div
-            key={i}
-            className={`score-team-row${isWinner ? " score-team-row--winner" : ""}`}
-          >
-            <Link to={`/team-roster?teamId=${team.teamId}`} className="score-team">
-              <img
-                src={`https://www.mlbstatic.com/team-logos/${team.teamId}.svg`}
-                alt={team.teamName}
-                className="score-team-logo"
-                onError={(e) => { e.currentTarget.style.display = "none"; }}
-              />
-              <span className="score-team-name">{team.teamName}</span>
-            </Link>
-            <span className="score-team-score">
-              {team.score ?? "–"}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function ScoresTab() {
   // 日付は YYYY-MM-DD 文字列で管理
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
