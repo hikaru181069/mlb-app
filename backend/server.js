@@ -13,6 +13,7 @@ const userRoutes = require("./routes/userRoutes");
 const similarPlayerRoutes = require("./routes/similarPlayerRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const matchupRoutes = require("./routes/matchupRoutes");
+const leagueRoutes = require("./routes/leagueRoutes");
 
 dotenv.config();
 connectDB();
@@ -42,6 +43,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/similar-players", similarPlayerRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/matchup", matchupRoutes);
+app.use("/api/league", leagueRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend server is running");
