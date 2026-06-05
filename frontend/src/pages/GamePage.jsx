@@ -77,7 +77,7 @@ function BattingTable({ batters }) {
         <thead>
           <tr>
             <th className="box-name-col">Batter</th>
-            <th>AB</th><th>R</th><th>H</th><th>RBI</th><th>BB</th><th>K</th>
+            <th>AB</th><th>R</th><th>H</th><th>HR</th><th>RBI</th><th>BB</th><th>K</th>
           </tr>
         </thead>
         <tbody>
@@ -87,7 +87,7 @@ function BattingTable({ batters }) {
                 <span className="box-player-name">{b.name}</span>
                 <span className="box-player-pos">{b.position}</span>
               </td>
-              <td>{b.ab}</td><td>{b.r}</td><td>{b.h}</td>
+              <td>{b.ab}</td><td>{b.r}</td><td>{b.h}</td><td>{b.hr}</td>
               <td>{b.rbi}</td><td>{b.bb}</td><td>{b.k}</td>
             </tr>
           ))}

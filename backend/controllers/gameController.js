@@ -26,6 +26,7 @@ const formatBatters = (teamBox) => {
       ab: toNumber(batting.atBats),
       r: toNumber(batting.runs),
       h: toNumber(batting.hits),
+      hr: toNumber(batting.homeRuns),
       rbi: toNumber(batting.rbi),
       bb: toNumber(batting.baseOnBalls),
       k: toNumber(batting.strikeOuts),
