@@ -4909,13 +4909,12 @@ button:active {
   }
 }
 
-/* バナー全体: ページいっぱいのファーストビュー */
+/* バナー全体: チームカラーを背景に横いっぱいに広げる */
 .home-banner {
   --team-color: var(--ctp-sapphire);
   position: relative;
   overflow: hidden;
-  /* デスクトップ: 100vh / モバイル: トップバー(56px)を引く */
-  min-height: calc(100svh - 56px);
+  min-height: 280px;
   padding: 72px 40px 80px;
   display: flex;
   flex-direction: column;
@@ -4934,7 +4933,6 @@ button:active {
 @media (min-width: 768px) {
   .home-banner {
     /* サイドバー(w-52 = 13rem)の裏まで伸ばして真の100vw幅に */
-    min-height: 100svh;
     width: 100vw;
     margin-left: -13rem; /* main の ml-52 を打ち消して左端へ */
   }
@@ -5106,8 +5104,6 @@ button:active {
 
 @media (max-width: 540px) {
   .home-banner {
-    /* モバイルもページ全体（トップバー引き） */
-    min-height: calc(100svh - 56px);
     padding: 48px 20px 60px;
   }
   .home-banner-team-name {
