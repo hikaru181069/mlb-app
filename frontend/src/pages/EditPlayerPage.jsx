@@ -9,6 +9,7 @@ import {
 import { getAuthToken } from "../utils/authStorage";
 import { API_URL } from "../utils/apiConfig";
 import { mlbTeams } from "../services/mlbTeams";
+import { Lock } from "lucide-react";
 
 function EditPlayerPage() {
   const { id } = useParams();
@@ -100,7 +101,7 @@ function EditPlayerPage() {
     return (
       <div className="home-page px-6 py-12">
         <div className="home-empty-state">
-          <span className="empty-state-icon">🔒</span>
+          <span className="empty-state-icon"><Lock size={36} strokeWidth={1.5} /></span>
           <p className="empty-state-title">Login required</p>
           <p className="empty-state-desc">Please login to edit a player.</p>
           <Link className="home-link secondary" to="/login">Go to Login</Link>

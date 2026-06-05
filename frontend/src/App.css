@@ -1260,8 +1260,12 @@ input {
 }
 
 .empty-state-icon {
-  font-size: 36px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ctp-overlay0);
+  width: 40px;
+  height: 40px;
 }
 
 .empty-state-title {
@@ -1301,8 +1305,8 @@ input {
 }
 
 .feature-card-icon {
-  font-size: 24px;
-  line-height: 1;
+  display: flex;
+  color: var(--ctp-lavender);
 }
 
 .feature-card h3 {
@@ -3051,9 +3055,9 @@ button:disabled,
 }
 
 .profile-stat-icon {
-  font-size: 1.8rem;
   color: var(--ctp-yellow);
   filter: drop-shadow(0 0 6px rgba(249, 226, 175, 0.4));
+  display: flex;
 }
 
 .profile-stat-value {

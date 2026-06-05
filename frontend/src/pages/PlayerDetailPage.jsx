@@ -14,6 +14,7 @@ import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
 import { useReveal } from "../hooks/useReveal";
 import { useToast } from "../contexts/ToastContext";
+import { CircleDot } from "lucide-react";
 
 function PlayerDetailPage() {
   const { playerId } = useParams();
@@ -372,7 +373,7 @@ function PlayerDetailPage() {
           </div>
         ) : (
           <div className="home-empty-state">
-            <span className="empty-state-icon">⚾</span>
+            <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
             <p className="empty-state-title">No Similar Players Found</p>
             <p className="empty-state-desc">
               No comparable players were found on this player's roster.

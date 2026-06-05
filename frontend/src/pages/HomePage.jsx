@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import {
+  Search, Trophy, Scale, Swords, Star, Shield,
+  CircleDot, Bot, Lock,
+} from "lucide-react";
 
 import PlayerCard from "../components/PlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
@@ -21,11 +25,11 @@ import { useReveal } from "../hooks/useReveal";
 const SKELETON_COUNTS = { team: 2, favorites: 6, recommendations: 6, today: 4 };
 
 const QUICK_ACTIONS = [
-  { to: "/search",   icon: "🔍", label: "Search"    },
-  { to: "/league",   icon: "🏆", label: "League"    },
-  { to: "/compare",  icon: "⚖️", label: "Compare"   },
-  { to: "/matchup",  icon: "⚔️", label: "Matchup"   },
-  { to: "/favorites",icon: "⭐", label: "Favorites" },
+  { to: "/search",    Icon: Search,  label: "Search"    },
+  { to: "/league",    Icon: Trophy,  label: "League"    },
+  { to: "/compare",   Icon: Scale,   label: "Compare"   },
+  { to: "/matchup",   Icon: Swords,  label: "Matchup"   },
+  { to: "/favorites", Icon: Star,    label: "Favorites" },
 ];
 
 // 時間帯によるあいさつ（JST基準）
@@ -39,19 +43,19 @@ const getGreeting = () => {
 
 const EMPTY_STATES = {
   team: {
-    icon: "⚾",
+    Icon: CircleDot,
     title: "No favorite team yet",
     desc: "Choose a favorite team to see its summary here.",
     action: { label: "Choose Team", to: "/onboarding/team" },
   },
   favorites: {
-    icon: "⭐",
+    Icon: Star,
     title: "No favorite players yet",
     desc: "Search for players and save them to your list.",
     action: { label: "Search Players", to: "/search" },
   },
   recommendations: {
-    icon: "🤖",
+    Icon: Bot,
     title: "No recommendations yet",
     desc: "Save more favorites to unlock personalized picks.",
     action: { label: "Find Players", to: "/search" },
@@ -59,9 +63,12 @@ const EMPTY_STATES = {
 };
 
 function EmptyState({ config }) {
+  const { Icon } = config;
   return (
     <div className="home-empty-state">
-      <span className="empty-state-icon">{config.icon}</span>
+      <span className="empty-state-icon">
+        {Icon && <Icon size={36} strokeWidth={1.5} />}
+      </span>
       <p className="empty-state-title">{config.title}</p>
       <p className="empty-state-desc">{config.desc}</p>
       <Link className="home-link secondary" to={config.action.to}>
@@ -93,14 +100,16 @@ function SectionHeading({ title, desc, count, viewAllTo }) {
 // ── クイックアクション（横ストリップ） ──────────────────────────────────────
 function HomeQuickStrip({ favoriteTeamId }) {
   const actions = favoriteTeamId
-    ? [{ to: `/team/${favoriteTeamId}`, icon: "🛡️", label: "My Team" }, ...QUICK_ACTIONS]
+    ? [{ to: `/team/${favoriteTeamId}`, Icon: Shield, label: "My Team" }, ...QUICK_ACTIONS]
     : QUICK_ACTIONS;
 
   return (
     <div className="home-quick-strip">
       {actions.map((a) => (
         <Link key={a.to} to={a.to} className="home-strip-action">
-          <span className="home-strip-icon">{a.icon}</span>
+          <span className="home-strip-icon">
+            <a.Icon size={16} strokeWidth={2} />
+          </span>
           <span className="home-strip-label">{a.label}</span>
         </Link>
       ))}
@@ -340,17 +349,17 @@ function HomePage() {
 
         <div className="feature-cards guest-feature-cards">
           <div className="feature-card">
-            <span className="feature-card-icon">🔍</span>
+            <span className="feature-card-icon"><Search size={24} strokeWidth={1.5} /></span>
             <h3>Search</h3>
             <p>Search any MLB player from the official Stats API in real time.</p>
           </div>
           <div className="feature-card">
-            <span className="feature-card-icon">⭐</span>
+            <span className="feature-card-icon"><Star size={24} strokeWidth={1.5} /></span>
             <h3>Track</h3>
             <p>Save favorite players with personal notes and tags to MongoDB.</p>
           </div>
           <div className="feature-card">
-            <span className="feature-card-icon">🤖</span>
+            <span className="feature-card-icon"><Bot size={24} strokeWidth={1.5} /></span>
             <h3>Discover</h3>
             <p>Get personalized recommendations based on your favorites.</p>
           </div>

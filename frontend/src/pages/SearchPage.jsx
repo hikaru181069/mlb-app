@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
 import PageHeader from "../components/PageHeader";
+import { Search as SearchIcon } from "lucide-react";
 import SkeletonCard from "../components/SkeletonCard";
 import { getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -212,7 +213,7 @@ function SearchPage() {
 
         {!loading && !errorMessage && hasSearched && players.length === 0 && (
           <div className="home-empty-state">
-            <span className="empty-state-icon">🔍</span>
+            <span className="empty-state-icon"><SearchIcon size={36} strokeWidth={1.5} /></span>
             <p className="empty-state-title">No players found</p>
             <p className="empty-state-desc">
               Try a different name or check the spelling.

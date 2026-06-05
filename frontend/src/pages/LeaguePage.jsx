@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { getStandings, getScores } from "../services/api/leagueApi";
 import ScoreCard from "../components/ScoreCard";
 import PageHeader from "../components/PageHeader";
+import { CalendarDays } from "lucide-react";
 import { mlbToday } from "../utils/datetime";
 
 const TABS = [
@@ -187,7 +188,7 @@ function ScoresTab() {
 
       {!loading && !error && games.length === 0 && (
         <div className="home-empty-state">
-          <span className="empty-state-icon">📅</span>
+          <span className="empty-state-icon"><CalendarDays size={36} strokeWidth={1.5} /></span>
           <p className="empty-state-title">No games scheduled</p>
           <p className="empty-state-desc">There are no MLB games on this date.</p>
         </div>

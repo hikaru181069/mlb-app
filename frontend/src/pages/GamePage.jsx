@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { CircleDot } from "lucide-react";
 import { getGame } from "../services/api/gameApi";
 import { formatGameDate, formatGameTime } from "../utils/datetime";
 import { getTeamColor } from "../services/teamColors";
@@ -20,7 +21,7 @@ function LineScore({ away, home, innings }) {
   if (innings.length === 0) {
     return (
       <div className="home-empty-state">
-        <span className="empty-state-icon">⚾</span>
+        <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
         <p className="empty-state-title">No line score yet</p>
         <p className="empty-state-desc">This game has not started.</p>
       </div>
@@ -232,7 +233,7 @@ function GamePage() {
 
           {box.batters.length === 0 && box.pitchers.length === 0 ? (
             <div className="home-empty-state">
-              <span className="empty-state-icon">⚾</span>
+              <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
               <p className="empty-state-title">No box score yet</p>
               <p className="empty-state-desc">
                 Stats for {activeMeta.teamName} are not available yet.

@@ -16,6 +16,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { CircleDot, CalendarDays, BarChart2 } from "lucide-react";
 
 import PlayerCard from "../components/PlayerCard";
 import PageHeader from "../components/PageHeader";
@@ -118,7 +119,7 @@ function RosterTab({ teamId }) {
 
       {!loading && !errorMessage && players.length === 0 && (
         <div className="home-empty-state">
-          <span className="empty-state-icon">⚾</span>
+          <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
           <p className="empty-state-title">No players found</p>
           <p className="empty-state-desc">
             Could not load the roster for this team.
@@ -219,7 +220,7 @@ function ScheduleTab({ teamId }) {
   if (games.length === 0) {
     return (
       <div className="home-empty-state">
-        <span className="empty-state-icon">📅</span>
+        <span className="empty-state-icon"><CalendarDays size={36} strokeWidth={1.5} /></span>
         <p className="empty-state-title">No games scheduled</p>
         <p className="empty-state-desc">
           No recent or upcoming games for this team.
@@ -291,7 +292,7 @@ function LeadersTab({ teamId, season }) {
   if (!hasAny) {
     return (
       <div className="home-empty-state">
-        <span className="empty-state-icon">📊</span>
+        <span className="empty-state-icon"><BarChart2 size={36} strokeWidth={1.5} /></span>
         <p className="empty-state-title">No leaders yet</p>
         <p className="empty-state-desc">
           No stat leaders are available for this season.
