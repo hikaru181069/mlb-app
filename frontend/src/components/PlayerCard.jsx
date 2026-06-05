@@ -14,6 +14,11 @@ function PlayerCard({ player }) {
   const teamId = player.teamId
     ?? mlbTeams.find((t) => t.name.toLowerCase() === (team || "").toLowerCase())?.id;
 
+  // 推薦理由のうち、全員に付く定型句は除き、特徴的な理由だけバッジ表示する
+  const recReasons = (player.recommendationReasons || []).filter(
+    (reason) => reason !== "Recommended from your favorite team",
+  );
+
   return (
     <Link
       className="player-card transition duration-200 hover:-translate-y-1 hover:shadow-2xl"
@@ -39,10 +44,14 @@ function PlayerCard({ player }) {
       <p>Position: {position}</p>
       {player.shortBio && <p>{player.shortBio}</p>}
       {player.reason && <p className="external-note">{player.reason}</p>}
-      {player.recommendationReasons?.length > 0 && (
-        <p className="external-note">
-          {player.recommendationReasons.slice(0, 2).join(" / ")}
-        </p>
+      {recReasons.length > 0 && (
+        <div className="rec-reasons">
+          {recReasons.slice(0, 2).map((reason) => (
+            <span key={reason} className="rec-reason-badge">
+              {reason}
+            </span>
+          ))}
+        </div>
       )}
 
       {player.playerType === "hitter" && h && (

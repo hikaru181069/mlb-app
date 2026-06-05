@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
+import PageHeader from "../components/PageHeader";
 import SkeletonCard from "../components/SkeletonCard";
 import { getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -135,19 +136,17 @@ function SearchPage() {
   };
 
   return (
-    <div className="home-page px-6 py-12">
-      {/* Search Hero */}
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">MLB Stats API</p>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-          Search Players
-        </h1>
-        <p className="home-description mt-4 text-base">
-          Search any MLB player by name from the official Stats API.
-        </p>
+    <div className="app-screen">
+      <PageHeader
+        kicker="MLB Stats API"
+        title="Search Players"
+        subtitle="Search any MLB player by name from the official Stats API."
+      />
 
-        {/* [Suggestions] wrapperRef は「フォーム外クリック」の検知範囲 */}
-        <div className="search-form-wrapper" ref={wrapperRef}>
+      <div className="screen-body px-6 py-6 w-full">
+        {/* 検索フォーム（旧ヒーローから本文へ移動）
+            [Suggestions] wrapperRef は「フォーム外クリック」の検知範囲 */}
+        <div className="search-form-wrapper search-form-wrapper--page" ref={wrapperRef}>
           <form className="flex w-full gap-3" onSubmit={handleSearch}>
             {/* [Suggestions] position: relative でドロップダウンを input に揃える */}
             <div className="relative flex-1">
@@ -195,10 +194,8 @@ function SearchPage() {
             </button>
           </form>
         </div>
-      </section>
 
-      {/* Results */}
-      <div className="home-content mt-2">
+        {/* Results */}
         {/* Status messages */}
         {!loading && errorMessage && (
           <p className="error-message">{errorMessage}</p>

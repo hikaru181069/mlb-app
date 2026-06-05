@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
+import PageHeader from "../components/PageHeader";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 
 // --- stat definitions ---
@@ -250,23 +251,16 @@ function ComparePage() {
   const rightPitcher= player2?.currentSeasonStats?.pitcherStats || player2?.pitcherStats;
 
   return (
-    <div className="home-page px-6 py-12">
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">{season} Season</p>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-          Player Compare
-        </h1>
-        <p className="home-description mt-4 text-base">
-          Search two players or select from your Favorites to compare stats.
-        </p>
-        <div className="home-actions mt-6">
-          <Link className="home-link secondary" to="/favorites">
-            ← Pick from Favorites
-          </Link>
-        </div>
-      </section>
+    <div className="app-screen">
+      <PageHeader
+        kicker={`${season} Season`}
+        title="Player Compare"
+        subtitle="Search two players or select from your Favorites to compare stats."
+        backTo="/favorites"
+        backLabel="Pick from Favorites"
+      />
 
-      <div className="home-content mt-2 w-full">
+      <div className="screen-body px-6 py-6 w-full">
         {loadingInit ? (
           <p className="compare-loading">Loading players…</p>
         ) : (

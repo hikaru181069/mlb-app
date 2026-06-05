@@ -11,9 +11,11 @@
 import { Link } from "react-router-dom";
 
 function ScoreCard({ game }) {
-  const { away, home, status, abstractState } = game;
+  const { away, home, status, abstractState, gamePk } = game;
   const isFinal = abstractState === "Final";
   const isLive = abstractState === "Live";
+  // 開始済み（Live / Final）の試合だけ詳細ページへのリンクを出す
+  const hasDetail = (isFinal || isLive) && gamePk;
 
   return (
     <div className="score-card">
@@ -43,6 +45,11 @@ function ScoreCard({ game }) {
           </div>
         );
       })}
+      {hasDetail && (
+        <Link to={`/game/${gamePk}`} className="score-boxscore-link">
+          Box Score →
+        </Link>
+      )}
     </div>
   );
 }

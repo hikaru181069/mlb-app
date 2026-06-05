@@ -309,7 +309,7 @@ function PlayerDetailPage() {
           ) : (
             <div className="detail-coming-soon">
               <span>⚾</span>
-              <p>Game log integration is planned for a future update.</p>
+              <p>No recent games available for this player.</p>
             </div>
           )}
         </section>

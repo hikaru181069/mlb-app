@@ -18,11 +18,14 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import PlayerCard from "../components/PlayerCard";
+import PageHeader from "../components/PageHeader";
 import SkeletonCard from "../components/SkeletonCard";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
 import { getTeam, getTeamSchedule, getTeamLeaders } from "../services/api/teamApi";
 import { mlbTeams } from "../services/mlbTeams";
+import { getTeamColor } from "../services/teamColors";
 import { getApiErrorMessage } from "../services/api/apiError";
+import { formatGameDate } from "../utils/datetime";
 
 const SKELETON_COUNT = 12;
 
@@ -149,11 +152,8 @@ function ScheduleCard({ game, teamId }) {
   const teamSide = home.teamId === Number(teamId) ? home : away;
   const result = isFinal ? (teamSide.isWinner ? "W" : "L") : null;
 
-  const dateLabel = new Date(gameDate).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
+  // 日本時間（JST）の日付ラベル
+  const dateLabel = formatGameDate(gameDate, { month: "short", year: undefined });
 
   return (
     <div className="score-card">
@@ -343,89 +343,41 @@ function TeamPage() {
 
   const displayName = team?.name ?? fallbackTeam?.name ?? "Team";
   const record = team?.record;
+  const teamColor = getTeamColor(teamId);
+
+  const subtitle = [team?.division, team?.venue && `📍 ${team.venue}`]
+    .filter(Boolean)
+    .join(" · ");
+
+  // 成績はヘッダー右側に出す（PageHeader の right スロット）
+  const recordRight = record ? (
+    <>
+      <span className="thr-wl">
+        {record.wins}-{record.losses}
+      </span>
+      <span className="thr-sub">
+        {`#${record.divisionRank} · ${record.pct} · L10 ${record.lastTen} · ${record.streak}`}
+      </span>
+    </>
+  ) : null;
 
   return (
-    <div className="home-page px-6 py-12">
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">{season} Season</p>
-        <div className="flex items-center justify-center gap-3">
-          <img
-            src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
-            alt={displayName}
-            style={{ width: "48px", height: "48px" }}
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
-          />
-          <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-            {displayName}
-          </h1>
-        </div>
+    <div className="app-screen">
+      <PageHeader
+        accentColor={teamColor}
+        backTo="/league"
+        backLabel="League"
+        kicker={`${season} Season`}
+        logo={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
+        title={displayName}
+        subtitle={subtitle}
+        right={recordRight}
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-        <div className="home-actions mt-6">
-          <Link className="home-link secondary" to="/league">
-            ← Back to League
-          </Link>
-        </div>
-      </section>
-
-      <div className="home-content mt-2 w-full">
-        {/* チーム詳細セクション（hero から分離）: メタ情報 + 成績スタッツ */}
-        {team && (
-          <section className="team-detail">
-            <div className="team-detail-meta">
-              {team.division && (
-                <span className="team-detail-chip">{team.division}</span>
-              )}
-              {team.venue && (
-                <span className="team-detail-chip">📍 {team.venue}</span>
-              )}
-              {team.firstYearOfPlay && (
-                <span className="team-detail-chip">Est. {team.firstYearOfPlay}</span>
-              )}
-            </div>
-
-            {record && (
-              <div className="team-stat-row">
-                <div className="team-stat">
-                  <span className="team-stat-value">
-                    {record.wins}-{record.losses}
-                  </span>
-                  <span className="team-stat-label">Record</span>
-                </div>
-                <div className="team-stat">
-                  <span className="team-stat-value">{record.pct}</span>
-                  <span className="team-stat-label">PCT</span>
-                </div>
-                <div className="team-stat">
-                  <span className="team-stat-value">#{record.divisionRank}</span>
-                  <span className="team-stat-label">Div Rank</span>
-                </div>
-                <div className="team-stat">
-                  <span className="team-stat-value">{record.lastTen}</span>
-                  <span className="team-stat-label">L10</span>
-                </div>
-                <div className="team-stat">
-                  <span className="team-stat-value">{record.streak}</span>
-                  <span className="team-stat-label">Streak</span>
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* タブ */}
-        <div className="stats-tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`stats-tab ${activeTab === tab.key ? "stats-tab--active" : ""}`}
-            >
-              <span className="stats-tab-label">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
+      <div className="screen-body px-6 py-6 w-full">
         {activeTab === "roster" && <RosterTab teamId={teamId} />}
         {activeTab === "schedule" && <ScheduleTab teamId={teamId} />}
         {activeTab === "leaders" && <LeadersTab teamId={teamId} season={season} />}

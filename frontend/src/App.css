@@ -65,7 +65,9 @@
 }
 
 .page-transition {
-  animation: page-transition-in 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  /* backwards: 入場アニメ後に transform を残さない。
+     （both だと translateY(0) が残り、子の position:sticky を壊すため） */
+  animation: page-transition-in 380ms cubic-bezier(0.4, 0, 0.2, 1) backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4392,4 +4394,300 @@ button:active {
   color: var(--ctp-overlay1);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+/* ── 推薦理由バッジ（PlayerCard） ─────────────────────────────────────────────── */
+.rec-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 4px 0 2px;
+}
+.rec-reason-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ctp-teal);
+  background: rgba(148, 226, 213, 0.12);
+  border: 1px solid rgba(148, 226, 213, 0.25);
+  border-radius: 999px;
+  padding: 3px 9px;
+  line-height: 1.2;
+}
+
+/* ── ScoreCard: 試合詳細リンク ─────────────────────────────────────────────── */
+.score-boxscore-link {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ctp-surface1);
+  text-align: right;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ctp-sapphire);
+  text-decoration: none;
+  transition: color 150ms;
+}
+.score-boxscore-link:hover { color: var(--ctp-blue); }
+
+/* ── 試合詳細ページ ─────────────────────────────────────────────────────────── */
+/* ヘッダーのスコア */
+.game-score-line {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 360px;
+  margin: 14px auto 0;
+}
+.game-score-team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.game-score-team-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ctp-subtext1);
+  min-width: 0;
+  transition: color 150ms;
+}
+.game-score-team-link:hover { color: var(--ctp-sapphire); }
+.game-score-logo { width: 34px; height: 34px; flex-shrink: 0; }
+.game-score-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.game-score-runs {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ctp-subtext0);
+  font-variant-numeric: tabular-nums;
+}
+.game-score-team--winner .game-score-name { color: var(--ctp-text); }
+.game-score-team--winner .game-score-runs { color: var(--ctp-blue); }
+
+/* Line Score 表 */
+.linescore-wrap { overflow-x: auto; }
+.linescore-table {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, 1.4fr)
+    repeat(var(--inning-count), minmax(26px, 1fr))
+    repeat(3, minmax(30px, 0.8fr));
+  gap: 2px 0;
+  min-width: max-content;
+}
+.linescore-row { display: contents; }
+.linescore-row--head .linescore-cell,
+.linescore-row--head .linescore-head-team {
+  color: var(--ctp-overlay0);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ctp-surface1);
+  padding-bottom: 6px;
+}
+.linescore-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--ctp-text);
+  min-width: 0;
+  padding: 6px 8px 6px 0;
+}
+.linescore-team:hover { color: var(--ctp-sapphire); }
+.linescore-team-logo { width: 22px; height: 22px; flex-shrink: 0; }
+.linescore-team-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.linescore-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--ctp-subtext1);
+  padding: 6px 0;
+}
+.linescore-total {
+  font-weight: 800;
+  color: var(--ctp-text);
+}
+
+/* Box Score 表 */
+.box-table-wrap { margin-top: 18px; overflow-x: auto; }
+.box-table-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ctp-lavender);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px;
+}
+.box-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+.box-table th {
+  text-align: center;
+  color: var(--ctp-overlay0);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--ctp-surface1);
+}
+.box-table td {
+  text-align: center;
+  color: var(--ctp-subtext1);
+  padding: 7px 4px;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--ctp-surface0);
+}
+.box-table .box-name-col { text-align: left; min-width: 150px; }
+.box-player-name { font-weight: 600; color: var(--ctp-text); }
+.box-player-pos {
+  margin-left: 6px;
+  font-size: 0.7rem;
+  color: var(--ctp-overlay0);
+}
+
+/* ── 共通: スリムなアプリ型ページヘッダー（案A + アクセントカラー案C） ──────────
+   PageHeader コンポーネントが使う。Team / League / Stats などで共有。
+   --accent: アクセント色（チームカラー等）。未指定時はデフォルトのsapphire。 */
+.app-screen { width: 100%; }
+
+.page-header {
+  --accent: var(--ctp-sapphire);
+  position: sticky;
+  top: 56px; /* モバイル: 上部固定バー(56px)の下に貼り付く */
+  z-index: 20;
+  padding: 10px 24px 0;
+  border-top: 3px solid var(--accent);
+  border-bottom: 1px solid var(--ctp-surface1);
+  /* 上部にアクセント色を薄く敷く（C案） */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      transparent 72%
+    ),
+    var(--ctp-mantle);
+}
+@media (min-width: 768px) {
+  .page-header { top: 0; } /* デスクトップは上部バーが無いので 0 */
+}
+
+.page-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.page-header-back {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ctp-subtext1);
+  text-decoration: none;
+  transition: color 150ms;
+}
+.page-header-back:hover { color: var(--ctp-sapphire); }
+.page-header-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ctp-overlay0);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.page-header-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+}
+.page-header-logo { width: 44px; height: 44px; flex-shrink: 0; }
+.page-header-info { min-width: 0; flex: 1; }
+.page-header-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+}
+.page-header-subtitle {
+  font-size: 0.78rem;
+  color: var(--ctp-subtext0);
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.page-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+}
+.thr-wl {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ctp-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.thr-sub {
+  font-size: 0.7rem;
+  color: var(--ctp-subtext0);
+  font-variant-numeric: tabular-nums;
+}
+
+.page-header-tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+}
+.page-tab {
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ctp-subtext0);
+  white-space: nowrap;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 150ms, border-color 150ms;
+}
+.page-tab:hover { color: var(--ctp-text); }
+.page-tab--active {
+  color: var(--ctp-text);
+  border-bottom-color: var(--accent);
+}
+
+.screen-body {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 本文に移した検索フォームは広がりすぎないよう中央で幅制限 */
+.search-form-wrapper--page {
+  max-width: 640px;
+  margin: 0 auto 18px;
+}
+
+/* 小画面では右側の詳細サブ行は隠してタイトルを優先 */
+@media (max-width: 420px) {
+  .thr-sub { display: none; }
+  .page-header-title { font-size: 1.25rem; }
 }

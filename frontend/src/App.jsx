@@ -16,6 +16,7 @@ import RegisterPage from "./pages/RegisterPage";
 import OnboardingTeamPage from "./pages/OnboardingTeamPage";
 import OnboardingFavoritesPage from "./pages/OnboardingFavoritesPage";
 import TeamPage from "./pages/TeamPage";
+import GamePage from "./pages/GamePage";
 import StatsPage from "./pages/StatsPage";
 import ComparePage from "./pages/ComparePage";
 import MatchupPage from "./pages/MatchupPage";
@@ -38,6 +39,7 @@ function AnimatedRoutes() {
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
         <Route path="/team/:teamId" element={<TeamPage />} />
+        <Route path="/game/:gamePk" element={<GamePage />} />
         <Route path="/stats" element={<StatsPage />} />
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/matchup" element={<MatchupPage />} />

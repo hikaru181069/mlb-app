@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import FavoritePlayerCard from "../components/FavoritePlayerCard";
+import PageHeader from "../components/PageHeader";
 import SkeletonCard from "../components/SkeletonCard";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -73,22 +74,22 @@ function FavoritesPage() {
   }, [token]);
 
   return (
-    <div className="home-page px-6 py-12">
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">Your Collection</p>
-        <div className="flex items-center justify-center gap-3">
-          <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-            Favorites
-          </h1>
-          {!loading && favorites.length > 0 && (
+    <div className="app-screen">
+      <PageHeader
+        kicker="Your Collection"
+        title="Favorites"
+        subtitle="Manage your saved MLB players, notes, and tags."
+        right={
+          !loading && favorites.length > 0 ? (
             <span className="count-badge--favorites">{favorites.length}</span>
-          )}
-        </div>
-        <p className="home-description mt-4 text-base">
-          Manage your saved MLB players, notes, and tags.
-        </p>
+          ) : undefined
+        }
+      />
+
+      <div className="screen-body px-6 py-6 w-full">
+        {/* Compare モードのツールバー（旧ヒーローから本文へ移動） */}
         {!loading && favorites.length >= 2 && (
-          <div className="home-actions mt-6">
+          <div className="home-actions mb-4">
             <button
               type="button"
               className={`home-link secondary${compareMode ? " home-link--active" : ""}`}
@@ -114,9 +115,6 @@ function FavoritesPage() {
             {selectedIds.length === 2 && "Ready! Click Compare Selected."}
           </p>
         )}
-      </section>
-
-      <div className="home-content mt-2 w-full">
         {!token && (
           <div className="home-empty-state">
             <span className="empty-state-icon">🔒</span>

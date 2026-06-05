@@ -10,6 +10,7 @@ import { getCurrentUser } from "../services/api/userApi";
 import { getTeam, getTeamSchedule } from "../services/api/teamApi";
 import { getScores } from "../services/api/leagueApi";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
+import { mlbToday } from "../utils/datetime";
 import {
   getApiErrorMessage,
   isUnauthorizedError,
@@ -227,7 +228,7 @@ function HomePage() {
     let active = true;
     const fetchTodayScores = async () => {
       try {
-        const data = await getScores();
+        const data = await getScores(mlbToday());
         if (active) setTodayGames(data.games);
       } catch {
         // Today's MLB は補助的なので失敗は黙って無視（セクションを出さないだけ）

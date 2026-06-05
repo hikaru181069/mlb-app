@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getStandings, getScores } from "../services/api/leagueApi";
 import ScoreCard from "../components/ScoreCard";
+import PageHeader from "../components/PageHeader";
+import { mlbToday } from "../utils/datetime";
 
 const TABS = [
   { key: "standings", label: "Standings" },
@@ -123,7 +125,8 @@ function StandingsTab({ season }) {
 // ── Scores タブ ──────────────────────────────────────────────────────────────
 function ScoresTab() {
   // 日付は YYYY-MM-DD 文字列で管理
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  // 「今日の試合日」は米国(ET)基準。日本の朝の試合は米国では前日扱いのため。
+  const [date, setDate] = useState(mlbToday());
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -207,32 +210,17 @@ function LeaguePage() {
   const season = new Date().getFullYear();
 
   return (
-    <div className="home-page px-6 py-12">
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">{season} Season</p>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-          League
-        </h1>
-        <p className="home-description mt-4 text-base">
-          Standings and game scores for all 30 MLB teams.
-        </p>
-      </section>
+    <div className="app-screen">
+      <PageHeader
+        kicker={`${season} Season`}
+        title="League"
+        subtitle="Standings and game scores for all 30 MLB teams."
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-      <div className="home-content mt-2 w-full">
-        {/* タブ */}
-        <div className="stats-tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`stats-tab ${activeTab === tab.key ? "stats-tab--active" : ""}`}
-            >
-              <span className="stats-tab-label">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
+      <div className="screen-body px-6 py-6 w-full">
         {activeTab === "standings" ? (
           <StandingsTab season={season} />
         ) : (

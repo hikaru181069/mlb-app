@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
+import PageHeader from "../components/PageHeader";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getMatchupStats } from "../services/api/matchupApi";
 
@@ -221,23 +222,16 @@ function MatchupPage() {
   const bothSelected = pitcher && batter;
 
   return (
-    <div className="home-page px-6 py-12">
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">{new Date().getFullYear()} Career</p>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-          Pitcher vs Batter
-        </h1>
-        <p className="home-description mt-4 text-base">
-          Select a pitcher and a batter to see their career head-to-head stats.
-        </p>
-        <div className="home-actions mt-6">
-          <Link className="home-link secondary" to="/favorites">
-            ← Pick from Favorites
-          </Link>
-        </div>
-      </section>
+    <div className="app-screen">
+      <PageHeader
+        kicker={`${new Date().getFullYear()} Career`}
+        title="Pitcher vs Batter"
+        subtitle="Select a pitcher and a batter to see their career head-to-head stats."
+        backTo="/favorites"
+        backLabel="Pick from Favorites"
+      />
 
-      <div className="home-content mt-2 w-full">
+      <div className="screen-body px-6 py-6 w-full">
         {loadingInit ? (
           <p className="compare-loading">Loading players…</p>
         ) : (

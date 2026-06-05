@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getLeaders } from "../services/api/statsApi";
 import { getApiErrorMessage } from "../services/api/apiError";
+import PageHeader from "../components/PageHeader";
 
 const TABS = [
   { key: "hitting", label: "Position Players" },
@@ -98,32 +99,17 @@ function StatsPage() {
   const categories = data[activeTab];
 
   return (
-    <div className="home-page px-6 py-12">
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">{currentSeason} Season</p>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-          MLB Stats
-        </h1>
-        <p className="home-description mt-4 text-base">
-          League leaders from the MLB Stats API.
-        </p>
-      </section>
+    <div className="app-screen">
+      <PageHeader
+        kicker={`${currentSeason} Season`}
+        title="MLB Stats"
+        subtitle="League leaders from the MLB Stats API."
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-      <div className="home-content mt-2 w-full">
-        {/* タブ */}
-        <div className="stats-tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`stats-tab ${activeTab === tab.key ? "stats-tab--active" : ""}`}
-            >
-              <span className="stats-tab-label">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
+      <div className="screen-body px-6 py-6 w-full">
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
         <div className="stats-grid">
