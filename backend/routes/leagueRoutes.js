@@ -1,5 +1,5 @@
 const express = require("express");
-const { getStandings, getScores } = require("../controllers/leagueController");
+const { getStandings, getScores, getWildCard } = require("../controllers/leagueController");
 
 const router = express.Router();
 
@@ -7,5 +7,6 @@ const router = express.Router();
 router.get("/standings", getStandings);
 // GET /api/league/scores?date=YYYY-MM-DD
 router.get("/scores", getScores);
+router.get("/wildcard", getWildCard);
 
 module.exports = router;

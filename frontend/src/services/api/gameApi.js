@@ -10,3 +10,9 @@ export const getGame = async (gamePk) => {
   if (!res.ok) throw new Error("Failed to fetch game");
   return res.json();
 };
+
+export const getGamePlays = async (gamePk) => {
+  const res = await fetch(`${API_URL}/api/games/${gamePk}/plays`);
+  if (!res.ok) throw new Error("Failed to fetch play-by-play");
+  return res.json();
+};

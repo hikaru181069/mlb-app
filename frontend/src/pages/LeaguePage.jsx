@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getStandings, getScores } from "../services/api/leagueApi";
+import { getStandings, getScores, getWildCard } from "../services/api/leagueApi";
 import ScoreCard from "../components/ScoreCard";
 import PageHeader from "../components/PageHeader";
 import { CalendarDays } from "lucide-react";
@@ -16,7 +16,8 @@ import { mlbToday } from "../utils/datetime";
 
 const TABS = [
   { key: "standings", label: "Standings" },
-  { key: "scores", label: "Scores" },
+  { key: "wildcard",  label: "Wild Card" },
+  { key: "scores",    label: "Scores" },
 ];
 
 // 地区の表示順（AL → NL、East → Central → West）
@@ -205,6 +206,66 @@ function ScoresTab() {
   );
 }
 
+// ── Wild Card タブ ───────────────────────────────────────────────────────────
+function WildCardTab({ season }) {
+  const [leagues, setLeagues] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true); setError("");
+      try {
+        const data = await getWildCard(season);
+        setLeagues(data.leagues);
+      } catch { setError("Failed to load wild card standings."); }
+      finally { setLoading(false); }
+    };
+    fetchData();
+  }, [season]);
+
+  if (loading) return <p className="compare-loading">Loading wild card…</p>;
+  if (error)   return <p className="error-message">{error}</p>;
+
+  return (
+    <div className="standings-grid">
+      {leagues.map(({ league, teams }) => (
+        <section key={league} className="standings-league-column">
+          <h2 className="standings-league-title">{league}</h2>
+          <div className="standings-table">
+            <div className="standings-row standings-row--head">
+              <span className="standings-team-col">Team</span>
+              <span>W</span><span>L</span><span>PCT</span>
+              <span>GB</span>
+              <span className="standings-hide-sm">L10</span>
+              <span className="standings-hide-sm">STRK</span>
+            </div>
+            {teams.map((t, idx) => (
+              <div key={t.teamId}
+                className={`standings-row${idx < 3 ? " standings-row--leader" : ""}`}>
+                <Link to={`/team/${t.teamId}`}
+                  className="standings-team-col standings-team-link">
+                  <img src={`https://www.mlbstatic.com/team-logos/${t.teamId}.svg`}
+                    alt={t.teamName} className="standings-team-logo"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                  <span className="standings-team-name">{t.teamName}</span>
+                </Link>
+                <span className="standings-stat">{t.wins}</span>
+                <span className="standings-stat">{t.losses}</span>
+                <span className="standings-stat">{t.pct}</span>
+                <span className="standings-stat">{t.wildCardGamesBack}</span>
+                <span className="standings-stat standings-hide-sm">{t.lastTen}</span>
+                <span className="standings-stat standings-hide-sm">{t.streak}</span>
+              </div>
+            ))}
+          </div>
+          <p className="wc-note">Top 3 teams advance to Wild Card Series</p>
+        </section>
+      ))}
+    </div>
+  );
+}
+
 // ── メインページ ─────────────────────────────────────────────────────────────
 function LeaguePage() {
   const [activeTab, setActiveTab] = useState("standings");
@@ -222,11 +283,9 @@ function LeaguePage() {
       />
 
       <div className="screen-body px-6 py-6 w-full">
-        {activeTab === "standings" ? (
-          <StandingsTab season={season} />
-        ) : (
-          <ScoresTab />
-        )}
+        {activeTab === "standings" && <StandingsTab season={season} />}
+        {activeTab === "wildcard"  && <WildCardTab season={season} />}
+        {activeTab === "scores"    && <ScoresTab />}
       </div>
     </div>
   );

@@ -126,4 +126,41 @@ const getGame = async (req, res) => {
   }
 };
 
-module.exports = { getGame };
+
+/**
+ * GET /api/games/:gamePk/plays
+ * 試合のプレイバイプレイ（重要プレーのみ抽出）を返す
+ */
+const getGamePlays = async (req, res) => {
+  const { gamePk } = req.params;
+  try {
+    const data = await fetchFromMlbApi(
+      `https://statsapi.mlb.com/api/v1/game/${gamePk}/playByPlay`,
+      "Failed to fetch play-by-play"
+    );
+    const allPlays = data.allPlays || [];
+    const plays = allPlays
+      .filter((p) => {
+        const event = p.result?.event || "";
+        return p.about?.isScoringPlay ||
+          ["Home Run","Triple","Double","Strikeout","Walk","Hit By Pitch"].includes(event);
+      })
+      .map((p) => ({
+        inning:        p.about?.inning,
+        halfInning:    p.about?.halfInning,
+        event:         p.result?.event,
+        description:   p.result?.description,
+        isScoringPlay: p.about?.isScoringPlay ?? false,
+        awayScore:     p.result?.awayScore,
+        homeScore:     p.result?.homeScore,
+        batter:        p.matchup?.batter?.fullName,
+        pitcher:       p.matchup?.pitcher?.fullName,
+      }));
+    return res.json({ gamePk: Number(gamePk), plays });
+  } catch (error) {
+    console.error("Play-by-play error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch play-by-play." });
+  }
+};
+
+module.exports = { getGame, getGamePlays };

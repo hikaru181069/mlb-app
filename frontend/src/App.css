@@ -5344,3 +5344,115 @@ button:active {
 .home-recommendations-section {
   background: none;
 }
+
+/* Wild Card: トップ3をハイライト（プレーオフ進出圏） */
+.wc-note {
+  font-size: 0.72rem;
+  color: var(--ctp-overlay0);
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+/* ── モバイル下部タブバー ────────────────────────────────────────────────────── */
+.bottom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  background: var(--ctp-mantle);
+  border-top: 1px solid var(--ctp-surface1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bottom-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+  color: var(--ctp-overlay0);
+  text-decoration: none;
+  transition: color 150ms;
+}
+.bottom-tab--active { color: var(--ctp-blue); }
+.bottom-tab-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ── ニュースカード ─────────────────────────────────────────────────────────── */
+.news-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.news-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.news-card:hover {
+  border-color: var(--ctp-sapphire);
+  transform: translateY(-2px);
+}
+.news-card-img-wrap {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--ctp-surface1);
+}
+.news-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.news-card-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.news-card-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ctp-text);
+  line-height: 1.35;
+  margin: 0;
+}
+.news-card-meta {
+  font-size: 0.72rem;
+  color: var(--ctp-overlay0);
+  margin: 0;
+  margin-top: auto;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.news-card-dot { color: var(--ctp-surface2); }
+
+/* compact: Home/Team の埋め込み用に横長リスト */
+.news-list--compact {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.news-list--compact .news-card {
+  flex-direction: row;
+  align-items: stretch;
+}
+.news-list--compact .news-card-img-wrap {
+  width: 110px;
+  flex-shrink: 0;
+  aspect-ratio: auto;
+}
+.news-list--compact .news-card-title {
+  font-size: 0.85rem;
+}

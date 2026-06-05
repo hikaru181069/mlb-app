@@ -23,3 +23,15 @@ export const getScores = async (date) => {
   if (!res.ok) throw new Error("Failed to fetch scores");
   return res.json();
 };
+
+/**
+ * ワイルドカード順位を取得する
+ * @param {number} season
+ * @returns {{ season, leagues: Array<{ league, teams }> }}
+ */
+export const getWildCard = async (season) => {
+  const q = season ? `?season=${season}` : "";
+  const res = await fetch(`${API_URL}/api/league/wildcard${q}`);
+  if (!res.ok) throw new Error("Failed to fetch wild card");
+  return res.json();
+};

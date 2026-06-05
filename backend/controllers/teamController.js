@@ -187,4 +187,35 @@ const getTeamLeaders = async (req, res) => {
   }
 };
 
-module.exports = { getTeam, getTeamSchedule, getTeamLeaders };
+/**
+ * GET /api/teams/:teamId/injuries
+ * チームのIL（負傷者リスト）に登録されている選手を返す
+ */
+const getTeamInjuries = async (req, res) => {
+  const { teamId } = req.params;
+  const season = req.query.season || new Date().getFullYear();
+  try {
+    const url = `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=40Man&season=${season}`;
+    const data = await fetchFromMlbApi(url, "Failed to fetch roster");
+
+    const injured = (data.roster || [])
+      .filter((p) => {
+        const desc = p.status?.description || "";
+        return desc.includes("IL") || desc.includes("Injured") || desc.includes("Paternity") || desc.includes("Bereavement");
+      })
+      .map((p) => ({
+        playerId: p.person?.id,
+        playerName: p.person?.fullName,
+        jerseyNumber: p.jerseyNumber,
+        status: p.status?.description,
+        position: p.position?.abbreviation,
+      }));
+
+    return res.json({ teamId: Number(teamId), season: Number(season), injured });
+  } catch (error) {
+    console.error("Team injuries error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch team injuries." });
+  }
+};
+
+module.exports = { getTeam, getTeamSchedule, getTeamLeaders, getTeamInjuries };

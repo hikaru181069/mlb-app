@@ -17,6 +17,8 @@ import OnboardingTeamPage from "./pages/OnboardingTeamPage";
 import OnboardingFavoritesPage from "./pages/OnboardingFavoritesPage";
 import TeamPage from "./pages/TeamPage";
 import GamePage from "./pages/GamePage";
+import NewsPage from "./pages/NewsPage";
+import BottomTabBar from "./components/BottomTabBar";
 import StatsPage from "./pages/StatsPage";
 import ComparePage from "./pages/ComparePage";
 import MatchupPage from "./pages/MatchupPage";
@@ -40,6 +42,7 @@ function AnimatedRoutes() {
         <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
         <Route path="/team/:teamId" element={<TeamPage />} />
         <Route path="/game/:gamePk" element={<GamePage />} />
+        <Route path="/news" element={<NewsPage />} />
         <Route path="/stats" element={<StatsPage />} />
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/matchup" element={<MatchupPage />} />
@@ -103,9 +106,11 @@ function App() {
       <Navbar />
       {/* pt-14: モバイル時のトップバー(56px)分を上に確保
           md:pt-0 md:ml-52: デスクトップではサイドバー幅(208px)分だけ右にオフセット */}
-      <main className="pt-14 md:pt-0 md:ml-52">
+      {/* pb-16: モバイルで下部タブバー(64px)に隠れないようにオフセット */}
+      <main className="pt-14 pb-16 md:pt-0 md:pb-0 md:ml-52">
         <AnimatedRoutes />
       </main>
+      <BottomTabBar />
       <Footer />
     </ToastProvider>
   );

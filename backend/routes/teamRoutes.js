@@ -3,6 +3,7 @@ const {
   getTeam,
   getTeamSchedule,
   getTeamLeaders,
+  getTeamInjuries,
 } = require("../controllers/teamController");
 
 const router = express.Router();
@@ -13,5 +14,6 @@ router.get("/:teamId", getTeam);
 router.get("/:teamId/schedule", getTeamSchedule);
 // GET /api/teams/:teamId/leaders?season=YYYY → チーム内リーダー
 router.get("/:teamId/leaders", getTeamLeaders);
+router.get("/:teamId/injuries", getTeamInjuries);
 
 module.exports = router;

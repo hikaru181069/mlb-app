@@ -73,6 +73,56 @@ const getStandings = async (req, res) => {
 };
 
 /**
+ * GET /api/league/wildcard?season=YYYY
+ * AL/NL それぞれのワイルドカード順位を返す
+ */
+const getWildCard = async (req, res) => {
+  const season = req.query.season || new Date().getFullYear();
+  try {
+    const url =
+      `https://statsapi.mlb.com/api/v1/standings` +
+      `?leagueId=103,104&season=${season}&standingsTypes=wildCard`;
+    const data = await fetchFromMlbApi(url, "Failed to fetch wild card");
+
+    // wildCard standings は division ではなくリーグ単位でグループ化される
+    // leagueId 103=AL, 104=NL（league.name は wild card では返らないことがある）
+    const LEAGUE_ID_MAP = { 103: "American League", 104: "National League" };
+    const leagues = {};
+    for (const rec of data.records || []) {
+      const leagueName = rec.league?.name || LEAGUE_ID_MAP[rec.league?.id] || "Unknown";
+      if (!leagues[leagueName]) leagues[leagueName] = [];
+      for (const t of rec.teamRecords || []) {
+        const lastTen = (t.records?.splitRecords || []).find((r) => r.type === "lastTen");
+        leagues[leagueName].push({
+          teamId: t.team?.id,
+          teamName: t.team?.name,
+          wins: t.wins,
+          losses: t.losses,
+          pct: t.winningPercentage,
+          wildCardGamesBack: t.wildCardGamesBack || t.gamesBack,
+          wildCardRank: t.wildCardRank,
+          divisionRank: t.divisionRank,
+          streak: t.streak?.streakCode || "-",
+          lastTen: lastTen ? `${lastTen.wins}-${lastTen.losses}` : "-",
+          isWildCardLeader: t.wildCardLeader ?? false,
+          eliminationNumber: t.eliminationNumber || "-",
+        });
+      }
+    }
+    // 各リーグをワイルドカード順位でソート
+    const result = Object.entries(leagues).map(([league, teams]) => ({
+      league,
+      teams: teams.sort((a, b) => Number(a.wildCardRank) - Number(b.wildCardRank)),
+    }));
+
+    return res.json({ season: Number(season), leagues: result });
+  } catch (error) {
+    console.error("Wild card error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch wild card standings." });
+  }
+};
+
+/**
  * GET /api/league/scores?date=YYYY-MM-DD
  * 指定日の全試合スコアを返す
  */
@@ -118,4 +168,4 @@ const getScores = async (req, res) => {
   }
 };
 
-module.exports = { getStandings, getScores };
+module.exports = { getStandings, getScores, getWildCard };

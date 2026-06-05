@@ -3,8 +3,9 @@ const {
   fetchExternalPlayersByTeam,
   fetchRecommendedPlayersByTeam,
   fetchExternalPlayers,
-  fetchPlayerSuggestions, // [Suggestions] 候補取得サービス
+  fetchPlayerSuggestions,
 } = require("../services/mlb");
+const { fetchFromMlbApi } = require("../services/mlb/mlbClient");
 
 const searchExternalPlayers = async (req, res) => {
   try {
@@ -82,10 +83,43 @@ const getPlayerSuggestions = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/external/players/:playerId/year-by-year
+ * 選手の年度別成績（打撃・投球）を返す
+ */
+const getPlayerYearByYear = async (req, res) => {
+  const { playerId } = req.params;
+  try {
+    const [hitting, pitching] = await Promise.all([
+      fetchFromMlbApi(
+        `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=yearByYear&group=hitting`
+      ).catch(() => null),
+      fetchFromMlbApi(
+        `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=yearByYear&group=pitching`
+      ).catch(() => null),
+    ]);
+
+    const formatSplits = (data) =>
+      (data?.stats?.[0]?.splits || [])
+        .filter((s) => s.season && s.team)
+        .map((s) => ({ season: s.season, teamName: s.team?.name, teamId: s.team?.id, stat: s.stat }));
+
+    return res.json({
+      playerId: Number(playerId),
+      hitting: formatSplits(hitting),
+      pitching: formatSplits(pitching),
+    });
+  } catch (error) {
+    console.error("Year-by-year error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch year-by-year stats." });
+  }
+};
+
 module.exports = {
   getExternalPlayersByTeam,
   getRecommendedPlayersByTeam,
   searchExternalPlayers,
   getExternalPlayerById,
-  getPlayerSuggestions, // [Suggestions] 候補表示用
+  getPlayerSuggestions,
+  getPlayerYearByYear,
 };

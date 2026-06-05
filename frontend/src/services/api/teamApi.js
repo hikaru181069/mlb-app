@@ -36,3 +36,9 @@ export const getTeamLeaders = async (teamId, season) => {
   if (!res.ok) throw new Error("Failed to fetch team leaders");
   return res.json();
 };
+
+export const getTeamInjuries = async (teamId) => {
+  const res = await fetch(`${API_URL}/api/teams/${teamId}/injuries`);
+  if (!res.ok) throw new Error("Failed to fetch team injuries");
+  return res.json();
+};
