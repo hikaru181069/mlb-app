@@ -166,13 +166,27 @@ h1 {
   margin-top: 18px;
 }
 
-.player-list > *:nth-child(1)  { animation-delay: 0ms; }
-.player-list > *:nth-child(2)  { animation-delay: 50ms; }
-.player-list > *:nth-child(3)  { animation-delay: 100ms; }
-.player-list > *:nth-child(4)  { animation-delay: 150ms; }
-.player-list > *:nth-child(5)  { animation-delay: 200ms; }
-.player-list > *:nth-child(6)  { animation-delay: 250ms; }
-.player-list > *:nth-child(n+7) { animation-delay: 300ms; }
+.player-list > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.player-list > *:nth-child(2) {
+  animation-delay: 50ms;
+}
+.player-list > *:nth-child(3) {
+  animation-delay: 100ms;
+}
+.player-list > *:nth-child(4) {
+  animation-delay: 150ms;
+}
+.player-list > *:nth-child(5) {
+  animation-delay: 200ms;
+}
+.player-list > *:nth-child(6) {
+  animation-delay: 250ms;
+}
+.player-list > *:nth-child(n + 7) {
+  animation-delay: 300ms;
+}
 
 .player-card {
   color: var(--ctp-text);
@@ -675,7 +689,6 @@ input {
   padding: 48px 24px;
 }
 
-
 /* [Phase 14] Footer
    fantinel.dev 参考: ページ下部にコンパクトな技術スタック・クレジット表示。
    サイドバー分 (ml-52) を同様にオフセットして本文幅に揃える。 */
@@ -783,9 +796,9 @@ input {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(17, 17, 27, 0.1)  0%,
+    rgba(17, 17, 27, 0.1) 0%,
     rgba(17, 17, 27, 0.05) 25%,
-    rgba(17, 17, 27, 0.5)  60%,
+    rgba(17, 17, 27, 0.5) 60%,
     rgba(17, 17, 27, 0.92) 100%
   );
 }
@@ -834,7 +847,7 @@ input {
 .guest-hero-title {
   font-size: clamp(2.8rem, 7vw, 6rem);
   font-weight: 900;
-  line-height: 1.0;
+  line-height: 1;
   letter-spacing: -0.03em;
   text-align: left;
   font-style: italic;
@@ -872,8 +885,13 @@ input {
 }
 
 @keyframes hero-float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-14px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
 }
 
 /* フィーチャーカードをヒーロー下に全幅で並べる */
@@ -890,12 +908,18 @@ input {
     text-align: center;
     padding: 2rem 0 1rem;
   }
-  .guest-hero-title { text-align: center; }
-  .guest-hero-visual { display: none; }
+  .guest-hero-title {
+    text-align: center;
+  }
+  .guest-hero-visual {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .guest-hero-logo { animation: none; }
+  .guest-hero-logo {
+    animation: none;
+  }
 }
 
 .home-hero {
@@ -1060,9 +1084,15 @@ input {
    Team   → mauve  (紫: チームカラーのイメージ)
    Favs   → blue   (青: スター・お気に入りのイメージ)
    Recs   → teal   (青緑: 発見・推薦のイメージ) */
-.home-team-section            .section-heading h2 { color: var(--ctp-mauve); }
-.home-favorites-section       .section-heading h2 { color: var(--ctp-blue); }
-.home-recommendations-section .section-heading h2 { color: var(--ctp-teal); }
+.home-team-section .section-heading h2 {
+  color: var(--ctp-mauve);
+}
+.home-favorites-section .section-heading h2 {
+  color: var(--ctp-blue);
+}
+.home-recommendations-section .section-heading h2 {
+  color: var(--ctp-teal);
+}
 
 /* [Phase 8] セクションカードにカラーアクセント
    薄い背景ティントで、各セクションを視覚的に区別する。
@@ -3459,8 +3489,12 @@ button:disabled,
   transform: translateY(0);
 }
 
-.reveal-delay-1 { transition-delay: 80ms; }
-.reveal-delay-2 { transition-delay: 160ms; }
+.reveal-delay-1 {
+  transition-delay: 80ms;
+}
+.reveal-delay-2 {
+  transition-delay: 160ms;
+}
 
 /* アニメーション無効設定時はすべて即表示 */
 @media (prefers-reduced-motion: reduce) {
@@ -3474,7 +3508,9 @@ button:disabled,
   }
 }
 
-.reveal-delay-3 { transition-delay: 240ms; }
+.reveal-delay-3 {
+  transition-delay: 240ms;
+}
 
 /* ── Phase 3: Micro-interactions ── */
 
@@ -3748,7 +3784,9 @@ button:active {
   padding: 12px 8px;
   border-right: 1px solid var(--ctp-surface1);
 }
-.mstats-count-cell:last-child { border-right: none; }
+.mstats-count-cell:last-child {
+  border-right: none;
+}
 
 .mstats-count-value {
   font-size: 1.4rem;
@@ -3771,7 +3809,9 @@ button:active {
 }
 
 @media (max-width: 640px) {
-  .mstats-summary { justify-content: center; }
+  .mstats-summary {
+    justify-content: center;
+  }
 }
 
 /* ── [Phase 5] Toast Notifications ───────────────────────────────────────────
@@ -3875,10 +3915,18 @@ button:active {
   font-weight: 700;
 }
 
-.toast--success .toast-icon { color: var(--ctp-green); }
-.toast--error   .toast-icon { color: var(--ctp-red); }
-.toast--info    .toast-icon { color: var(--ctp-sapphire); }
-.toast--warn    .toast-icon { color: var(--ctp-yellow); }
+.toast--success .toast-icon {
+  color: var(--ctp-green);
+}
+.toast--error .toast-icon {
+  color: var(--ctp-red);
+}
+.toast--info .toast-icon {
+  color: var(--ctp-sapphire);
+}
+.toast--warn .toast-icon {
+  color: var(--ctp-yellow);
+}
 
 .toast-message {
   flex: 1;
@@ -3895,7 +3943,9 @@ button:active {
   padding: 2px 4px;
   cursor: pointer;
   border-radius: 4px;
-  transition: color 150ms, background 150ms;
+  transition:
+    color 150ms,
+    background 150ms;
 }
 .toast-close:hover {
   color: var(--ctp-text);
@@ -3920,16 +3970,20 @@ button:active {
    - background-position を左から右へ移動させることで光が流れる
    ─────────────────────────────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position: -600px 0; }
-  100% { background-position:  600px 0; }
+  0% {
+    background-position: -600px 0;
+  }
+  100% {
+    background-position: 600px 0;
+  }
 }
 
 .skeleton-block {
   background: linear-gradient(
     90deg,
     var(--ctp-surface0) 25%,
-    rgba(255, 255, 255, 0.08) 50%,  /* 白のグローで光の帯を見えやすくする */
-    var(--ctp-surface0) 75%
+    rgba(255, 255, 255, 0.08) 50%,
+    /* 白のグローで光の帯を見えやすくする */ var(--ctp-surface0) 75%
   );
   background-size: 600px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
@@ -4002,7 +4056,9 @@ button:active {
   border-bottom: 1px solid var(--ctp-surface1);
   font-size: 0.82rem;
 }
-.standings-row:last-child { border-bottom: none; }
+.standings-row:last-child {
+  border-bottom: none;
+}
 
 .standings-row--head {
   font-size: 0.68rem;
@@ -4034,7 +4090,9 @@ button:active {
   color: var(--ctp-text);
   transition: color 150ms;
 }
-.standings-team-link:hover { color: var(--ctp-sapphire); }
+.standings-team-link:hover {
+  color: var(--ctp-sapphire);
+}
 
 .standings-team-logo {
   width: 22px;
@@ -4152,7 +4210,9 @@ button:active {
   min-width: 0;
   transition: color 150ms;
 }
-.score-team:hover { color: var(--ctp-sapphire); }
+.score-team:hover {
+  color: var(--ctp-sapphire);
+}
 
 .score-team-logo {
   width: 26px;
@@ -4178,15 +4238,21 @@ button:active {
 }
 
 /* 勝者の行を強調 */
-.score-team-row--winner .score-team-name { color: var(--ctp-text); }
-.score-team-row--winner .score-team-score { color: var(--ctp-blue); }
+.score-team-row--winner .score-team-name {
+  color: var(--ctp-text);
+}
+.score-team-row--winner .score-team-score {
+  color: var(--ctp-blue);
+}
 
 @media (max-width: 480px) {
   .standings-grid {
     grid-template-columns: 1fr;
   }
 
-  .standings-hide-sm { display: none; }
+  .standings-hide-sm {
+    display: none;
+  }
   .standings-row {
     grid-template-columns: 1fr 28px 28px 48px 40px;
   }
@@ -4315,7 +4381,9 @@ button:active {
   padding: 4px 0;
   transition: color 150ms;
 }
-.leader-row:hover { color: var(--ctp-sapphire); }
+.leader-row:hover {
+  color: var(--ctp-sapphire);
+}
 .leader-rank {
   width: 16px;
   font-size: 0.78rem;
@@ -4350,12 +4418,40 @@ button:active {
 
 /* ── Home: クイックアクション（案3） ─────────────────────────────────────────── */
 /* 旧グリッド型クイックアクション（HomeQuickStrip に移行） */
-.home-quick-section { width: 100%; }
-.quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; }
-.quick-action { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 10px; border: 1px solid var(--ctp-surface1); border-radius: 14px; background: var(--ctp-surface0); text-decoration: none; color: var(--ctp-subtext1); transition: all 160ms ease; }
-.quick-action:hover { border-color: var(--ctp-sapphire); color: var(--ctp-text); transform: translateY(-2px); }
-.quick-action-icon { font-size: 1.4rem; line-height: 1; }
-.quick-action-label { font-size: 0.8rem; font-weight: 700; }
+.home-quick-section {
+  width: 100%;
+}
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+}
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 14px;
+  background: var(--ctp-surface0);
+  text-decoration: none;
+  color: var(--ctp-subtext1);
+  transition: all 160ms ease;
+}
+.quick-action:hover {
+  border-color: var(--ctp-sapphire);
+  color: var(--ctp-text);
+  transform: translateY(-2px);
+}
+.quick-action-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.quick-action-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
 
 /* ── Home: My Team サマリー（案1） ──────────────────────────────────────────── */
 .team-summary {
@@ -4378,7 +4474,9 @@ button:active {
   color: var(--ctp-text);
   transition: color 150ms;
 }
-.team-summary-team:hover { color: var(--ctp-sapphire); }
+.team-summary-team:hover {
+  color: var(--ctp-sapphire);
+}
 .team-summary-logo {
   width: 38px;
   height: 38px;
@@ -4445,7 +4543,9 @@ button:active {
   text-decoration: none;
   transition: color 150ms;
 }
-.score-boxscore-link:hover { color: var(--ctp-blue); }
+.score-boxscore-link:hover {
+  color: var(--ctp-blue);
+}
 
 /* ── 試合詳細ページ ─────────────────────────────────────────────────────────── */
 /* ヘッダーのスコア */
@@ -4471,8 +4571,14 @@ button:active {
   min-width: 0;
   transition: color 150ms;
 }
-.game-score-team-link:hover { color: var(--ctp-sapphire); }
-.game-score-logo { width: 34px; height: 34px; flex-shrink: 0; }
+.game-score-team-link:hover {
+  color: var(--ctp-sapphire);
+}
+.game-score-logo {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
 .game-score-name {
   font-size: 1.05rem;
   font-weight: 700;
@@ -4486,11 +4592,17 @@ button:active {
   color: var(--ctp-subtext0);
   font-variant-numeric: tabular-nums;
 }
-.game-score-team--winner .game-score-name { color: var(--ctp-text); }
-.game-score-team--winner .game-score-runs { color: var(--ctp-blue); }
+.game-score-team--winner .game-score-name {
+  color: var(--ctp-text);
+}
+.game-score-team--winner .game-score-runs {
+  color: var(--ctp-blue);
+}
 
 /* Line Score 表 */
-.linescore-wrap { overflow-x: auto; }
+.linescore-wrap {
+  overflow-x: auto;
+}
 .linescore-table {
   display: grid;
   grid-template-columns:
@@ -4500,7 +4612,9 @@ button:active {
   gap: 2px 0;
   min-width: max-content;
 }
-.linescore-row { display: contents; }
+.linescore-row {
+  display: contents;
+}
 .linescore-row--head .linescore-cell,
 .linescore-row--head .linescore-head-team {
   color: var(--ctp-overlay0);
@@ -4519,8 +4633,14 @@ button:active {
   min-width: 0;
   padding: 6px 8px 6px 0;
 }
-.linescore-team:hover { color: var(--ctp-sapphire); }
-.linescore-team-logo { width: 22px; height: 22px; flex-shrink: 0; }
+.linescore-team:hover {
+  color: var(--ctp-sapphire);
+}
+.linescore-team-logo {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
 .linescore-team-name {
   font-weight: 600;
   white-space: nowrap;
@@ -4541,7 +4661,10 @@ button:active {
 }
 
 /* Box Score 表 */
-.box-table-wrap { margin-top: 18px; overflow-x: auto; }
+.box-table-wrap {
+  margin-top: 18px;
+  overflow-x: auto;
+}
 .box-table-title {
   font-size: 0.82rem;
   font-weight: 800;
@@ -4571,8 +4694,14 @@ button:active {
   font-variant-numeric: tabular-nums;
   border-bottom: 1px solid var(--ctp-surface0);
 }
-.box-table .box-name-col { text-align: left; min-width: 150px; }
-.box-player-name { font-weight: 600; color: var(--ctp-text); }
+.box-table .box-name-col {
+  text-align: left;
+  min-width: 150px;
+}
+.box-player-name {
+  font-weight: 600;
+  color: var(--ctp-text);
+}
 .box-player-pos {
   margin-left: 6px;
   font-size: 0.7rem;
@@ -4582,7 +4711,9 @@ button:active {
 /* ── 共通: スリムなアプリ型ページヘッダー（案A + アクセントカラー案C） ──────────
    PageHeader コンポーネントが使う。Team / League / Stats などで共有。
    --accent: アクセント色（チームカラー等）。未指定時はデフォルトのsapphire。 */
-.app-screen { width: 100%; }
+.app-screen {
+  width: 100%;
+}
 
 .page-header {
   --accent: var(--ctp-sapphire);
@@ -4602,7 +4733,9 @@ button:active {
     var(--ctp-mantle);
 }
 @media (min-width: 768px) {
-  .page-header { top: 0; } /* デスクトップは上部バーが無いので 0 */
+  .page-header {
+    top: 0;
+  } /* デスクトップは上部バーが無いので 0 */
 }
 
 .page-header-top {
@@ -4618,7 +4751,9 @@ button:active {
   text-decoration: none;
   transition: color 150ms;
 }
-.page-header-back:hover { color: var(--ctp-sapphire); }
+.page-header-back:hover {
+  color: var(--ctp-sapphire);
+}
 .page-header-kicker {
   font-size: 0.72rem;
   font-weight: 700;
@@ -4633,8 +4768,15 @@ button:active {
   gap: 14px;
   padding-bottom: 12px;
 }
-.page-header-logo { width: 44px; height: 44px; flex-shrink: 0; }
-.page-header-info { min-width: 0; flex: 1; }
+.page-header-logo {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.page-header-info {
+  min-width: 0;
+  flex: 1;
+}
 .page-header-title {
   font-size: 1.5rem;
   font-weight: 800;
@@ -4684,9 +4826,13 @@ button:active {
   white-space: nowrap;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color 150ms, border-color 150ms;
+  transition:
+    color 150ms,
+    border-color 150ms;
 }
-.page-tab:hover { color: var(--ctp-text); }
+.page-tab:hover {
+  color: var(--ctp-text);
+}
 .page-tab--active {
   color: var(--ctp-text);
   border-bottom-color: var(--accent);
@@ -4705,8 +4851,12 @@ button:active {
 
 /* 小画面では右側の詳細サブ行は隠してタイトルを優先 */
 @media (max-width: 420px) {
-  .thr-sub { display: none; }
-  .page-header-title { font-size: 1.25rem; }
+  .thr-sub {
+    display: none;
+  }
+  .page-header-title {
+    font-size: 1.25rem;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -4723,32 +4873,54 @@ button:active {
    ─────────────────────────────────────────────────────────────────────────── */
 
 @keyframes banner-line-run {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 @keyframes banner-fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes banner-slide-right {
-  from { opacity: 0; transform: translateX(32px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @keyframes banner-watermark-in {
-  from { opacity: 0; }
-  to   { opacity: 0.08; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.08;
+  }
 }
 
-/* バナー全体: チームカラーを背景に、右にロゴを透かす */
+/* バナー全体: ページいっぱいのファーストビュー */
 .home-banner {
   --team-color: var(--ctp-sapphire);
   position: relative;
   overflow: hidden;
-  /* さらに大きく: min-height + 大きめ padding */
-  min-height: 280px;
-  padding: 72px 40px 64px;
+  /* デスクトップ: 100vh / モバイル: トップバー(56px)を引く */
+  min-height: calc(100svh - 56px);
+  padding: 72px 40px 80px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
   background:
     linear-gradient(
       135deg,
@@ -4758,6 +4930,25 @@ button:active {
     ),
     var(--ctp-mantle);
   border-bottom: 1px solid var(--ctp-surface1);
+}
+@media (min-width: 768px) {
+  /* デスクトップはサイドバー分の上部オフセットなし → 100vh そのまま */
+  .home-banner { min-height: 100svh; }
+}
+
+/* スクロールインジケーター（バナー下端に固定） */
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50%       { transform: translateY(6px); opacity: 1; }
+}
+.home-banner-scroll-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--ctp-overlay0);
+  animation: scroll-bounce 1.8s ease-in-out infinite;
+  animation-delay: 1200ms; /* アニメーション完了後に出現 */
 }
 
 /* ① チームカラーのラインが左から右へ走る */
@@ -4829,17 +5020,21 @@ button:active {
   gap: 14px;
   text-decoration: none;
   color: var(--ctp-text);
+  font-style: italic;
   transition: opacity 150ms;
   opacity: 0;
-  animation: banner-fade-up 420ms cubic-bezier(0.34, 1.3, 0.64, 1) 380ms forwards;
+  animation: banner-fade-up 420ms cubic-bezier(0.34, 1.3, 0.64, 1) 380ms
+    forwards;
 }
-.home-banner-team-link:hover { opacity: 0.8; }
+.home-banner-team-link:hover {
+  opacity: 0.8;
+}
 
 .home-banner-team-logo {
   width: 72px;
   height: 72px;
   flex-shrink: 0;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
 }
 .home-banner-team-name {
   font-size: 2.6rem;
@@ -4869,7 +5064,8 @@ button:active {
   padding: 14px 18px;
   min-width: 200px;
   opacity: 0;
-  animation: banner-slide-right 420ms cubic-bezier(0.34, 1.2, 0.64, 1) 520ms forwards;
+  animation: banner-slide-right 420ms cubic-bezier(0.34, 1.2, 0.64, 1) 520ms
+    forwards;
 }
 .home-banner-next-label {
   font-size: 0.65rem;
@@ -4896,13 +5092,27 @@ button:active {
   color: var(--ctp-subtext0);
   font-variant-numeric: tabular-nums;
 }
-.home-banner-callout { margin-top: 14px; }
+.home-banner-callout {
+  margin-top: 14px;
+}
 
 @media (max-width: 540px) {
-  .home-banner { min-height: 220px; padding: 48px 20px 40px; }
-  .home-banner-team-name { font-size: 1.8rem; }
-  .home-banner-team-logo { width: 52px; height: 52px; }
-  .home-banner-watermark { width: 220px; height: 220px; }
+  .home-banner {
+    /* モバイルもページ全体（トップバー引き） */
+    min-height: calc(100svh - 56px);
+    padding: 48px 20px 60px;
+  }
+  .home-banner-team-name {
+    font-size: 1.8rem;
+  }
+  .home-banner-team-logo {
+    width: 52px;
+    height: 52px;
+  }
+  .home-banner-watermark {
+    width: 220px;
+    height: 220px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4927,7 +5137,9 @@ button:active {
   border-bottom: 1px solid var(--ctp-surface1);
   scrollbar-width: none;
 }
-.home-quick-strip::-webkit-scrollbar { display: none; }
+.home-quick-strip::-webkit-scrollbar {
+  display: none;
+}
 .home-strip-action {
   display: flex;
   align-items: center;
@@ -4948,8 +5160,12 @@ button:active {
   border-color: var(--ctp-sapphire);
   color: var(--ctp-text);
 }
-.home-strip-icon { font-size: 1rem; line-height: 1; }
-.home-strip-label { }
+.home-strip-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.home-strip-label {
+}
 
 /* ── My Team 2カラムダッシュボード（案B） ── */
 .team-dashboard {
@@ -4996,7 +5212,9 @@ button:active {
   font-weight: 600;
   transition: color 150ms;
 }
-.team-next-team:hover { color: var(--ctp-sapphire); }
+.team-next-team:hover {
+  color: var(--ctp-sapphire);
+}
 .team-next-time {
   font-size: 0.72rem;
   color: var(--ctp-overlay0);
@@ -5004,8 +5222,18 @@ button:active {
 }
 
 @media (max-width: 540px) {
-  .team-dashboard { grid-template-columns: 1fr; }
-  .home-banner-team { flex-direction: column; }
-  .home-banner-next { min-width: unset; }
-  .home-banner-watermark { width: 120px; height: 120px; opacity: 0.05; }
+  .team-dashboard {
+    grid-template-columns: 1fr;
+  }
+  .home-banner-team {
+    flex-direction: column;
+  }
+  .home-banner-next {
+    min-width: unset;
+  }
+  .home-banner-watermark {
+    width: 120px;
+    height: 120px;
+    opacity: 0.05;
+  }
 }
