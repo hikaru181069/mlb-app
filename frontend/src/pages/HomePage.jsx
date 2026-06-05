@@ -460,9 +460,6 @@ function HomePage() {
 
       {errorMessage && <p className="error-message px-6">{errorMessage}</p>}
 
-      {/* クイックアクション（横ストリップ） */}
-      <HomeQuickStrip favoriteTeamId={user?.favoriteTeam?.id} />
-
       <div className="home-content px-6">
         {/* My Team: 2カラムダッシュボード（案B） */}
         <section
