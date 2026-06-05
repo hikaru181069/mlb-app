@@ -1282,6 +1282,29 @@ input {
   text-align: center;
 }
 
+.tool-placeholder,
+.tool-result-note {
+  width: min(100%, 760px);
+  margin: 18px auto 0;
+  padding: 10px 14px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 10px;
+  background: rgba(49, 50, 68, 0.32);
+  color: var(--ctp-subtext0);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.tool-placeholder p,
+.tool-result-note p {
+  margin: 0;
+}
+
+.tool-result-note {
+  border-color: rgba(249, 226, 175, 0.28);
+  color: var(--ctp-subtext1);
+}
+
 /* Feature cards (guest landing) */
 .feature-cards {
   display: grid;
