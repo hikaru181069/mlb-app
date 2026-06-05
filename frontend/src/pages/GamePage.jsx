@@ -11,10 +11,60 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { getGame } from "../services/api/gameApi";
+import { getGame, getGamePlays } from "../services/api/gameApi";
 import { formatGameDate, formatGameTime } from "../utils/datetime";
 import { getTeamColor } from "../services/teamColors";
 import PageHeader from "../components/PageHeader";
+
+// ── Play-by-Play（重要プレーのみ） ───────────────────────────────────────────
+function PlayByPlay({ gamePk }) {
+  const [plays, setPlays] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    getGamePlays(gamePk)
+      .then((data) => { if (active) setPlays(data.plays); })
+      .catch(() => { if (active) setPlays([]); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [gamePk]);
+
+  if (loading) return <p className="compare-loading">Loading plays…</p>;
+  if (plays.length === 0) {
+    return (
+      <div className="home-empty-state">
+        <span className="empty-state-icon">
+          <img src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg" alt="" width={36} height={36} style={{ opacity: 0.5 }} />
+        </span>
+        <p className="empty-state-title">No plays yet</p>
+        <p className="empty-state-desc">Key plays appear once the game is underway.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pbp-list">
+      {plays.map((p, i) => (
+        <div
+          key={i}
+          className={`pbp-row${p.isScoringPlay ? " pbp-row--scoring" : ""}`}
+        >
+          <div className="pbp-inning">
+            <span className="pbp-half">{p.halfInning === "top" ? "▲" : "▼"}</span>
+            <span>{p.inning}</span>
+          </div>
+          <div className="pbp-detail">
+            <p className="pbp-desc">{p.description}</p>
+            {p.isScoringPlay && (
+              <span className="pbp-score">{p.awayScore} - {p.homeScore}</span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // ── Line Score（イニング表） ─────────────────────────────────────────────────
 function LineScore({ away, home, innings }) {
@@ -246,6 +296,19 @@ function GamePage() {
             </>
           )}
         </section>
+
+        {/* Play-by-Play（開始済みの試合のみ） */}
+        {game.abstractState !== "Preview" && (
+          <section className="home-player-section">
+            <div className="section-heading-row">
+              <div className="section-heading">
+                <h2>Play-by-Play</h2>
+                <p>Scoring plays and key moments</p>
+              </div>
+            </div>
+            <PlayByPlay gamePk={game.gamePk} />
+          </section>
+        )}
       </div>
     </div>
   );

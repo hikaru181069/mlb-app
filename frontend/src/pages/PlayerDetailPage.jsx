@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import PlayerStats from "../components/PlayerStats";
 import PlayerCard from "../components/PlayerCard";
+import PlayerYearByYear from "../components/PlayerYearByYear";
 import { getAuthToken } from "../utils/authStorage";
 import {
   createFavorite,
@@ -309,11 +310,28 @@ function PlayerDetailPage() {
             </div>
           ) : (
             <div className="detail-coming-soon">
-              <span>⚾</span>
+              <img
+                src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
+                alt=""
+                width={28}
+                height={28}
+                style={{ opacity: 0.5 }}
+              />
               <p>No recent games available for this player.</p>
             </div>
           )}
         </section>
+
+        {/* 年度別成績（データがあれば表示） */}
+        {player.mlbPlayerId && (
+          <section className="detail-section">
+            <h2>Year-by-Year</h2>
+            <PlayerYearByYear
+              playerId={player.mlbPlayerId}
+              playerType={player.playerType}
+            />
+          </section>
+        )}
 
         <div className="home-actions">
           <button

@@ -5456,3 +5456,143 @@ button:active {
 .news-list--compact .news-card-title {
   font-size: 0.85rem;
 }
+
+/* ── 年度別成績テーブル ─────────────────────────────────────────────────────── */
+.yby-table-wrap {
+  overflow-x: auto;
+}
+.yby-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.yby-table th {
+  text-align: center;
+  color: var(--ctp-overlay0);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--ctp-surface1);
+  white-space: nowrap;
+}
+.yby-table td {
+  text-align: center;
+  color: var(--ctp-subtext1);
+  padding: 8px 6px;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--ctp-surface0);
+  white-space: nowrap;
+}
+.yby-table .yby-year-col {
+  font-weight: 700;
+  color: var(--ctp-text);
+  text-align: left;
+}
+.yby-table .yby-team-col {
+  text-align: left;
+  color: var(--ctp-subtext0);
+  font-size: 0.8rem;
+}
+
+/* ── Injured List ───────────────────────────────────────────────────────────── */
+.injury-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+.injury-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-left: 3px solid var(--ctp-red);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: border-color 150ms;
+}
+.injury-row:hover { border-color: var(--ctp-sapphire); }
+.injury-name {
+  font-weight: 700;
+  color: var(--ctp-text);
+  font-size: 0.88rem;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.injury-pos {
+  font-size: 0.72rem;
+  color: var(--ctp-overlay0);
+  flex-shrink: 0;
+}
+.injury-status {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ctp-red);
+  background: rgba(243, 139, 168, 0.12);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Play-by-Play ───────────────────────────────────────────────────────────── */
+.pbp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+}
+.pbp-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+}
+.pbp-row--scoring {
+  border-left: 3px solid var(--ctp-green);
+  background: rgba(166, 227, 161, 0.06);
+}
+.pbp-inning {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  width: 36px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--ctp-subtext0);
+  font-variant-numeric: tabular-nums;
+}
+.pbp-half {
+  font-size: 0.6rem;
+  color: var(--ctp-overlay0);
+}
+.pbp-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.pbp-desc {
+  font-size: 0.84rem;
+  color: var(--ctp-subtext1);
+  margin: 0;
+  line-height: 1.4;
+}
+.pbp-score {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ctp-green);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}

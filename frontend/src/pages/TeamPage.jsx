@@ -22,7 +22,7 @@ import PlayerCard from "../components/PlayerCard";
 import PageHeader from "../components/PageHeader";
 import SkeletonCard from "../components/SkeletonCard";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
-import { getTeam, getTeamSchedule, getTeamLeaders } from "../services/api/teamApi";
+import { getTeam, getTeamSchedule, getTeamLeaders, getTeamInjuries } from "../services/api/teamApi";
 import { mlbTeams } from "../services/mlbTeams";
 import { getTeamColor } from "../services/teamColors";
 import { getApiErrorMessage } from "../services/api/apiError";
@@ -85,6 +85,7 @@ function RosterSection({ title, players, loading, skeletonCount }) {
 
 function RosterTab({ teamId }) {
   const [players, setPlayers] = useState([]);
+  const [injured, setInjured] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -106,6 +107,15 @@ function RosterTab({ teamId }) {
     fetchTeamRoster();
   }, [teamId]);
 
+  // 負傷者リストは補助情報なので別 effect・失敗は無視
+  useEffect(() => {
+    let active = true;
+    getTeamInjuries(teamId)
+      .then((data) => { if (active) setInjured(data.injured); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [teamId]);
+
   const { pitchers, positionPlayers } = useMemo(() => {
     return {
       pitchers: players.filter((p) => p.playerType === "pitcher"),
@@ -125,6 +135,26 @@ function RosterTab({ teamId }) {
             Could not load the roster for this team.
           </p>
         </div>
+      )}
+
+      {/* 負傷者リスト（IL） */}
+      {injured.length > 0 && (
+        <section className="home-player-section">
+          <div className="section-heading-row">
+            <div className="section-heading">
+              <h2>Injured List<span className="count-badge">{injured.length}</span></h2>
+            </div>
+          </div>
+          <div className="injury-list">
+            {injured.map((p) => (
+              <Link key={p.playerId} to={`/players/${p.playerId}`} className="injury-row">
+                <span className="injury-name">{p.playerName}</span>
+                <span className="injury-pos">{p.position}</span>
+                <span className="injury-status">{p.status}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
 
       <RosterSection
