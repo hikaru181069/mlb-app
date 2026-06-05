@@ -246,6 +246,22 @@ h1 {
   text-align: center;
 }
 
+.player-card-team {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--ctp-subtext1);
+  margin: 6px 0;
+}
+
+.player-card-team-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 input {
   display: block;
   width: 100%;
