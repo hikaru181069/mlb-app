@@ -10,7 +10,8 @@ import { getCurrentUser } from "../services/api/userApi";
 import { getTeam, getTeamSchedule } from "../services/api/teamApi";
 import { getScores } from "../services/api/leagueApi";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
-import { mlbToday } from "../utils/datetime";
+import { mlbToday, formatGameDate, formatGameTime } from "../utils/datetime";
+import { getTeamColor } from "../services/teamColors";
 import {
   getApiErrorMessage,
   isUnauthorizedError,
@@ -19,15 +20,22 @@ import { useReveal } from "../hooks/useReveal";
 
 const SKELETON_COUNTS = { team: 2, favorites: 6, recommendations: 6, today: 4 };
 
-// 案3: ホームを各機能の「ハブ」にするクイックアクション。
-// My Team はお気に入りチームがある時だけ先頭に差し込む（下の QuickActions 内で対応）。
 const QUICK_ACTIONS = [
-  { to: "/search", icon: "🔍", label: "Search" },
-  { to: "/league", icon: "🏆", label: "League" },
-  { to: "/compare", icon: "⚖️", label: "Compare" },
-  { to: "/matchup", icon: "⚔️", label: "Matchup" },
-  { to: "/favorites", icon: "⭐", label: "Favorites" },
+  { to: "/search",   icon: "🔍", label: "Search"    },
+  { to: "/league",   icon: "🏆", label: "League"    },
+  { to: "/compare",  icon: "⚖️", label: "Compare"   },
+  { to: "/matchup",  icon: "⚔️", label: "Matchup"   },
+  { to: "/favorites",icon: "⭐", label: "Favorites" },
 ];
+
+// 時間帯によるあいさつ（JST基準）
+const getGreeting = () => {
+  const h = new Date().getHours();
+  if (h < 5)  return "Good night";
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
+};
 
 const EMPTY_STATES = {
   team: {
@@ -82,41 +90,37 @@ function SectionHeading({ title, desc, count, viewAllTo }) {
   );
 }
 
-// ── 案3: クイックアクション ───────────────────────────────────────────────────
-function QuickActions({ favoriteTeamId }) {
+// ── クイックアクション（横ストリップ） ──────────────────────────────────────
+function HomeQuickStrip({ favoriteTeamId }) {
   const actions = favoriteTeamId
     ? [{ to: `/team/${favoriteTeamId}`, icon: "🛡️", label: "My Team" }, ...QUICK_ACTIONS]
     : QUICK_ACTIONS;
 
   return (
-    <div className="quick-actions">
+    <div className="home-quick-strip">
       {actions.map((a) => (
-        <Link key={a.to} to={a.to} className="quick-action">
-          <span className="quick-action-icon">{a.icon}</span>
-          <span className="quick-action-label">{a.label}</span>
+        <Link key={a.to} to={a.to} className="home-strip-action">
+          <span className="home-strip-icon">{a.icon}</span>
+          <span className="home-strip-label">{a.label}</span>
         </Link>
       ))}
     </div>
   );
 }
 
-// ── 案1: My Team サマリー ─────────────────────────────────────────────────────
-// ラベル付きのミニ試合カード（Last / Next）
-function TeamGame({ label, game }) {
-  return (
-    <div className="team-game">
-      <span className="team-game-label">{label}</span>
-      <ScoreCard game={game} />
-    </div>
-  );
-}
-
-function TeamSummary({ team, lastGame, nextGame }) {
+// ── My Team ダッシュボード（2カラム: 案A×B ハイブリッド） ─────────────────────
+// 左: 成績スタッツ / 右: 次の試合（または直近結果）
+function TeamDashboard({ team, lastGame, nextGame }) {
   const record = team.record;
 
+  // 表示する試合: 次の試合を優先、なければ直近結果
+  const featuredGame = nextGame || lastGame;
+  const gameLabel = nextGame ? "Next Game" : "Last Game";
+
   return (
-    <div className="team-summary">
-      <div className="team-summary-head">
+    <div className="team-dashboard">
+      {/* 左: 成績 */}
+      <div className="team-dashboard-left">
         <Link to={`/team/${team.id}`} className="team-summary-team">
           <img
             src={`https://www.mlbstatic.com/team-logos/${team.id}.svg`}
@@ -128,16 +132,18 @@ function TeamSummary({ team, lastGame, nextGame }) {
         </Link>
 
         {record && (
-          <div className="team-stat-row">
+          <div className="team-dashboard-stats">
             <div className="team-stat">
-              <span className="team-stat-value">
-                {record.wins}-{record.losses}
-              </span>
+              <span className="team-stat-value">{record.wins}-{record.losses}</span>
               <span className="team-stat-label">Record</span>
             </div>
             <div className="team-stat">
               <span className="team-stat-value">#{record.divisionRank}</span>
-              <span className="team-stat-label">Div Rank</span>
+              <span className="team-stat-label">Div</span>
+            </div>
+            <div className="team-stat">
+              <span className="team-stat-value">{record.pct}</span>
+              <span className="team-stat-label">PCT</span>
             </div>
             <div className="team-stat">
               <span className="team-stat-value">{record.lastTen}</span>
@@ -151,10 +157,35 @@ function TeamSummary({ team, lastGame, nextGame }) {
         )}
       </div>
 
-      {(lastGame || nextGame) && (
-        <div className="team-summary-games">
-          {lastGame && <TeamGame label="Last" game={lastGame} />}
-          {nextGame && <TeamGame label="Next" game={nextGame} />}
+      {/* 右: 次の試合 / 直近結果 */}
+      {featuredGame && (
+        <div className="team-dashboard-right">
+          <span className="team-game-label">{gameLabel}</span>
+          {featuredGame.abstractState === "Preview" ? (
+            // 未来の試合: スコアなし → 日時を大きく見せる
+            <div className="team-next-game">
+              <div className="team-next-teams">
+                {[featuredGame.away, featuredGame.home].map((t, i) => (
+                  <Link key={i} to={`/team/${t.teamId}`} className="team-next-team">
+                    <img
+                      src={`https://www.mlbstatic.com/team-logos/${t.teamId}.svg`}
+                      alt={t.teamName}
+                      className="score-team-logo"
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                    <span className="score-team-name">{t.teamName}</span>
+                  </Link>
+                ))}
+              </div>
+              <p className="team-next-time">
+                {formatGameDate(featuredGame.gameDate, { weekday: "short", month: "short", day: "numeric", year: undefined })}
+                {" · "}{formatGameTime(featuredGame.gameDate)} JST
+              </p>
+            </div>
+          ) : (
+            // 終了試合: ScoreCard を流用
+            <ScoreCard game={featuredGame} />
+          )}
         </div>
       )}
     </div>
@@ -335,51 +366,105 @@ function HomePage() {
   }
 
   // --- Logged-in view ---
+  const teamColor = getTeamColor(user?.favoriteTeam?.id);
+
   return (
-    <div className="home-page px-6 py-12">
-      {/* 案3: 圧縮したヒーロー（あいさつ + チーム chip + オンボーディング催促のみ） */}
-      <section className="home-hero home-hero--compact w-full max-w-4xl px-8 py-8 md:px-14 md:py-10">
-        <p className="home-kicker text-sm">Personalized Home</p>
-        <h1 className="text-3xl leading-tight font-black tracking-tight md:text-5xl">
-          Welcome{user?.name ? `, ${user.name}` : ""}
-        </h1>
-
-        {user?.favoriteTeam?.name && (
-          <div className="player-card-team mt-4">
-            {user.favoriteTeam.id && (
-              <img
-                src={`https://www.mlbstatic.com/team-logos/${user.favoriteTeam.id}.svg`}
-                alt={user.favoriteTeam.name}
-                style={{ width: "24px", height: "24px" }}
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            )}
-            <span>{user.favoriteTeam.name}</span>
-          </div>
+    <div className="home-page">
+      {/* ── チームカラーバナー（案A）──────────────────────────────────────────
+          チーム色を背景に敷き、右にロゴを透かして「自分のチームのHome」感を出す。
+          成績・次の試合をバナー内に収め、スクロールなしで朝刊的に把握できる（案B）。 */}
+      <section
+        className="home-banner"
+        style={{ "--team-color": teamColor }}
+      >
+        {/* 背景: チームロゴの透かし */}
+        {user?.favoriteTeam?.id && (
+          <img
+            src={`https://www.mlbstatic.com/team-logos/${user.favoriteTeam.id}.svg`}
+            alt=""
+            aria-hidden="true"
+            className="home-banner-watermark"
+          />
         )}
 
-        {user && !user.hasCompletedOnboarding && (
-          <div className="home-onboarding-callout mt-6">
-            <strong>Onboarding is not complete yet.</strong>
-            <p>Choose your favorite team and at least 3 favorite players.</p>
-            <Link className="home-link" to="/onboarding/team">
-              Complete Onboarding
-            </Link>
-          </div>
-        )}
+        <div className="home-banner-content">
+          {/* あいさつ + 名前 */}
+          <p className="home-banner-greeting">
+            {getGreeting()}{user?.name ? `, ${user.name}` : ""}
+          </p>
+
+          {/* チーム名 + 成績（バナー内2カラム: 案B） */}
+          {teamInfo ? (
+            <div className="home-banner-team">
+              <div className="home-banner-team-left">
+                <Link to={`/team/${teamInfo.id}`} className="home-banner-team-link">
+                  <img
+                    src={`https://www.mlbstatic.com/team-logos/${teamInfo.id}.svg`}
+                    alt={teamInfo.name}
+                    className="home-banner-team-logo"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                  <span className="home-banner-team-name">{teamInfo.name}</span>
+                </Link>
+                {teamInfo.record && (
+                  <p className="home-banner-record">
+                    {teamInfo.record.wins}-{teamInfo.record.losses}
+                    {" · "}#{teamInfo.record.divisionRank}
+                    {" · "}{teamInfo.division?.replace(/^(American|National) League /, "")}
+                  </p>
+                )}
+              </div>
+
+              {/* 次の試合 / 直近結果をバナー右に */}
+              {(nextGame || lastGame) && (
+                <div className="home-banner-next">
+                  <span className="home-banner-next-label">
+                    {nextGame ? "Next" : "Last"}
+                  </span>
+                  {(() => {
+                    const g = nextGame || lastGame;
+                    const isPreview = g.abstractState === "Preview";
+                    return (
+                      <>
+                        <div className="home-banner-next-teams">
+                          <span>{g.away.teamName}</span>
+                          <span className="home-banner-next-sep">vs</span>
+                          <span>{g.home.teamName}</span>
+                        </div>
+                        <p className="home-banner-next-time">
+                          {isPreview
+                            ? `${formatGameDate(g.gameDate, { weekday: "short", month: "short", day: "numeric", year: undefined })} · ${formatGameTime(g.gameDate)} JST`
+                            : `${g.away.runs ?? "-"} - ${g.home.runs ?? "-"} · ${g.status}`}
+                        </p>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+          ) : user?.favoriteTeam?.name ? (
+            <p className="home-banner-team-name">{user.favoriteTeam.name}</p>
+          ) : null}
+
+          {user && !user.hasCompletedOnboarding && (
+            <div className="home-onboarding-callout home-banner-callout">
+              <strong>Onboarding is not complete yet.</strong>
+              <p>Choose your favorite team and at least 3 favorite players.</p>
+              <Link className="home-link" to="/onboarding/team">
+                Complete Onboarding
+              </Link>
+            </div>
+          )}
+        </div>
       </section>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      {errorMessage && <p className="error-message px-6">{errorMessage}</p>}
 
-      <div className="home-content">
-        {/* 案3: クイックアクション */}
-        <section className="home-quick-section">
-          <QuickActions favoriteTeamId={user?.favoriteTeam?.id} />
-        </section>
+      {/* クイックアクション（横ストリップ） */}
+      <HomeQuickStrip favoriteTeamId={user?.favoriteTeam?.id} />
 
-        {/* 案1: My Team サマリー */}
+      <div className="home-content px-6">
+        {/* My Team: 2カラムダッシュボード（案B） */}
         <section
           ref={teamRef}
           className={`home-player-section home-team-section reveal${teamVisible ? " visible" : ""}`}
@@ -388,7 +473,7 @@ function HomePage() {
             title="Your Favorite Team"
             desc={
               user?.favoriteTeam?.name
-                ? `${user.favoriteTeam.name} — record, last and next game.`
+                ? `${user.favoriteTeam.name} — record and upcoming games.`
                 : "Choose a favorite team to show its summary here."
             }
             viewAllTo={
@@ -402,7 +487,7 @@ function HomePage() {
               ))}
             </div>
           ) : user?.favoriteTeam?.id && teamInfo ? (
-            <TeamSummary
+            <TeamDashboard
               team={teamInfo}
               lastGame={lastGame}
               nextGame={nextGame}

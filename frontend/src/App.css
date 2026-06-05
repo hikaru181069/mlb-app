@@ -4348,40 +4348,13 @@ button:active {
 }
 
 /* ── Home: クイックアクション（案3） ─────────────────────────────────────────── */
-.home-quick-section {
-  width: 100%;
-}
-.quick-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 12px;
-}
-.quick-action {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 16px 10px;
-  border: 1px solid var(--ctp-surface1);
-  border-radius: 14px;
-  background: var(--ctp-surface0);
-  text-decoration: none;
-  color: var(--ctp-subtext1);
-  transition: all 160ms ease;
-}
-.quick-action:hover {
-  border-color: var(--ctp-sapphire);
-  color: var(--ctp-text);
-  transform: translateY(-2px);
-}
-.quick-action-icon {
-  font-size: 1.4rem;
-  line-height: 1;
-}
-.quick-action-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-}
+/* 旧グリッド型クイックアクション（HomeQuickStrip に移行） */
+.home-quick-section { width: 100%; }
+.quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; }
+.quick-action { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 10px; border: 1px solid var(--ctp-surface1); border-radius: 14px; background: var(--ctp-surface0); text-decoration: none; color: var(--ctp-subtext1); transition: all 160ms ease; }
+.quick-action:hover { border-color: var(--ctp-sapphire); color: var(--ctp-text); transform: translateY(-2px); }
+.quick-action-icon { font-size: 1.4rem; line-height: 1; }
+.quick-action-label { font-size: 0.8rem; font-weight: 700; }
 
 /* ── Home: My Team サマリー（案1） ──────────────────────────────────────────── */
 .team-summary {
@@ -4733,4 +4706,227 @@ button:active {
 @media (max-width: 420px) {
   .thr-sub { display: none; }
   .page-header-title { font-size: 1.25rem; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Home: チームカラーバナー（案A）＋ 朝刊密度レイアウト（案B）のハイブリッド
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* バナー全体: チームカラーを背景に、右にロゴを透かす */
+.home-banner {
+  --team-color: var(--ctp-sapphire);
+  position: relative;
+  overflow: hidden;
+  padding: 28px 24px 24px;
+  /* チームカラーを斜めグラデで敷く（強すぎず、雰囲気を出す） */
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--team-color) 28%, transparent) 0%,
+      color-mix(in srgb, var(--team-color) 12%, transparent) 50%,
+      transparent 100%
+    ),
+    var(--ctp-mantle);
+  border-bottom: 1px solid var(--ctp-surface1);
+}
+
+/* 背景ロゴ透かし */
+.home-banner-watermark {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 180px;
+  height: 180px;
+  opacity: 0.07;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+/* バナー内のテキスト層 */
+.home-banner-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.home-banner-greeting {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--team-color) 80%, var(--ctp-text));
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+/* チーム名 + 成績 / 次の試合の2カラム */
+.home-banner-team {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.home-banner-team-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.home-banner-team-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ctp-text);
+  transition: opacity 150ms;
+}
+.home-banner-team-link:hover { opacity: 0.8; }
+.home-banner-team-logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+.home-banner-team-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.home-banner-record {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ctp-subtext0);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 次の試合エリア（右側） */
+.home-banner-next {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 180px;
+}
+.home-banner-next-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--ctp-overlay1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.home-banner-next-teams {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ctp-text);
+}
+.home-banner-next-sep {
+  font-size: 0.7rem;
+  color: var(--ctp-overlay0);
+  font-weight: 400;
+}
+.home-banner-next-time {
+  font-size: 0.75rem;
+  color: var(--ctp-subtext0);
+  font-variant-numeric: tabular-nums;
+}
+.home-banner-callout {
+  margin-top: 14px;
+}
+
+/* ── クイックアクション: 横スクロールストリップ ── */
+.home-quick-strip {
+  display: flex;
+  gap: 8px;
+  padding: 10px 24px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--ctp-surface1);
+  scrollbar-width: none;
+}
+.home-quick-strip::-webkit-scrollbar { display: none; }
+.home-strip-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 999px;
+  background: var(--ctp-surface0);
+  text-decoration: none;
+  color: var(--ctp-subtext1);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 150ms ease;
+}
+.home-strip-action:hover {
+  border-color: var(--ctp-sapphire);
+  color: var(--ctp-text);
+}
+.home-strip-icon { font-size: 1rem; line-height: 1; }
+.home-strip-label { }
+
+/* ── My Team 2カラムダッシュボード（案B） ── */
+.team-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.team-dashboard-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.team-dashboard-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.team-dashboard-right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 次の試合（未来）のスタイル */
+.team-next-game {
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.team-next-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.team-next-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--ctp-subtext1);
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: color 150ms;
+}
+.team-next-team:hover { color: var(--ctp-sapphire); }
+.team-next-time {
+  font-size: 0.72rem;
+  color: var(--ctp-overlay0);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 540px) {
+  .team-dashboard { grid-template-columns: 1fr; }
+  .home-banner-team { flex-direction: column; }
+  .home-banner-next { min-width: unset; }
+  .home-banner-watermark { width: 120px; height: 120px; opacity: 0.05; }
 }
