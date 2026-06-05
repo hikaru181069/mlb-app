@@ -16,7 +16,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { CircleDot, CalendarDays, BarChart2 } from "lucide-react";
+import { CalendarDays, BarChart2 } from "lucide-react";
 
 import PlayerCard from "../components/PlayerCard";
 import PageHeader from "../components/PageHeader";
@@ -119,7 +119,7 @@ function RosterTab({ teamId }) {
 
       {!loading && !errorMessage && players.length === 0 && (
         <div className="home-empty-state">
-          <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
+          <span className="empty-state-icon"><img src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg" alt="" width={36} height={36} style={{ opacity: 0.5 }} /></span>
           <p className="empty-state-title">No players found</p>
           <p className="empty-state-desc">
             Could not load the roster for this team.

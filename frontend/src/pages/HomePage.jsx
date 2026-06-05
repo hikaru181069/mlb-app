@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import {
   Search, Trophy, Scale, Swords, Star, Shield,
-  CircleDot, Bot, Lock,
+  Bot, Lock,
 } from "lucide-react";
+
+const MLB_LOGO = "https://www.mlbstatic.com/team-logos/league-on-dark/1.svg";
 
 import PlayerCard from "../components/PlayerCard";
 import SkeletonCard from "../components/SkeletonCard";
@@ -43,7 +45,7 @@ const getGreeting = () => {
 
 const EMPTY_STATES = {
   team: {
-    Icon: CircleDot,
+    imgSrc: MLB_LOGO,
     title: "No favorite team yet",
     desc: "Choose a favorite team to see its summary here.",
     action: { label: "Choose Team", to: "/onboarding/team" },
@@ -62,12 +64,17 @@ const EMPTY_STATES = {
   },
 };
 
+const MLB_ICON_IMG = ({ size = 36 }) => (
+  <img src={MLB_LOGO} alt="MLB" width={size} height={size} style={{ opacity: 0.5 }} />
+);
+
 function EmptyState({ config }) {
-  const { Icon } = config;
+  const { Icon, imgSrc } = config;
   return (
     <div className="home-empty-state">
       <span className="empty-state-icon">
-        {Icon && <Icon size={36} strokeWidth={1.5} />}
+        {imgSrc && <img src={imgSrc} alt="" width={36} height={36} style={{ opacity: 0.5 }} />}
+        {Icon && !imgSrc && <Icon size={36} strokeWidth={1.5} />}
       </span>
       <p className="empty-state-title">{config.title}</p>
       <p className="empty-state-desc">{config.desc}</p>
