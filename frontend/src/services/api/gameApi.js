@@ -16,3 +16,9 @@ export const getGamePlays = async (gamePk) => {
   if (!res.ok) throw new Error("Failed to fetch play-by-play");
   return res.json();
 };
+
+export const getGameHighlights = async (gamePk) => {
+  const res = await fetch(`${API_URL}/api/games/${gamePk}/highlights`);
+  if (!res.ok) throw new Error("Failed to fetch highlights");
+  return res.json();
+};

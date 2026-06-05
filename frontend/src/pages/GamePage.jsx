@@ -11,10 +11,71 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { getGame, getGamePlays } from "../services/api/gameApi";
+import { getGame, getGamePlays, getGameHighlights } from "../services/api/gameApi";
 import { formatGameDate, formatGameTime } from "../utils/datetime";
 import { getTeamColor } from "../services/teamColors";
 import PageHeader from "../components/PageHeader";
+
+// ── ハイライト動画 ───────────────────────────────────────────────────────────
+function GameHighlights({ gamePk }) {
+  const [highlights, setHighlights] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState(null); // 再生中の動画
+
+  useEffect(() => {
+    let alive = true;
+    getGameHighlights(gamePk)
+      .then((data) => { if (alive) setHighlights(data.highlights); })
+      .catch(() => { if (alive) setHighlights([]); })
+      .finally(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, [gamePk]);
+
+  if (loading) return <p className="compare-loading">Loading highlights…</p>;
+  if (highlights.length === 0) {
+    return (
+      <div className="home-empty-state">
+        <span className="empty-state-icon">
+          <img src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg" alt="" width={36} height={36} style={{ opacity: 0.5 }} />
+        </span>
+        <p className="empty-state-title">No highlights yet</p>
+        <p className="empty-state-desc">Video highlights appear after the game.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="highlight-grid">
+        {highlights.map((h) => (
+          <button key={h.id} type="button" className="highlight-card" onClick={() => setActive(h)}>
+            <div className="highlight-thumb-wrap">
+              {h.thumbnail && (
+                <img src={h.thumbnail} alt="" className="highlight-thumb" loading="lazy"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }} />
+              )}
+              <span className="highlight-play">▶</span>
+              {h.duration && <span className="highlight-duration">{h.duration.replace(/^00:/, "")}</span>}
+            </div>
+            <p className="highlight-headline">{h.headline}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* 再生モーダル */}
+      {active && (
+        <div className="highlight-modal" onClick={() => setActive(null)}>
+          <div className="highlight-modal-inner" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="highlight-modal-close" onClick={() => setActive(null)}>✕</button>
+            <video src={active.videoUrl} controls autoPlay className="highlight-video" poster={active.thumbnail} />
+            <p className="highlight-modal-title">{active.headline}</p>
+            {active.description && <p className="highlight-modal-desc">{active.description}</p>}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 // ── Play-by-Play（重要プレーのみ） ───────────────────────────────────────────
 function PlayByPlay({ gamePk }) {
@@ -259,6 +320,19 @@ function GamePage() {
           </div>
           <LineScore away={game.away} home={game.home} innings={game.innings} />
         </section>
+
+        {/* Highlights（開始済みの試合のみ） */}
+        {game.abstractState !== "Preview" && (
+          <section className="home-player-section">
+            <div className="section-heading-row">
+              <div className="section-heading">
+                <h2>Highlights</h2>
+                <p>Condensed game and key plays</p>
+              </div>
+            </div>
+            <GameHighlights gamePk={game.gamePk} />
+          </section>
+        )}
 
         {/* Box Score（チーム切替） */}
         <section className="home-player-section">

@@ -163,4 +163,50 @@ const getGamePlays = async (req, res) => {
   }
 };
 
-module.exports = { getGame, getGamePlays };
+
+/**
+ * GET /api/games/:gamePk/highlights
+ * 試合のハイライト動画（mp4 + サムネ）を返す
+ */
+const getGameHighlights = async (req, res) => {
+  const { gamePk } = req.params;
+  try {
+    const data = await fetchFromMlbApi(
+      `https://statsapi.mlb.com/api/v1/game/${gamePk}/content`,
+      'Failed to fetch highlights'
+    );
+    const items = data.highlights?.highlights?.items || [];
+
+    const highlights = items
+      .map((h) => {
+        // 直接再生できる mp4 を優先（mp4Avc → highBit）
+        const playbacks = h.playbacks || [];
+        const mp4 =
+          playbacks.find((p) => p.name === 'mp4Avc') ||
+          playbacks.find((p) => (p.url || '').endsWith('.mp4'));
+        if (!mp4) return null;
+
+        // サムネは幅480px以上で最小のものを選ぶ
+        const cuts = (h.image?.cuts || []).slice().sort((a, b) => a.width - b.width);
+        const thumb = cuts.find((c) => c.width >= 480) || cuts[cuts.length - 1];
+
+        return {
+          id: h.id,
+          headline: h.headline || h.title,
+          description: h.description || '',
+          duration: h.duration || '',
+          date: h.date || null,
+          videoUrl: mp4.url,
+          thumbnail: thumb?.src || null,
+        };
+      })
+      .filter(Boolean);
+
+    return res.json({ gamePk: Number(gamePk), highlights });
+  } catch (error) {
+    console.error('Highlights error:', error.message);
+    return res.status(500).json({ message: 'Failed to fetch highlights.' });
+  }
+};
+
+module.exports = { getGame, getGamePlays, getGameHighlights };
