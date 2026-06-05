@@ -4932,8 +4932,16 @@ button:active {
   border-bottom: 1px solid var(--ctp-surface1);
 }
 @media (min-width: 768px) {
-  /* デスクトップはサイドバー分の上部オフセットなし → 100vh そのまま */
-  .home-banner { min-height: 100svh; }
+  .home-banner {
+    /* サイドバー(w-52 = 13rem)の裏まで伸ばして真の100vw幅に */
+    min-height: 100svh;
+    width: 100vw;
+    margin-left: -13rem; /* main の ml-52 を打ち消して左端へ */
+  }
+  .home-banner-content {
+    /* コンテンツはサイドバー幅 + 元のpadding分だけ右にオフセット */
+    padding-left: calc(13rem + 40px);
+  }
 }
 
 /* スクロールインジケーター（バナー下端に固定） */
