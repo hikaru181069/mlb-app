@@ -5250,12 +5250,11 @@ button:active {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   Home: セクションをフラット化（カード廃止・仕切り線のみ）
-   .home-page 内の .home-player-section に限定して上書き。
-   他ページ（TeamPage 等）の home-player-section は変更しない。
+   全ページ共通: セクションをフラット化（カード廃止・仕切り線のみ）
    ══════════════════════════════════════════════════════════════════════════════ */
 
-.home-page .home-player-section {
+/* カード感を廃止してフラットに */
+.home-player-section {
   border: none;
   border-radius: 0;
   background: none;
@@ -5263,16 +5262,17 @@ button:active {
   padding: 32px 0;
 }
 
-/* セクション間: 中央でフェードする細い仕切り線 */
-.home-page .home-content > section + section {
+/* セクション間の仕切り線（home-content / screen-body 両対応） */
+.home-content > section + section,
+.screen-body > section + section {
   margin-top: 0;
   padding-top: 0;
   border-top: none;
   background-image: none;
-  /* 仕切り線を ::before で描画 */
   position: relative;
 }
-.home-page .home-content > section + section::before {
+.home-content > section + section::before,
+.screen-body > section + section::before {
   content: "";
   display: block;
   height: 1px;
@@ -5287,17 +5287,17 @@ button:active {
   margin-bottom: 32px;
 }
 
-/* 見出しは左寄せに（カードがないと中央寄せは浮いて見えるため） */
-.home-page .section-heading {
+/* 見出しを左寄せに統一（カードがないと中央寄せが浮いて見えるため） */
+.section-heading {
   text-align: left;
 }
-.home-page .section-heading h2 {
+.section-heading h2 {
   font-size: clamp(18px, 3vw, 24px);
 }
 
-/* セクションカラーのティントも不要 */
-.home-page .home-team-section,
-.home-page .home-favorites-section,
-.home-page .home-recommendations-section {
+/* Home のセクションカラーティントも不要 */
+.home-team-section,
+.home-favorites-section,
+.home-recommendations-section {
   background: none;
 }
