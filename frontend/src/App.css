@@ -2832,7 +2832,44 @@ button:disabled,
   opacity: 1;
 }
 
-/* hero下部のYOUR ACCOUNTカード */
+/* page-header 内のアバター（page-header-logo と同じサイズに合わせる） */
+.profile-header-avatar {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ctp-blue), var(--ctp-lavender));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--ctp-base);
+  letter-spacing: -0.02em;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.profile-header-avatar:hover {
+  box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.5);
+}
+
+/* page-header 内の名前編集フォーム */
+.profile-header-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.profile-header-edit-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* hero下部のYOUR ACCOUNTカード（旧。残しているのは既存CSSが参照する可能性があるため） */
 .profile-identity-card {
   margin-top: 20px;
   padding: 14px 20px;
@@ -2845,7 +2882,7 @@ button:disabled,
   gap: 4px;
 }
 
-/* hero内の名前行 */
+/* hero内の名前行（旧） */
 .profile-hero-name-row {
   display: flex;
   align-items: center;
@@ -2854,7 +2891,7 @@ button:disabled,
   margin-bottom: 4px;
 }
 
-/* hero内の編集フォーム */
+/* hero内の編集フォーム（旧） */
 .profile-hero-edit {
   display: flex;
   flex-direction: column;
@@ -3060,6 +3097,12 @@ button:disabled,
   outline: none;
   width: 100%;
   max-width: 300px;
+}
+/* ヘッダー内用: サイズを page-header-title に合わせて縮小 */
+.profile-name-input--compact {
+  font-size: 1rem;
+  padding: 4px 8px;
+  max-width: 220px;
 }
 
 .profile-field-error {

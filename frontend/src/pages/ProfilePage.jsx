@@ -141,8 +141,8 @@ function ProfilePage() {
     } catch (err) { setDeleteError(getApiErrorMessage(err)); setDeleting(false); }
   };
 
-  if (loading) return <div className="home-page px-6 py-12"><p className="text-ctp-subtext0 text-sm">Loading profile…</p></div>;
-  if (error)   return <div className="home-page px-6 py-12"><p className="text-ctp-red text-sm">{error}</p></div>;
+  if (loading) return <div className="app-screen"><header className="page-header"><div className="page-header-main"><p className="page-header-subtitle">Loading profile…</p></div></header></div>;
+  if (error)   return <div className="app-screen"><header className="page-header"><div className="page-header-main"><p className="page-header-subtitle" style={{color:"var(--ctp-red)"}}>{error}</p></div></header></div>;
   if (!user)   return null;
 
   const initials = user.name
@@ -150,71 +150,74 @@ function ProfilePage() {
     : "?";
 
   return (
-    <div className="home-page px-6 py-12">
+    <div className="app-screen">
 
-      {/* ── Hero（他ページと同じ構造） ── */}
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        {editingName ? (
-          <div className="profile-hero-edit">
-            <input
-              className="profile-name-input"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
-              autoFocus maxLength={50}
-            />
-            {nameError && <p className="profile-field-error">{nameError}</p>}
-            <div className="profile-edit-actions profile-edit-actions--centered">
-              <button className="profile-btn profile-btn--save" onClick={handleSaveName} disabled={nameSaving}>{nameSaving ? "Saving…" : "Save"}</button>
-              <button className="profile-btn profile-btn--cancel" onClick={handleCancelEditName} disabled={nameSaving}>Cancel</button>
-            </div>
-          </div>
-        ) : (
-          <div className="profile-hero-name-row">
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-              {user.name}
-            </h1>
-            <button className="profile-pencil-btn" onClick={handleStartEditName} title="Edit name">✎</button>
-          </div>
-        )}
+      {/* page-header CSS を直接使用（PageHeader コンポーネントは
+          logo/title が文字列前提のため、アバターボタン＋インライン編集の
+          複合UIには直書きの方が適切） */}
+      <header className="page-header">
+        <div className="page-header-top">
+          <span />
+          <span className="page-header-kicker">Your Account</span>
+        </div>
 
-        <p className="home-description mt-3 text-base">{user.email}</p>
-
-        {/* YOUR ACCOUNT カード（hero下部） */}
-        <div className="profile-identity-card">
-          <p className="home-kicker text-xs">Your Account</p>
+        <div className="page-header-main">
+          {/* アバター（page-header-logo サイズに合わせたボタン） */}
           <button
-            className={`profile-hero-avatar profile-hero-avatar--btn ${avatarUploading ? "profile-hero-avatar--loading" : ""}`}
+            className={`profile-header-avatar${avatarUploading ? " profile-hero-avatar--loading" : ""}`}
             onClick={handleAvatarClick}
             title="Change profile picture"
             disabled={avatarUploading}
           >
             {user.avatarUrl ? (
-              <img
-                src={`${API_URL}${user.avatarUrl}`}
-                alt={user.name}
-                className="profile-avatar-img"
-              />
+              <img src={`${API_URL}${user.avatarUrl}`} alt={user.name} className="profile-avatar-img" />
             ) : (
               avatarUploading ? "…" : initials
             )}
             <span className="profile-avatar-overlay">
-              {avatarUploading ? "Uploading…" : "Change"}
+              {avatarUploading ? "…" : "Edit"}
             </span>
           </button>
-          {avatarError && <p className="profile-field-error" style={{ marginTop: 6 }}>{avatarError}</p>}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleAvatarChange}
-          />
-        </div>
-      </section>
+          <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleAvatarChange} />
 
-      {/* ── Content（他ページと同じ構造） ── */}
-      <div className="home-content mt-2 w-full">
+          {/* 名前（表示/編集切り替え） + メール */}
+          <div className="page-header-info">
+            {editingName ? (
+              <div className="profile-header-edit">
+                <input
+                  className="profile-name-input profile-name-input--compact"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
+                  autoFocus maxLength={50}
+                />
+                {nameError && <p className="profile-field-error">{nameError}</p>}
+                <div className="profile-header-edit-actions">
+                  <button className="profile-btn profile-btn--save" onClick={handleSaveName} disabled={nameSaving}>
+                    {nameSaving ? "Saving…" : "Save"}
+                  </button>
+                  <button className="profile-btn profile-btn--cancel" onClick={handleCancelEditName} disabled={nameSaving}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <h1 className="page-header-title">{user.name}</h1>
+            )}
+            <p className="page-header-subtitle">{user.email}</p>
+            {avatarError && <p className="profile-field-error">{avatarError}</p>}
+          </div>
+
+          {/* 編集ボタン（right スロット） */}
+          {!editingName && (
+            <div className="page-header-right">
+              <button className="profile-pencil-btn" onClick={handleStartEditName} title="Edit name">✎</button>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <div className="screen-body px-6 py-6 w-full">
         <div className="profile-grid">
 
           {/* Favorite Team */}
