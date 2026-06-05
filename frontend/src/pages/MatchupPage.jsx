@@ -6,11 +6,10 @@
 //   → 両方選択済み → GET /api/matchup?pitcherId=X&batterId=Y
 //   → 対戦成績カードを表示
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
 import PageHeader from "../components/PageHeader";
-import { CircleDot, ClipboardList } from "lucide-react";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getMatchupStats } from "../services/api/matchupApi";
 
@@ -67,7 +66,6 @@ function SelectedPlayerCard({ player, side }) {
 function RateBar({ statDef, value }) {
   const num = parseFloat(value);
   const pct = isNaN(num) ? 0 : Math.min((num / statDef.max) * 100, 100);
-  const ready = useRef(false);
   const [animated, setAnimated] = useState(false);
 
   useEffect(() => {
@@ -280,24 +278,16 @@ function MatchupPage() {
               matchupStats.hasData ? (
                 <MatchupStatsGrid stats={matchupStats.stats} />
               ) : (
-                <div className="home-empty-state">
-                  <span className="empty-state-icon"><ClipboardList size={36} strokeWidth={1.5} /></span>
-                  <p className="empty-state-title">No matchup data found</p>
-                  <p className="empty-state-desc">
-                    These two players have no recorded head-to-head matchups.
-                  </p>
+                <div className="tool-result-note">
+                  <p>No career matchup data found for this pair.</p>
                 </div>
               )
             )}
 
             {/* 未選択の案内 */}
             {!bothSelected && !loading && (
-              <div className="home-empty-state">
-                <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
-                <p className="empty-state-title">Select a pitcher and a batter</p>
-                <p className="empty-state-desc">
-                  Search by name above, or pick players from your Favorites.
-                </p>
+              <div className="tool-placeholder">
+                <p>Select a pitcher and a batter to view head-to-head stats.</p>
               </div>
             )}
           </>
