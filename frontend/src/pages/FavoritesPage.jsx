@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import FavoritePlayerCard from "../components/FavoritePlayerCard";
 import PageHeader from "../components/PageHeader";
+import { Lock, Star as StarIcon } from "lucide-react";
 import SkeletonCard from "../components/SkeletonCard";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -117,7 +118,7 @@ function FavoritesPage() {
         )}
         {!token && (
           <div className="home-empty-state">
-            <span className="empty-state-icon">🔒</span>
+            <span className="empty-state-icon"><Lock size={36} strokeWidth={1.5} /></span>
             <p className="empty-state-title">Login required</p>
             <p className="empty-state-desc">Please login to view your favorites.</p>
             <Link className="home-link secondary" to="/login">Go to Login</Link>
@@ -136,7 +137,7 @@ function FavoritesPage() {
 
         {!loading && token && !errorMessage && favorites.length === 0 && (
           <div className="home-empty-state">
-            <span className="empty-state-icon">⭐</span>
+            <span className="empty-state-icon"><StarIcon size={36} strokeWidth={1.5} /></span>
             <p className="empty-state-title">No favorites yet</p>
             <p className="empty-state-desc">
               Search for players and save them to your list.

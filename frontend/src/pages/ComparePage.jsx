@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
 import PageHeader from "../components/PageHeader";
+import { CircleDot } from "lucide-react";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 
 // --- stat definitions ---
@@ -287,7 +288,7 @@ function ComparePage() {
 
             {!bothLoaded && (
               <div className="home-empty-state">
-                <span className="empty-state-icon">⚾</span>
+                <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
                 <p className="empty-state-title">Select two players to compare</p>
                 <p className="empty-state-desc">
                   Search by name above, or pick players from your Favorites.

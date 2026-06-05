@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Pencil, Star } from "lucide-react";
 import { API_URL } from "../utils/apiConfig";
 import TeamCard from "../components/TeamCard";
 import { mlbTeams } from "../services/mlbTeams";
@@ -211,7 +212,7 @@ function ProfilePage() {
           {/* 編集ボタン（right スロット） */}
           {!editingName && (
             <div className="page-header-right">
-              <button className="profile-pencil-btn" onClick={handleStartEditName} title="Edit name">✎</button>
+              <button className="profile-pencil-btn" onClick={handleStartEditName} title="Edit name"><Pencil size={15} strokeWidth={2} /></button>
             </div>
           )}
         </div>
@@ -263,7 +264,7 @@ function ProfilePage() {
           <div className="profile-card profile-card--stats">
             <p className="profile-card-label">My Stats</p>
             <div className="profile-stat-row">
-              <span className="profile-stat-icon">★</span>
+              <span className="profile-stat-icon"><Star size={28} strokeWidth={1.5} /></span>
               <div>
                 <p className="profile-stat-value">{favoritesCount}</p>
                 <p className="profile-stat-desc">Favorite Players</p>

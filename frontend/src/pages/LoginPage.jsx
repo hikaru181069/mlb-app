@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
 import {
   clearAuthData,
   getAuthToken,
@@ -40,7 +41,7 @@ function LoginPage() {
     return (
       <div className="home-page px-6 py-16">
         <div className="home-empty-state">
-          <span className="empty-state-icon">✓</span>
+          <span className="empty-state-icon"><CheckCircle size={36} strokeWidth={1.5} /></span>
           <p className="empty-state-title">Already logged in as {userName || "user"}</p>
           <div className="home-actions">
             <Link className="home-link" to="/">Go to Home</Link>

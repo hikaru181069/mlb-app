@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
 import PageHeader from "../components/PageHeader";
+import { CircleDot, ClipboardList } from "lucide-react";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getMatchupStats } from "../services/api/matchupApi";
 
@@ -239,13 +240,13 @@ function MatchupPage() {
             {/* 選手選択スロット */}
             <div className="compare-search-row">
               <PlayerSearchSelect
-                label="⚾ Pitcher"
+                label="Pitcher"
                 player={pitcher}
                 onSelect={handleSetPitcher}
               />
               <div className="compare-vs">VS</div>
               <PlayerSearchSelect
-                label="🏏 Batter"
+                label="Batter"
                 player={batter}
                 onSelect={handleSetBatter}
               />
@@ -280,7 +281,7 @@ function MatchupPage() {
                 <MatchupStatsGrid stats={matchupStats.stats} />
               ) : (
                 <div className="home-empty-state">
-                  <span className="empty-state-icon">📋</span>
+                  <span className="empty-state-icon"><ClipboardList size={36} strokeWidth={1.5} /></span>
                   <p className="empty-state-title">No matchup data found</p>
                   <p className="empty-state-desc">
                     These two players have no recorded head-to-head matchups.
@@ -292,7 +293,7 @@ function MatchupPage() {
             {/* 未選択の案内 */}
             {!bothSelected && !loading && (
               <div className="home-empty-state">
-                <span className="empty-state-icon">⚾</span>
+                <span className="empty-state-icon"><CircleDot size={36} strokeWidth={1.5} /></span>
                 <p className="empty-state-title">Select a pitcher and a batter</p>
                 <p className="empty-state-desc">
                   Search by name above, or pick players from your Favorites.
