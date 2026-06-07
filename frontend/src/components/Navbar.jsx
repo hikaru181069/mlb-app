@@ -4,7 +4,7 @@
 // モバイル (<md): ハンバーガーボタンで左からスライドインするオーバーレイ方式
 
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   clearAuthData,
   getAuthToken,
@@ -170,8 +170,6 @@ const sidebarLinkClass = ({ isActive }) =>
 function Navbar() {
   // open: モバイル時のサイドバー開閉状態
   const [open, setOpen] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const navigate = useNavigate();
   const token = getAuthToken();
   const userName = getAuthUserName();
 
@@ -200,16 +198,6 @@ function Navbar() {
   // ナビリンクをクリックしたらサイドバーを閉じる（モバイル用）
   const close = () => setOpen(false);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const q = searchText.trim();
-    if (q) {
-      navigate(`/search?keyword=${encodeURIComponent(q)}`);
-      setSearchText("");
-      close();
-    }
-  };
-
   const handleLogout = () => {
     clearAuthData();
     // navigate() ではなく location.href を使う理由:
@@ -220,7 +208,7 @@ function Navbar() {
 
   // サイドバーの中身（デスクトップとモバイルオーバーレイで共用）
   const sidebarContent = (
-    <div className="flex h-full flex-col px-3 py-6">
+    <div className="flex h-full flex-col overflow-y-auto px-3 py-6">
       {/* ロゴ */}
       <NavLink
         to="/"
@@ -249,7 +237,6 @@ function Navbar() {
             {label}
           </NavLink>
         ))}
-        {/* My Team はログイン済み & お気に入りチーム設定済みの場合のみ表示 */}
         {token && favoriteTeam?.id && (
           <NavLink
             to={`/team/${favoriteTeam.id}`}
@@ -260,7 +247,6 @@ function Navbar() {
             My Team
           </NavLink>
         )}
-        {/* Favorites はログイン済みの場合のみ表示 */}
         {token && (
           <NavLink to="/favorites" className={sidebarLinkClass} onClick={close}>
             <StarIcon />
@@ -269,23 +255,8 @@ function Navbar() {
         )}
       </nav>
 
-      {/* 検索フォーム */}
-      <div className="mt-6 border-t border-ctp-surface1/50 pt-5">
-        <form onSubmit={handleSearch}>
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Search players…"
-            style={{ margin: 0 }}
-            className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-4 py-2 text-sm text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
-          />
-        </form>
-      </div>
-
-      {/* 認証エリア（mt-auto でサイドバー下端に固定） */}
-      {/* mt-auto: Flexbox で残りのスペースをすべてマージンとして消費し、要素を最下部に押し下げる */}
-      <div className="mt-auto flex flex-col gap-1 border-t border-ctp-surface1/50 pt-5">
+      {/* 認証エリア（sticky で常に下端に固定） */}
+      <div className="sticky bottom-16 md:bottom-0 mt-auto flex flex-col gap-1 border-t border-ctp-surface1/50 bg-ctp-mantle pt-5 pb-2">
         {token ? (
           <>
             <NavLink
@@ -368,6 +339,7 @@ function Navbar() {
           />
           <span className="text-base font-black tracking-tight">MLB App</span>
         </NavLink>
+
       </div>
 
       {/* ── サイドバー本体 ── */}

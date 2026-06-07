@@ -3439,6 +3439,7 @@ button:disabled,
 }
 
 /* ── Danger Zone (outside grid) ── */
+
 .profile-danger-section {
   max-width: 720px;
   width: 100%;
@@ -5511,6 +5512,12 @@ button:active {
   background: var(--ctp-mantle);
   border-top: 1px solid var(--ctp-surface1);
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (min-width: 768px) {
+  .bottom-tab-bar {
+    display: none;
+  }
 }
 .bottom-tab {
   flex: 1;
