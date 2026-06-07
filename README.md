@@ -1,149 +1,149 @@
-# MLB Favorite Player Hub
+# MLB Player Scout
 
-A MERN stack portfolio app for searching MLB players, viewing player details, saving favorite players, and receiving personalized recommendations.
+A full-stack MLB player analysis app built with MERN + FastAPI. The flagship feature is a **Player Scouting Report** that dynamically compares any MLB player's stats against the current season's top 200 players using percentile calculation and cosine similarity.
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?logo=vercel&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?logo=fastapi&logoColor=white)
 
 ## Live Demo
 
 - Frontend: https://mlb-app-eight.vercel.app
 - Backend API: https://mlb-app-wzpt.onrender.com
 
-You can register a new account directly from the app. No API key or setup is required to use the live demo.
+No API key or setup is required. Register directly from the app.
 
 ## Why I Built This
 
-I built this app to learn full-stack MERN development end-to-end — from Express routing and JWT auth through MongoDB data modeling to React component design and deployment. MLB player data provided a real external API to integrate against, making the project feel practical rather than just a tutorial exercise.
+I built this app to learn full-stack MERN development end-to-end, from Express routing and JWT auth through MongoDB data modeling to React component design and deployment. The Player Scouting Report was added to differentiate the app from a standard MERN tutorial — it introduces a Python microservice (FastAPI) for analytics and applies cosine similarity to find comparable players, making the architecture closer to a real production system.
 
-## Overview
+## Flagship Feature: Player Scouting Report
 
-This app uses the MLB Stats API as the primary player data source and MongoDB Atlas as the user data store. Player data is never stored in MongoDB unless a user explicitly favorites a player, keeping the data model simple and the MLB API as the source of truth.
+Search any active MLB player and instantly generate a scouting report comparing their stats against the current season's top 200 hitters or pitchers.
 
-Users can register, log in, search MLB players, view detailed player stats, save favorites with notes and tags, complete onboarding, and see personalized recommendations on the Home page.
+**How it works:**
 
-The recommendation feature is rule-based in Express, intentionally separated into a service layer so it can later be replaced by a FastAPI ML service without touching the rest of the backend.
+```
+User searches a player
+  ↓
+Express fetches player stats from MLB Stats API
+Express fetches league top-200 distributions (cached 24h)
+  ↓
+Both are sent to FastAPI as a POST request
+  ↓
+FastAPI calculates percentile rank for each stat
+FastAPI runs cosine similarity to find comparable players
+FastAPI classifies player type (Power Hitter, Ace, etc.)
+  ↓
+React renders SVG radar chart + animated percentile bars
+```
+
+**Hitter metrics:** OPS · Home Runs · Stolen Bases · Batting Average · RBI
+
+**Pitcher metrics:** ERA · WHIP · Strikeouts · Wins · Innings Pitched
+
+The league distributions are fetched live from the MLB Stats API on first request and cached in Express memory for 24 hours — no hardcoded averages.
 
 ## Core Features
 
 - User registration and login with JWT authentication
-- Search MLB players through the external MLB Stats API
-- View player detail pages with current season stats, recent games, career stats, and Baseball Savant links
+- Search any MLB player through the MLB Stats API
+- Player detail pages: current season stats, career stats, game highlights, play-by-play, injury status
 - Save favorite players to MongoDB with notes, reasons, and tags
-- Edit and delete saved favorites
-- Onboarding flow: choose a favorite team and select at least 3 favorite players
-- Favorite team selection from all 30 MLB teams
-- Personalized Home page based on favorite team and saved favorites
-- Rule-based recommendations using team roster, current stats, and fallback stars
-- Deployed frontend, backend, and database using Vercel, Render, and MongoDB Atlas
-
-## Main User Flow
-
-```txt
-Register / Login
-  -> Onboarding: Choose Team
-  -> Onboarding: Choose Favorites
-  -> Home (personalized recommendations)
-  -> Search
-  -> Player Detail
-  -> Add to Favorites
-  -> Favorites
-```
-
-## Screenshots
-
-_Screenshots will be added after final UI polish._
+- Onboarding flow: choose a favorite team, select 3+ favorite players
+- Personalized Home page with Future Stars recommendations
+- **Player Scouting Report** — percentile analysis, SVG radar chart, player type classification, comparable players
+- Deployed frontend, backend, and database on Vercel, Render, and MongoDB Atlas
 
 ## Tech Stack
 
-**Core:**
-
-- Frontend: React 19, Vite, React Router 7
-- Backend: Node.js 18+, Express 5
-- Database: MongoDB Atlas, Mongoose
-- Authentication: JWT, bcryptjs
-- External API: MLB Stats API (no API key required)
-
-**Styling:**
-
-- Tailwind CSS v4
-- Custom CSS
-
-**Deployment:**
-
-- Frontend: Vercel
-- Backend: Render
-- Database: MongoDB Atlas
-- Local dev database: Docker Compose (MongoDB 8.0)
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite, React Router 7 |
+| Backend | Node.js 18+, Express 5 |
+| Analytics service | Python 3.11+, FastAPI, NumPy |
+| Database | MongoDB Atlas, Mongoose |
+| Auth | JWT, bcryptjs |
+| External data | MLB Stats API (no key required) |
+| Styling | Custom CSS (Catppuccin dark theme) |
+| Deployment | Vercel (frontend), Render (backend), MongoDB Atlas |
 
 ## Architecture
 
-```txt
-HTTP Request
-  ↓
-server.js        (Express setup, CORS)
-  ↓
-middleware/      (JWT auth: protect())
-  ↓
-routes/          (URL mapping)
-  ↓
-controllers/     (request/response handling)
-  ↓
-services/        (MLB API calls, recommendation logic)
-  ↓
-models/          (Mongoose schemas)
-  ↓
-MongoDB Atlas    (user data only)
+```
+React (Vite)
+  ↓  REST API
+Express (Node.js)                    FastAPI (Python)
+  ├─ routes / controllers            ├─ /scouting-report
+  ├─ services/mlbApiService          │    percentile calculation
+  ├─ services/leagueStatsService     │    cosine similarity
+  └─ services/fastApiService  ──────→└─ /similar-players
+         ↓
+     MongoDB Atlas
+    (user data only)
+         ↓
+     MLB Stats API
+    (player data, live)
 ```
 
-MLB player data flows through `services/mlbApiService.js` and is never stored in MongoDB unless a user explicitly favorites a player.
+Player data flows through the Express backend as a proxy. MongoDB only stores user data (User, FavoritePlayer). The FastAPI service handles all compute-heavy analytics.
 
 ## Project Structure
 
-```txt
+```
 mlb-app/
 ├── backend/
-│   ├── config/         # MongoDB connection
-│   ├── controllers/    # Request/response handlers
-│   ├── middleware/     # JWT auth middleware (protect)
-│   ├── models/         # Mongoose schemas (User, FavoritePlayer)
-│   ├── routes/         # Express route definitions
-│   ├── services/       # MLB API calls and recommendation logic
-│   └── server.js       # Express app entry point
+│   ├── config/             # MongoDB connection
+│   ├── controllers/        # Request/response handlers
+│   │   └── scoutController.js   # Scouting report orchestration
+│   ├── middleware/          # JWT auth middleware (protect)
+│   ├── models/             # Mongoose schemas (User, FavoritePlayer)
+│   ├── routes/             # Express route definitions
+│   ├── services/
+│   │   ├── mlb/
+│   │   │   └── leagueStatsService.js  # Top-200 distributions, 24h cache
+│   │   ├── fastApiService.js          # FastAPI client
+│   │   └── recommendations/           # Future Stars logic
+│   └── server.js
+├── fastapi-service/
+│   └── main.py             # Percentile calc, cosine similarity, player typing
 ├── frontend/
 │   └── src/
-│       ├── components/ # Shared UI components
-│       ├── pages/      # Route-level page components
-│       ├── services/
-│       │   └── api/    # One file per backend resource (authApi, favoriteApi, etc.)
-│       ├── utils/      # Auth storage helpers, API config
-│       └── App.jsx     # Route definitions
-└── docker-compose.yml  # Local MongoDB container
+│       ├── components/     # Shared UI components
+│       ├── pages/
+│       │   └── ScoutPage.jsx    # Radar chart, percentile bars, search
+│       ├── services/api/   # One file per backend resource
+│       └── App.jsx
+└── docker-compose.yml      # Local MongoDB
 ```
 
 ## Local Setup
 
-**Requirements:** Node.js 18+, Docker (for local MongoDB)
+**Requirements:** Node.js 18+, Python 3.11+, Docker
 
-Install backend dependencies:
-
-```bash
-cd backend
-npm install
-```
-
-Install frontend dependencies:
+### 1. Clone and install
 
 ```bash
-cd frontend
-npm install
+git clone https://github.com/your-username/mlb-app.git
+cd mlb-app
+
+# Backend
+cd backend && npm install
+
+# Frontend
+cd ../frontend && npm install
+
+# FastAPI (create venv at repo root)
+cd ..
+python3 -m venv .venv
+.venv/bin/pip install fastapi uvicorn numpy pydantic
 ```
 
-Create `backend/.env`:
+### 2. Environment variables
 
+`backend/.env`:
 ```env
 PORT=5001
 MONGO_URI=your_mongodb_connection_string
@@ -151,120 +151,132 @@ JWT_SECRET=your_jwt_secret
 FRONTEND_URL=http://localhost:5173
 ```
 
-Create `frontend/.env`:
-
+`frontend/.env`:
 ```env
 VITE_API_URL=http://localhost:5001
 ```
 
-Start local MongoDB (optional — or use MongoDB Atlas):
+### 3. Start all services
 
 ```bash
+# MongoDB (local)
 docker compose up -d
-```
 
-Start the backend:
+# FastAPI analytics service (port 8000)
+cd fastapi-service
+/path/to/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-```bash
+# Express backend (port 5001)
 cd backend
 npm run dev
-```
 
-Start the frontend:
-
-```bash
+# React frontend (port 5173)
 cd frontend
 npm run dev
 ```
 
-Open:
+Open `http://localhost:5173`
 
-```txt
-http://localhost:5173
-```
-
-MLB Stats API requires no API key. All player data is fetched at runtime through the backend proxy.
+The Scouting Report requires FastAPI to be running. If FastAPI is offline, raw stats are shown as a fallback.
 
 ## API Overview
 
-`🔒` = requires `Authorization: Bearer <token>` header
+`🔒` = requires `Authorization: Bearer <token>`
 
-**Auth:**
-
-```txt
+**Auth**
+```
 POST /api/auth/register
 POST /api/auth/login
 ```
 
-**Users:** 🔒
-
-```txt
+**Users** 🔒
+```
 GET    /api/users/me
 PATCH  /api/users/me/favorite-team
 PATCH  /api/users/me/onboarding-complete
 ```
 
-**MLB Players (proxied from MLB Stats API):**
-
-```txt
-GET /api/external/players/search?q=shohei%20ohtani
+**MLB Players (proxied from MLB Stats API)**
+```
+GET /api/external/players/search?q=ohtani
 GET /api/external/players/:playerId
 GET /api/external/players/team/:teamId
-GET /api/external/players/team/:teamId/recommended
 ```
 
-**Favorites:** 🔒
+**Scouting Report (public)**
+```
+GET /api/scout/:playerId
+```
 
-```txt
+**Favorites** 🔒
+```
 GET    /api/favorites
 POST   /api/favorites
-POST   /api/favorites/bulk
 PUT    /api/favorites/:id
 DELETE /api/favorites/:id
 ```
 
-**Recommendations:** 🔒
-
-```txt
+**Recommendations** 🔒
+```
 GET /api/recommendations
+```
+
+## Scouting Report: Technical Notes
+
+**Percentile calculation**
+
+For each stat, the player's value is ranked against the top-200 distribution fetched from the MLB Stats API leaderboard:
+
+```python
+def calc_percentile(value, distribution, higher_is_better=True):
+    if not distribution:
+        return 50  # fallback when data unavailable
+    if higher_is_better:
+        return round(sum(v < value for v in distribution) / len(distribution) * 100)
+    else:
+        return round(sum(v > value for v in distribution) / len(distribution) * 100)
+```
+
+ERA, WHIP, and walks use `higher_is_better=False` (lower is better for pitchers).
+
+**Cosine similarity**
+
+Player stats are normalized into vectors and compared using cosine similarity to find comparable players:
+
+```python
+def cosine_similarity(a, b):
+    dot = np.dot(a, b)
+    norm = np.linalg.norm(a) * np.linalg.norm(b)
+    return dot / norm if norm > 0 else 0.0
+```
+
+For pitchers, ERA/WHIP/walks are inverted before vectorization so that similar pitchers (e.g., two low-ERA starters) cluster together.
+
+**SVG Radar Chart**
+
+The radar chart is built with pure SVG — no chart library — using polar coordinate math:
+
+```js
+// Each axis placed evenly around a circle, starting from the top
+const angle = (2 * Math.PI * i) / n - Math.PI / 2;
+const x = cx + radius * Math.cos(angle);
+const y = cy + radius * Math.sin(angle);
 ```
 
 ## Security Notes
 
-- JWT is issued on login and stored in `localStorage` on the frontend.
-- Protected API requests send the token via the `Authorization: Bearer <token>` header.
-- Backend protected routes verify the JWT using auth middleware.
-- Passwords are hashed with bcryptjs before storing in MongoDB.
-- `.env` files are gitignored and must never be committed.
-- CORS is restricted to `FRONTEND_URL` and local development origins.
-
-## Recommendation Logic
-
-The recommendation engine (`services/recommendationService.js`) prioritizes:
-
-1. Active roster players from the user's favorite team
-2. Players with current season stats
-3. Balance of hitters and pitchers
-4. Popular star players as fallback
-
-This logic is isolated in a service layer so it can be replaced by a FastAPI ML service in the future without changing routes or controllers.
+- JWT stored in `localStorage`; sent via `Authorization: Bearer <token>`
+- Protected routes verify JWT in middleware before any controller logic
+- Passwords hashed with bcryptjs
+- CORS restricted to `FRONTEND_URL` and local development origins
+- `.env` files are gitignored
 
 ## Known Limitations
 
-- Automated tests are not yet implemented. Use `backend/test.http` for manual API testing.
-- Recommendation is rule-based, not ML-based.
-- The legacy `/players` page still exists as a learning artifact (manual player data, not part of the main user flow).
-- Some MLB Stats API fields may be missing depending on the player or season.
-
-## Future Improvements
-
-- Add screenshots to README
-- Add automated tests for backend APIs and frontend flows
-- Add role-based authorization
-- Add profile/settings page for changing favorite team
-- Move recommendation logic to FastAPI
-- Improve mobile UI polish
-- Add loading skeletons and detailed error states
+- No automated tests. Use `backend/test.http` for manual API testing.
+- FastAPI runs in-process; league stats cache resets on restart.
+- Player type classification is rule-based (percentile thresholds), not a trained ML model.
+- The legacy `/players` page remains as a learning artifact.
 
 ## License
 
