@@ -73,4 +73,60 @@ const fetchRecommendationScores = async (players) => {
   }
 };
 
-module.exports = { fetchSimilarPlayerIds, fetchRecommendationScores };
+/**
+ * FastAPI の /recommend/future-stars を呼び出し、Future Stars候補を返す。
+ * 失敗時は null を返し、呼び出し側で空配列や別フォールバックに切り替える。
+ *
+ * @param {Array} favoritePlayers - お気に入り選手の特徴量
+ * @param {number} topN - 返す件数
+ * @returns {Array|null}
+ */
+const fetchFutureStars = async (favoritePlayers, topN = 5) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/recommend/future-stars`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ favoritePlayers, topN }),
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      console.warn(`FastAPI responded with ${response.status} — future stars unavailable`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.futureStars || [];
+  } catch (error) {
+    console.warn(`FastAPI unreachable: ${error.message} — future stars unavailable`);
+    return null;
+  }
+};
+
+const fetchScoutingReport = async (payload) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/scouting-report`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (!response.ok) {
+      console.warn(`FastAPI scouting-report responded with ${response.status}`);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.warn(`FastAPI scouting-report error: ${error.message}`);
+    return null;
+  }
+};
+
+module.exports = {
+  fetchFutureStars,
+  fetchScoutingReport,
+  fetchSimilarPlayerIds,
+  fetchRecommendationScores,
+};

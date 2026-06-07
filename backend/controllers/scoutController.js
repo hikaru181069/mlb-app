@@ -1,0 +1,88 @@
+const { fetchExternalPlayerFullDetails } = require("../services/mlb");
+const { fetchLeagueStats } = require("../services/mlb/leagueStatsService");
+const { fetchScoutingReport } = require("../services/fastApiService");
+
+const buildHitterPayload = (playerData, leagueStats) => {
+  const hitterStats = playerData.currentSeasonStats?.hitterStats || {};
+  return {
+    player: {
+      ops:         parseFloat(hitterStats.ops)           || 0,
+      homeRuns:    parseInt(hitterStats.homeRuns)         || 0,
+      stolenBases: parseInt(hitterStats.stolenBases)      || 0,
+      avg:         parseFloat(hitterStats.battingAverage) || 0,
+      rbi:         parseInt(hitterStats.runsBattedIn)     || 0,
+    },
+    leagueStats:       leagueStats.hitter.distributions,
+    comparablePlayers: leagueStats.hitter.players,
+  };
+};
+
+const buildPitcherPayload = (playerData, leagueStats) => {
+  const pitcherStats = playerData.currentSeasonStats?.pitcherStats || {};
+  return {
+    pitcherPlayer: {
+      era:        parseFloat(pitcherStats.era)            || 0,
+      whip:       parseFloat(pitcherStats.whip)           || 0,
+      strikeouts: parseInt(pitcherStats.strikeouts)       || 0,
+      walks:      parseInt(pitcherStats.baseOnBalls)      || 0,
+      wins:       parseInt(pitcherStats.wins)             || 0,
+      innings:    parseFloat(pitcherStats.inningsPitched) || 0,
+    },
+    pitcherLeagueStats: leagueStats.pitcher.distributions,
+    pitcherComparables: leagueStats.pitcher.players,
+  };
+};
+
+const getScoutingReport = async (req, res) => {
+  try {
+    const { playerId } = req.params;
+    const id = parseInt(playerId);
+
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ message: "Invalid player ID" });
+    }
+
+    const [playerData, leagueStats] = await Promise.all([
+      fetchExternalPlayerFullDetails(id),
+      fetchLeagueStats(),
+    ]);
+
+    if (!playerData) {
+      return res.status(404).json({ message: "Player not found" });
+    }
+
+    const isPitcher = playerData.playerType === "pitcher";
+    const statsPayload = isPitcher
+      ? buildPitcherPayload(playerData, leagueStats)
+      : buildHitterPayload(playerData, leagueStats);
+
+    const report = await fetchScoutingReport({
+      playerType: isPitcher ? "pitcher" : "hitter",
+      playerIdToExclude: id,
+      ...statsPayload,
+    });
+
+    // stats を返すフィールド名を統一（フロントで playerType を見て切り替え）
+    const stats = isPitcher
+      ? statsPayload.pitcherPlayer
+      : statsPayload.player;
+
+    res.json({
+      player: {
+        id: playerData.mlbPlayerId,
+        fullName: playerData.name,
+        currentTeam: playerData.team,
+        position: playerData.position,
+        image: playerData.image,
+        playerType: isPitcher ? "pitcher" : "hitter",
+      },
+      stats,
+      report,
+    });
+  } catch (error) {
+    console.error("Scouting report error:", error.message);
+    res.status(500).json({ message: "Failed to generate scouting report" });
+  }
+};
+
+module.exports = { getScoutingReport };

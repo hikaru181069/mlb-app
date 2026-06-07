@@ -24,6 +24,8 @@ import ComparePage from "./pages/ComparePage";
 import MatchupPage from "./pages/MatchupPage";
 import LeaguePage from "./pages/LeaguePage";
 import ProfilePage from "./pages/ProfilePage";
+import RecommendationsPage from "./pages/RecommendationsPage";
+import ScoutPage from "./pages/ScoutPage";
 
 // [Phase 4] ページ遷移アニメーション
 // location.key を React の key に渡すことで、ページが変わるたびにコンポーネントが
@@ -48,6 +50,9 @@ function AnimatedRoutes() {
         <Route path="/matchup" element={<MatchupPage />} />
         <Route path="/league" element={<LeaguePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/recommendations" element={<RecommendationsPage />} />
+        <Route path="/scout" element={<ScoutPage />} />
+        <Route path="/scout/:playerId" element={<ScoutPage />} />
         <Route path="/onboarding/team" element={<OnboardingTeamPage />} />
         <Route
           path="/onboarding/favorites"

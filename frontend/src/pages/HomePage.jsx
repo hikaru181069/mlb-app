@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import {
   Search, Trophy, Scale, Swords, Star, Shield,
-  Bot, Lock,
+  Bot, Lock, Telescope,
 } from "lucide-react";
 
 const MLB_LOGO = "https://www.mlbstatic.com/team-logos/league-on-dark/1.svg";
@@ -354,6 +354,24 @@ function HomePage() {
           </div>
         </section>
 
+        {/* Scout ヒーローカード: 目玉機能として guest view にも配置 */}
+        <section className="scout-hero-card guest-scout-hero">
+          <div className="scout-hero-left">
+            <span className="scout-hero-kicker">
+              <Telescope size={14} strokeWidth={2.5} />
+              Featured
+            </span>
+            <h2 className="scout-hero-title">Player Scouting Report</h2>
+            <p className="scout-hero-desc">
+              Compare any MLB player's batting profile against the top 200 hitters. Strengths, weaknesses, and comparable players — all in one report.
+            </p>
+            <Link to="/scout" className="scout-hero-btn">
+              Try Scout →
+            </Link>
+          </div>
+          <Telescope size={64} strokeWidth={0.8} className="scout-hero-icon" />
+        </section>
+
         <div className="feature-cards guest-feature-cards">
           <div className="feature-card">
             <span className="feature-card-icon"><Search size={24} strokeWidth={1.5} /></span>
@@ -478,6 +496,24 @@ function HomePage() {
       {errorMessage && <p className="error-message px-6">{errorMessage}</p>}
 
       <div className="home-content px-6">
+        {/* Scout ヒーローカード: 目玉機能として最上部に配置 */}
+        <section className="scout-hero-card">
+          <div className="scout-hero-left">
+            <span className="scout-hero-kicker">
+              <Telescope size={14} strokeWidth={2.5} />
+              Featured
+            </span>
+            <h2 className="scout-hero-title">Player Scouting Report</h2>
+            <p className="scout-hero-desc">
+              Compare any MLB player's batting profile against the top 200 hitters. Strengths, weaknesses, and comparable players — all in one report.
+            </p>
+            <Link to="/scout" className="scout-hero-btn">
+              Scout a Player →
+            </Link>
+          </div>
+          <Telescope size={64} strokeWidth={0.8} className="scout-hero-icon" />
+        </section>
+
         {/* My Team: 2カラムダッシュボード（案B） */}
         <section
           ref={teamRef}
@@ -558,6 +594,7 @@ function HomePage() {
             title="Recommended For You"
             desc="Recommended from your favorite team, current stats, and saved players."
             count={recommendations.length}
+            viewAllTo="/recommendations"
           />
           {renderPlayerGrid(
             recommendations,
