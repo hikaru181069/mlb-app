@@ -9,8 +9,7 @@
 
 const { fetchExternalPlayerDetails, fetchExternalPlayerStats } = require("./playerStatsService");
 const { formatExternalPlayer, formatExternalStats } = require("./playerFormatter");
-const { fetchLeagueStats } = require("./leagueStatsService");
-const { fetchYoungLeaguePlayers } = require("./leagueStatsService");
+const { fetchLeagueStats, fetchYoungLeaguePlayers, fetchYoungPitchers } = require("./leagueStatsService");
 const { fetchDiscoverSimilar } = require("../fastApiService");
 
 // 対象選手のスタッツを FastAPI に渡せる形式に変換する
@@ -102,9 +101,14 @@ const fetchSimilarPlayers = async (playerId) => {
     .map(isPitcher ? toPitcherCandidate : toHitterCandidate);
 
   // 3. 若手候補プールの作成（25歳以下、キャッシュ済み）
-  //    若手データは野手スタッツのみなので投手の場合は空にする
+  //    野手: 若手野手データ / 投手: 若手投手データ
   let youngCandidates = [];
-  if (!isPitcher) {
+  if (isPitcher) {
+    const youngPitcherPlayers = await fetchYoungPitchers(25);
+    youngCandidates = youngPitcherPlayers
+      .filter((p) => p.playerId !== Number(playerId))
+      .map(toPitcherCandidate);
+  } else {
     const youngPlayers = await fetchYoungLeaguePlayers(25);
     youngCandidates = youngPlayers
       .filter((p) => p.playerId !== Number(playerId))
@@ -116,10 +120,14 @@ const fetchSimilarPlayers = async (playerId) => {
 
   if (!result) return { mlbSimilar: [], youngSimilar: [] };
 
-  // 5. マッチした選手の詳細情報を取得
+  // 5. 重複除去: mlbSimilar に既出の選手を youngSimilar から除く
+  const mlbIds = new Set(result.mlbSimilar.map((p) => p.playerId));
+  const dedupedYoung = result.youngSimilar.filter((p) => !mlbIds.has(p.playerId));
+
+  // 6. マッチした選手の詳細情報を取得
   const [mlbSimilar, youngSimilar] = await Promise.all([
     fetchMatchDetails(result.mlbSimilar),
-    fetchMatchDetails(result.youngSimilar),
+    fetchMatchDetails(dedupedYoung),
   ]);
 
   return { mlbSimilar, youngSimilar };

@@ -384,12 +384,16 @@ function PlayerDetailPage() {
         {/* MLB 全体から似たスタイルの選手 */}
         <div className="section-heading">
           <h2>Players with Similar Style</h2>
-          <p className="section-heading-desc">MLB players with a similar batting profile.</p>
+          <p className="section-heading-desc">
+            {player.playerType === "pitcher"
+              ? "MLB pitchers with a similar pitching profile."
+              : "MLB players with a similar batting profile."}
+          </p>
         </div>
         {mlbSimilar.length > 0 ? (
           <div className="player-list">
             {mlbSimilar.map((p) => (
-              <PlayerCard key={p.playerId} player={p} />
+              <PlayerCard key={p.mlbPlayerId} player={p} />
             ))}
           </div>
         ) : (
@@ -408,7 +412,7 @@ function PlayerDetailPage() {
             </div>
             <div className="player-list">
               {youngSimilar.map((p) => (
-                <PlayerCard key={p.playerId} player={p} />
+                <PlayerCard key={p.mlbPlayerId} player={p} />
               ))}
             </div>
           </>
