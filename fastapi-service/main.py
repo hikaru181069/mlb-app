@@ -408,6 +408,116 @@ def recommend_future_stars(req: FutureStarRequest):
     )
 
 
+# ── Similar Player Discovery ─────────────────────────────────────────────────
+# 対象選手のスタッツベクトルを、MLB 全体 / 若手プールの2つの候補リストと
+# cosine similarity で比較して「似た選手」を返す。
+# 候補リストは Express 側がリーグ統計キャッシュから動的に作成して送信する。
+
+
+class DiscoverTarget(BaseModel):
+    playerId: int
+    playerType: str = "hitter"
+    ops: float = 0
+    homeRuns: float = 0
+    stolenBases: float = 0
+    avg: float = 0
+    rbi: float = 0
+    era: float = 0
+    whip: float = 0
+    strikeouts: float = 0
+    walks: float = 0
+    wins: float = 0
+    innings: float = 0
+
+
+class DiscoverCandidate(BaseModel):
+    playerId: int
+    name: str = ""
+    team: str = ""
+    position: str = ""
+    age: int = 0
+    ops: float = 0
+    homeRuns: float = 0
+    stolenBases: float = 0
+    avg: float = 0
+    rbi: float = 0
+    era: float = 0
+    whip: float = 0
+    strikeouts: float = 0
+    walks: float = 0
+    wins: float = 0
+    innings: float = 0
+
+
+class DiscoverRequest(BaseModel):
+    target: DiscoverTarget
+    mlbCandidates: list[DiscoverCandidate] = []
+    youngCandidates: list[DiscoverCandidate] = []
+    topN: int = 3
+
+
+class DiscoverMatch(BaseModel):
+    playerId: int
+    name: str
+    team: str
+    position: str
+    age: int
+    similarity: float
+    similarityPercentage: int
+
+
+class DiscoverResponse(BaseModel):
+    mlbSimilar: list[DiscoverMatch]
+    youngSimilar: list[DiscoverMatch]
+
+
+@app.post("/discover/similar", response_model=DiscoverResponse)
+def discover_similar(req: DiscoverRequest):
+    """
+    対象選手と類似スタイルを持つ選手を2つのプールから返す。
+
+    アルゴリズム:
+      - 野手: OPS/HR/SB/AVG/RBI ベクトルで cosine similarity
+      - 投手: ERA/WHIP/K/BB/W/IP ベクトルで cosine similarity
+      - mlbCandidates  → MLB 在籍選手プール（上位200人）
+      - youngCandidates → 25歳以下の若手プール
+    """
+    is_pitcher = req.target.playerType == "pitcher"
+
+    def make_vector(item) -> np.ndarray:
+        if is_pitcher:
+            return scout_pitcher_vector(item)
+        return discovery_vector(item)
+
+    target_vec = make_vector(req.target)
+
+    def rank(candidates: list[DiscoverCandidate]) -> list[DiscoverMatch]:
+        scored = []
+        for c in candidates:
+            if c.playerId == req.target.playerId:
+                continue
+            sim = max(0.0, cosine_similarity(target_vec, make_vector(c)))
+            scored.append((c, sim))
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return [
+            DiscoverMatch(
+                playerId=c.playerId,
+                name=c.name,
+                team=c.team,
+                position=c.position,
+                age=c.age,
+                similarity=round(sim, 4),
+                similarityPercentage=round(sim * 100),
+            )
+            for c, sim in scored[: req.topN]
+        ]
+
+    return DiscoverResponse(
+        mlbSimilar=rank(req.mlbCandidates),
+        youngSimilar=rank(req.youngCandidates),
+    )
+
+
 # ── Scouting Report ────────────────────────────────────────────────────────
 # 選手の打撃スタッツをリーグ上位200選手の分布と比較してレポートを生成する。
 # Express からリーグ分布データを受け取るため、FastAPI 側はMLB APIを叩かない。

@@ -103,6 +103,30 @@ const fetchFutureStars = async (favoritePlayers, candidates = [], topN = 5) => {
   }
 };
 
+/**
+ * FastAPI の /discover/similar を呼び出す。
+ * mlbCandidates と youngCandidates の2プールに対して類似度を計算して返す。
+ * 失敗時は null を返し、呼び出し側で空配列にフォールバックする。
+ */
+const fetchDiscoverSimilar = async (target, mlbCandidates, youngCandidates, topN = 3) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/discover/similar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target, mlbCandidates, youngCandidates, topN }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) {
+      console.warn(`FastAPI discover/similar responded with ${response.status}`);
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn(`FastAPI discover/similar error: ${error.message}`);
+    return null;
+  }
+};
+
 const fetchScoutingReport = async (payload) => {
   try {
     const response = await fetch(`${FASTAPI_URL}/scouting-report`, {
@@ -129,4 +153,5 @@ module.exports = {
   fetchScoutingReport,
   fetchSimilarPlayerIds,
   fetchRecommendationScores,
+  fetchDiscoverSimilar,
 };

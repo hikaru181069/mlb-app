@@ -1,105 +1,128 @@
-// 類似選手を取得するサービス
+// 類似選手を2つのプールから取得するサービス
 //
 // 処理の流れ:
-//   1. 対象選手の stats を MLB API から取得
-//   2. 同じチームのロスター選手の stats を取得（比較候補）
-//   3. FastAPI /similar に送って類似選手 ID を受け取る
-//   4. 類似選手 ID から詳細情報を MLB API で取得して返す
+//   1. 対象選手のスタッツを取得
+//   2. リーグ上位200人のデータ（キャッシュ済み）を MLB 候補プールとして使用
+//   3. 25歳以下の若手データ（キャッシュ済み）を若手候補プールとして使用
+//   4. FastAPI /discover/similar で cosine similarity を計算
+//   5. マッチした選手の詳細を MLB API から取得して返す
 
 const { fetchExternalPlayerDetails, fetchExternalPlayerStats } = require("./playerStatsService");
 const { formatExternalPlayer, formatExternalStats } = require("./playerFormatter");
-const { fetchFromMlbApi } = require("./mlbClient");
-const { buildTeamRosterUrl } = require("./mlbUrlBuilder");
-const { fetchSimilarPlayerIds } = require("../fastApiService");
+const { fetchLeagueStats } = require("./leagueStatsService");
+const { fetchYoungLeaguePlayers } = require("./leagueStatsService");
+const { fetchDiscoverSimilar } = require("../fastApiService");
 
-/**
- * 選手データを FastAPI に渡せる形式に変換する
- */
-const toFastApiPayload = (player) => ({
-  playerId: player.mlbPlayerId,
-  playerType: player.playerType || "hitter",
-  hitterStats: {
-    battingAverage: player.hitterStats?.battingAverage || 0,
-    homeRuns: player.hitterStats?.homeRuns || 0,
-    rbis: player.hitterStats?.rbis || 0,
-  },
-  pitcherStats: {
-    era: player.pitcherStats?.era || 0,
-    strikeouts: player.pitcherStats?.strikeouts || 0,
-    inningsPitched: player.pitcherStats?.inningsPitched || 0,
-  },
+// 対象選手のスタッツを FastAPI に渡せる形式に変換する
+const toDiscoverTarget = (player, hitterStats, pitcherStats) => ({
+  playerId:    Number(player.mlbPlayerId),
+  playerType:  player.playerType || "hitter",
+  // 野手スタッツ
+  ops:         parseFloat(hitterStats?.ops)            || 0,
+  homeRuns:    parseInt(hitterStats?.homeRuns)          || 0,
+  stolenBases: parseInt(hitterStats?.stolenBases)       || 0,
+  avg:         parseFloat(hitterStats?.battingAverage)  || 0,
+  rbi:         parseInt(hitterStats?.rbis)              || 0,
+  // 投手スタッツ
+  era:         parseFloat(pitcherStats?.era)            || 0,
+  whip:        parseFloat(pitcherStats?.whip)           || 0,
+  strikeouts:  parseInt(pitcherStats?.strikeouts)       || 0,
+  walks:       parseInt(pitcherStats?.baseOnBalls)      || 0,
+  wins:        parseInt(pitcherStats?.wins)             || 0,
+  innings:     parseFloat(pitcherStats?.inningsPitched) || 0,
 });
 
-/**
- * teamId からロスター選手の stats をまとめて取得する
- */
-const fetchRosterWithStats = async (teamId, excludePlayerId) => {
-  const data = await fetchFromMlbApi(
-    buildTeamRosterUrl(teamId),
-    "Failed to fetch team roster"
-  );
-  const roster = (data.roster || []).slice(0, 15); // API 負荷を抑えるため上位15人
+// リーグ統計の野手プレイヤーを DiscoverCandidate 形式に変換
+const toHitterCandidate = (p) => ({
+  playerId:    p.playerId,
+  name:        p.name,
+  team:        p.team,
+  position:    p.position || "",
+  age:         p.age      || 0,
+  ops:         p.ops,
+  homeRuns:    p.homeRuns,
+  stolenBases: p.stolenBases,
+  avg:         p.avg,
+  rbi:         p.rbi,
+});
 
-  const players = await Promise.all(
-    roster.map(async (entry) => {
-      const id = entry.person?.id;
-      if (!id || Number(id) === Number(excludePlayerId)) return null;
+// リーグ統計の投手プレイヤーを DiscoverCandidate 形式に変換
+const toPitcherCandidate = (p) => ({
+  playerId:   p.playerId,
+  name:       p.name,
+  team:       p.team,
+  position:   "",
+  age:        0,
+  era:        p.era,
+  whip:       p.whip,
+  strikeouts: p.strikeouts,
+  walks:      0,
+  wins:       p.wins,
+  innings:    p.innings,
+});
 
+// マッチ結果（playerId のみ）から選手の詳細情報を取得する
+const fetchMatchDetails = async (matches) => {
+  const results = await Promise.all(
+    matches.map(async ({ playerId, similarityPercentage }) => {
       try {
-        const detail = await fetchExternalPlayerDetails(id);
-        const base = formatExternalPlayer(detail);
-        const stats = await fetchExternalPlayerStats({ playerId: id });
-        const formatted = formatExternalStats(stats);
-        return { ...base, ...formatted };
+        const detail = await fetchExternalPlayerDetails(playerId);
+        const stats  = await fetchExternalPlayerStats({ playerId });
+        return {
+          ...formatExternalPlayer(detail),
+          ...formatExternalStats(stats),
+          similarityPercentage,
+        };
       } catch {
         return null;
       }
-    })
+    }),
   );
-
-  return players.filter(Boolean);
+  return results.filter(Boolean);
 };
 
-/**
- * playerId に類似した選手リストを返すメイン関数
- */
 const fetchSimilarPlayers = async (playerId) => {
   // 1. 対象選手の情報を取得
   const detail = await fetchExternalPlayerDetails(playerId);
-  const target = formatExternalPlayer(detail);
-  const stats = await fetchExternalPlayerStats({ playerId });
-  const formattedStats = formatExternalStats(stats);
-  const targetPlayer = { ...target, ...formattedStats };
+  const player = formatExternalPlayer(detail);
+  const stats  = await fetchExternalPlayerStats({ playerId });
+  const { hitterStats, pitcherStats } = formatExternalStats(stats);
 
-  // teamId がなければ類似選手を探せないので空を返す
-  if (!targetPlayer.teamId) return [];
+  const isPitcher = player.playerType === "pitcher";
+  const target = toDiscoverTarget(player, hitterStats, pitcherStats);
 
-  // 2. 同チームのロスター選手を取得（比較候補）
-  const candidates = await fetchRosterWithStats(targetPlayer.teamId, playerId);
+  // 2. MLB 候補プールの作成（リーグ上位200人、キャッシュ済み）
+  const leagueStats = await fetchLeagueStats();
+  const mlbPool = isPitcher
+    ? leagueStats.pitcher.players
+    : leagueStats.hitter.players;
 
-  if (candidates.length === 0) return [];
+  const mlbCandidates = mlbPool
+    .filter((p) => p.playerId !== Number(playerId))
+    .map(isPitcher ? toPitcherCandidate : toHitterCandidate);
 
-  // 3. FastAPI で類似選手 ID を計算
-  const similarIds = await fetchSimilarPlayerIds(
-    toFastApiPayload(targetPlayer),
-    candidates.map(toFastApiPayload),
-    3
-  );
+  // 3. 若手候補プールの作成（25歳以下、キャッシュ済み）
+  //    若手データは野手スタッツのみなので投手の場合は空にする
+  let youngCandidates = [];
+  if (!isPitcher) {
+    const youngPlayers = await fetchYoungLeaguePlayers(25);
+    youngCandidates = youngPlayers
+      .filter((p) => p.playerId !== Number(playerId))
+      .map(toHitterCandidate);
+  }
 
-  // 4. 類似選手 ID から詳細情報を取得
-  const similarPlayers = await Promise.all(
-    similarIds.map(async (id) => {
-      try {
-        const d = await fetchExternalPlayerDetails(id);
-        const s = await fetchExternalPlayerStats({ playerId: id });
-        return { ...formatExternalPlayer(d), ...formatExternalStats(s) };
-      } catch {
-        return null;
-      }
-    })
-  );
+  // 4. FastAPI で類似度を計算
+  const result = await fetchDiscoverSimilar(target, mlbCandidates, youngCandidates, 3);
 
-  return similarPlayers.filter(Boolean);
+  if (!result) return { mlbSimilar: [], youngSimilar: [] };
+
+  // 5. マッチした選手の詳細情報を取得
+  const [mlbSimilar, youngSimilar] = await Promise.all([
+    fetchMatchDetails(result.mlbSimilar),
+    fetchMatchDetails(result.youngSimilar),
+  ]);
+
+  return { mlbSimilar, youngSimilar };
 };
 
 module.exports = { fetchSimilarPlayers };

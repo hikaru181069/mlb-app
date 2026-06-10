@@ -23,7 +23,8 @@ function PlayerDetailPage() {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const [player, setPlayer] = useState(null);
-  const [similarPlayers, setSimilarPlayers] = useState([]);
+  const [mlbSimilar, setMlbSimilar] = useState([]);
+  const [youngSimilar, setYoungSimilar] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [statsRef, statsVisible] = useReveal();
@@ -54,7 +55,7 @@ function PlayerDetailPage() {
           setPlayer({ ...localPlayer, ...externalPlayer });
           setFavoriteRecord(savedFavorite || null);
           setErrorMessage("");
-          getSimilarPlayers(localPlayer.playerId).then(setSimilarPlayers);
+          getSimilarPlayers(localPlayer.playerId).then(({ mlbSimilar = [], youngSimilar = [] }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); });
           return;
         }
 
@@ -66,7 +67,7 @@ function PlayerDetailPage() {
           setPlayer(externalPlayer);
           setFavoriteRecord(savedFavorite || null);
           setErrorMessage("");
-          getSimilarPlayers(playerId).then(setSimilarPlayers);
+          getSimilarPlayers(playerId).then(({ mlbSimilar = [], youngSimilar = [] }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); });
           return;
         }
 
@@ -84,7 +85,7 @@ function PlayerDetailPage() {
         setPlayer({ ...favoritePlayer, ...externalPlayer });
         setFavoriteRecord(favoritePlayer);
         setErrorMessage("");
-        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(setSimilarPlayers);
+        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(({ mlbSimilar = [], youngSimilar = [] }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); });
       } catch (error) {
         console.error("Fetch player error:", error);
         setPlayer(null);
@@ -379,25 +380,40 @@ function PlayerDetailPage() {
       </div>
 
       <section ref={similarRef} className={`similar-players reveal${similarVisible ? " visible" : ""}`}>
-        <div className="section-heading">
-          <h2>Similar Players</h2>
-        </div>
 
-        {similarPlayers.length > 0 ? (
+        {/* MLB 全体から似たスタイルの選手 */}
+        <div className="section-heading">
+          <h2>Players with Similar Style</h2>
+          <p className="section-heading-desc">MLB players with a similar batting profile.</p>
+        </div>
+        {mlbSimilar.length > 0 ? (
           <div className="player-list">
-            {similarPlayers.map((similarPlayer) => (
-              <PlayerCard key={similarPlayer.playerId} player={similarPlayer} />
+            {mlbSimilar.map((p) => (
+              <PlayerCard key={p.playerId} player={p} />
             ))}
           </div>
         ) : (
           <div className="home-empty-state">
             <span className="empty-state-icon"><img src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg" alt="" width={36} height={36} style={{ opacity: 0.5 }} /></span>
             <p className="empty-state-title">No Similar Players Found</p>
-            <p className="empty-state-desc">
-              No comparable players were found on this player's roster.
-            </p>
           </div>
         )}
+
+        {/* 25歳以下の若手から似たスタイルの選手 */}
+        {youngSimilar.length > 0 && (
+          <>
+            <div className="section-heading" style={{ marginTop: "2rem" }}>
+              <h2>Rising Stars with Similar Style</h2>
+              <p className="section-heading-desc">Players age 25 and under who share this playing style.</p>
+            </div>
+            <div className="player-list">
+              {youngSimilar.map((p) => (
+                <PlayerCard key={p.playerId} player={p} />
+              ))}
+            </div>
+          </>
+        )}
+
       </section>
     </div>
   );
