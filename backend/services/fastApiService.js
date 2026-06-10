@@ -81,13 +81,13 @@ const fetchRecommendationScores = async (players) => {
  * @param {number} topN - 返す件数
  * @returns {Array|null}
  */
-const fetchFutureStars = async (favoritePlayers, topN = 5) => {
+const fetchFutureStars = async (favoritePlayers, candidates = [], topN = 5) => {
   try {
     const response = await fetch(`${FASTAPI_URL}/recommend/future-stars`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ favoritePlayers, topN }),
-      signal: AbortSignal.timeout(5000),
+      body: JSON.stringify({ favoritePlayers, candidates, topN }),
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!response.ok) {

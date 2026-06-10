@@ -244,19 +244,18 @@ def recommend(req: RecommendRequest):
     return RecommendResponse(players=[score_player(p) for p in req.players])
 
 
-# ── Future Stars 推薦 ───────────────────────────────────────────────────────
-# お気に入り選手の打撃プロフィールと、固定の有望株候補データを比較する。
-# 初期版なので候補はモックデータ。LLMは使わず、特徴量の余弦類似度と
-# ルールベースの理由だけで返す。
+# ── Rising Stars 推薦 ───────────────────────────────────────────────────────
+# お気に入り選手の打撃プロフィールと、Express から渡された若手 MLB 選手リストを
+# cosine similarity で比較し、好みに近い若手選手を返す。
+# 候補リストは Express が MLB Stats API から動的に取得して送信する。
 
 
 class FutureStarStats(BaseModel):
     ops: float = 0
     homeRuns: float = 0
     stolenBases: float = 0
-    walks: float = 0
-    strikeouts: float = 0
-    age: float = 0
+    avg: float = 0
+    rbi: float = 0
 
 
 class FavoriteFutureStarPlayer(BaseModel):
@@ -266,8 +265,22 @@ class FavoriteFutureStarPlayer(BaseModel):
     stats: FutureStarStats = FutureStarStats()
 
 
+class YoungPlayerCandidate(BaseModel):
+    playerId: int
+    name: str = ""
+    team: str = ""
+    position: str = ""
+    age: int = 0
+    ops: float = 0
+    homeRuns: float = 0
+    stolenBases: float = 0
+    avg: float = 0
+    rbi: float = 0
+
+
 class FutureStarRequest(BaseModel):
     favoritePlayers: list[FavoriteFutureStarPlayer]
+    candidates: list[YoungPlayerCandidate] = []
     topN: int = 5
 
 
@@ -282,181 +295,113 @@ class FutureStar(BaseModel):
     similarity: float
     similarityPercentage: int
     reasons: list[str]
-    type: str = "prospect"
-    isExperimental: bool = True
+    type: str = "rising"
+    isExperimental: bool = False
 
 
 class FutureStarResponse(BaseModel):
     futureStars: list[FutureStar]
 
 
-FUTURE_STAR_CANDIDATES = [
-    {
-        "playerId": 701350,
-        "fullName": "Roman Anthony",
-        "organization": "Boston Red Sox",
-        "level": "MLB",
-        "position": "OF",
-        "age": 22,
-        "stats": {
-            "ops": 0.675,
-            "homeRuns": 1,
-            "stolenBases": 2,
-            "walks": 20,
-            "strikeouts": 33,
-            "age": 22,
-        },
-    },
-    {
-        "playerId": 805805,
-        "fullName": "Walker Jenkins",
-        "organization": "Detroit Tigers",
-        "level": "AAA",
-        "position": "OF",
-        "age": 21,
-        "stats": {
-            "ops": 0.785,
-            "homeRuns": 2,
-            "stolenBases": 5,
-            "walks": 24,
-            "strikeouts": 34,
-            "age": 21,
-        },
-    },
-    {
-        "playerId": 806964,
-        "fullName": "Sebastian Walcott",
-        "organization": "Texas Rangers",
-        "level": "AA",
-        "position": "SS",
-        "age": 20,
-        "stats": {
-            "ops": 0.741,
-            "homeRuns": 13,
-            "stolenBases": 32,
-            "walks": 52,
-            "strikeouts": 135,
-            "age": 20,
-        },
-    },
-    {
-        "playerId": 815888,
-        "fullName": "Leo De Vries",
-        "organization": "Athletics",
-        "level": "A+",
-        "position": "SS",
-        "age": 19,
-        "stats": {
-            "ops": 0.790,
-            "homeRuns": 5,
-            "stolenBases": 17,
-            "walks": 35,
-            "strikeouts": 58,
-            "age": 19,
-        },
-    },
-    {
-        "playerId": 703601,
-        "fullName": "Max Clark",
-        "organization": "Detroit Tigers",
-        "level": "AAA",
-        "position": "OF",
-        "age": 21,
-        "stats": {
-            "ops": 0.752,
-            "homeRuns": 4,
-            "stolenBases": 12,
-            "walks": 38,
-            "strikeouts": 56,
-            "age": 21,
-        },
-    },
-]
+# Scouting Report の HITTER_SCALE と同じスケールで正規化
+DISCOVERY_SCALE = np.array([1.2, 60, 80, 0.35, 130], dtype=float)
 
 
-FUTURE_STAR_SCALE = np.array([1.2, 60, 60, 100, 180, 35], dtype=float)
-
-
-def future_star_vector(stats: FutureStarStats | dict) -> np.ndarray:
-    """OPS/HR/SB/BB/SO/age を同程度のスケールに正規化する。"""
-    raw = stats if isinstance(stats, dict) else stats.model_dump()
+def discovery_vector(stats) -> np.ndarray:
+    """OPS/HR/SB/AVG/RBI を同程度のスケールに正規化する。"""
+    if isinstance(stats, dict):
+        raw = stats
+    else:
+        raw = stats.model_dump()
     values = np.array(
         [
             raw.get("ops", 0),
             raw.get("homeRuns", 0),
             raw.get("stolenBases", 0),
-            raw.get("walks", 0),
-            raw.get("strikeouts", 0),
-            raw.get("age", 0),
+            raw.get("avg", 0),
+            raw.get("rbi", 0),
         ],
         dtype=float,
     )
-    return values / FUTURE_STAR_SCALE
+    safe_scale = np.where(DISCOVERY_SCALE > 0, DISCOVERY_SCALE, 1.0)
+    return values / safe_scale
 
 
 def average_favorite_vector(players: list[FavoriteFutureStarPlayer]) -> np.ndarray:
-    vectors = [future_star_vector(player.stats) for player in players]
+    vectors = [discovery_vector(player.stats) for player in players]
     if not vectors:
-        return np.zeros(6, dtype=float)
+        return np.zeros(5, dtype=float)
     return np.mean(vectors, axis=0)
 
 
-def future_star_reasons(candidate: dict) -> list[str]:
-    stats = candidate["stats"]
-    reasons = ["Young prospect"]
-
-    if stats["ops"] >= 0.78:
+def rising_star_reasons(candidate: YoungPlayerCandidate) -> list[str]:
+    reasons = []
+    if candidate.ops >= 0.850:
+        reasons.append("Elite OPS")
+    elif candidate.ops >= 0.780:
         reasons.append("Strong OPS profile")
-    if stats["homeRuns"] >= 10:
+    if candidate.homeRuns >= 25:
+        reasons.append("Power hitter")
+    elif candidate.homeRuns >= 15:
         reasons.append("Emerging power")
-    if stats["walks"] >= 35:
-        reasons.append("Patient approach")
-    if stats["stolenBases"] >= 12:
-        reasons.append("Speed upside")
-    if candidate["position"] in {"OF", "SS", "CF"}:
-        reasons.append(f"Premium {candidate['position']} profile")
-
-    return reasons[:4]
+    if candidate.stolenBases >= 20:
+        reasons.append("Speed threat")
+    if candidate.avg >= 0.290:
+        reasons.append("High contact rate")
+    if candidate.rbi >= 70:
+        reasons.append("Run producer")
+    if candidate.age <= 23:
+        reasons.append("Under 24 years old")
+    elif candidate.age <= 25:
+        reasons.append("Under 26 years old")
+    if candidate.position in {"OF", "SS", "CF", "2B"}:
+        reasons.append(f"Premium {candidate.position} profile")
+    return reasons[:4] if reasons else ["Young MLB player"]
 
 
 @app.post("/recommend/future-stars", response_model=FutureStarResponse)
 def recommend_future_stars(req: FutureStarRequest):
     """
-    お気に入り選手の平均プロフィールに近いFuture Stars候補を返す。
+    お気に入り選手の平均プロフィールに近い若手 MLB 選手を返す。
 
     アルゴリズム:
-      1. お気に入り選手の OPS/HR/SB/BB/SO/age を正規化
-      2. 平均ベクトルを作る
-      3. 固定prospect候補と余弦類似度を計算
-      4. 類似度順に topN 件を返す
+      1. お気に入り選手の OPS/HR/SB/AVG/RBI を正規化して平均ベクトルを作る
+      2. Express から渡された若手候補リストと cosine similarity を計算
+      3. 類似度順に topN 件を返す
     """
-    if not req.favoritePlayers:
+    if not req.favoritePlayers or not req.candidates:
         return FutureStarResponse(futureStars=[])
 
     target_vec = average_favorite_vector(req.favoritePlayers)
     scored = []
 
-    for candidate in FUTURE_STAR_CANDIDATES:
-        candidate_vec = future_star_vector(candidate["stats"])
+    for candidate in req.candidates:
+        candidate_vec = discovery_vector(candidate)
         similarity = max(0.0, cosine_similarity(target_vec, candidate_vec))
         scored.append((candidate, similarity))
 
     scored.sort(key=lambda item: item[1], reverse=True)
-    limit = max(1, min(req.topN, len(FUTURE_STAR_CANDIDATES)))
+    limit = max(1, min(req.topN, len(req.candidates)))
 
     return FutureStarResponse(
         futureStars=[
             FutureStar(
-                playerId=candidate["playerId"],
-                fullName=candidate["fullName"],
-                organization=candidate["organization"],
-                level=candidate["level"],
-                position=candidate["position"],
-                age=candidate["age"],
-                stats=FutureStarStats(**candidate["stats"]),
+                playerId=candidate.playerId,
+                fullName=candidate.name,
+                organization=candidate.team,
+                level="MLB",
+                position=candidate.position,
+                age=candidate.age,
+                stats=FutureStarStats(
+                    ops=candidate.ops,
+                    homeRuns=candidate.homeRuns,
+                    stolenBases=candidate.stolenBases,
+                    avg=candidate.avg,
+                    rbi=candidate.rbi,
+                ),
                 similarity=round(similarity, 4),
                 similarityPercentage=round(similarity * 100),
-                reasons=future_star_reasons(candidate),
+                reasons=rising_star_reasons(candidate),
             )
             for candidate, similarity in scored[:limit]
         ]

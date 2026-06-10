@@ -94,6 +94,71 @@ async function fetchLeaderGroup({ categories, categoryToKey, statGroup }) {
   return { distributions, players: Object.values(playerMap) };
 }
 
+// ── 若手選手キャッシュ ────────────────────────────────────────────────────
+let youngPlayersCache = null;
+let youngPlayersCacheTime = null;
+
+/**
+ * リーグ上位200人の野手データから指定年齢以下の若手選手を返す。
+ * MLB Stats API の /api/v1/people でバッチ取得した年齢・ポジションを付与する。
+ * 24h キャッシュ済みのリーグデータを再利用するので、追加 API コールは初回のみ。
+ */
+const fetchYoungLeaguePlayers = async (maxAge = 26) => {
+  if (youngPlayersCache && youngPlayersCacheTime && Date.now() - youngPlayersCacheTime < CACHE_TTL) {
+    return youngPlayersCache;
+  }
+
+  const leagueStats = await fetchLeagueStats();
+  const players = leagueStats.hitter.players;
+  if (!players.length) return [];
+
+  // 50人ずつバッチで年齢・ポジションを取得（URL 長さ制限を避けるため）
+  const chunks = [];
+  for (let i = 0; i < players.length; i += 50) {
+    chunks.push(players.slice(i, i + 50));
+  }
+
+  const ageMap = {};
+  const positionMap = {};
+
+  await Promise.all(
+    chunks.map(async (chunk) => {
+      const ids = chunk.map((p) => p.playerId).join(",");
+      try {
+        const data = await fetchFromMlbApi(
+          `https://statsapi.mlb.com/api/v1/people?personIds=${ids}`,
+          "Failed to fetch player ages",
+        );
+        for (const person of data.people || []) {
+          ageMap[person.id] = person.currentAge ?? 99;
+          positionMap[person.id] = person.primaryPosition?.abbreviation ?? "";
+        }
+      } catch {
+        // バッチ取得失敗は黙って無視（そのチャンクの選手は年齢不明として除外される）
+      }
+    }),
+  );
+
+  const youngPlayers = players
+    .filter((p) => (ageMap[p.playerId] ?? 99) <= maxAge)
+    .map((p) => ({
+      playerId: p.playerId,
+      name:     p.name,
+      team:     p.team,
+      position: positionMap[p.playerId] ?? "",
+      age:      ageMap[p.playerId] ?? 0,
+      ops:      p.ops,
+      homeRuns: p.homeRuns,
+      stolenBases: p.stolenBases,
+      avg:      p.avg,
+      rbi:      p.rbi,
+    }));
+
+  youngPlayersCache = youngPlayers;
+  youngPlayersCacheTime = Date.now();
+  return youngPlayers;
+};
+
 const fetchLeagueStats = async () => {
   if (cache && cacheTime && Date.now() - cacheTime < CACHE_TTL) {
     return cache;
@@ -118,4 +183,4 @@ const fetchLeagueStats = async () => {
   return cache;
 };
 
-module.exports = { fetchLeagueStats };
+module.exports = { fetchLeagueStats, fetchYoungLeaguePlayers };

@@ -5,6 +5,7 @@ const {
   fetchRecommendedPlayersByTeam,
 } = require("../mlb");
 const { fetchFutureStars } = require("../fastApiService");
+const { fetchYoungLeaguePlayers } = require("../mlb/leagueStatsService");
 const { fallbackPlayers } = require("./fallbackPlayers");
 const { addUniqueRecommendations } = require("./recommendationUtils");
 
@@ -33,23 +34,17 @@ const pickPitcherStats = (favorite) => {
 
 const toFutureStarFavorite = (favorite) => {
   const hitterStats = pickHitterStats(favorite);
-  const pitcherStats = pickPitcherStats(favorite);
 
   return {
     playerId: Number(favorite.mlbPlayerId),
     fullName: favorite.fullName,
     position: favorite.position,
     stats: {
-      ops: toNumber(hitterStats.ops),
-      homeRuns: toNumber(hitterStats.homeRuns),
+      ops:         toNumber(hitterStats.ops),
+      homeRuns:    toNumber(hitterStats.homeRuns),
       stolenBases: toNumber(hitterStats.stolenBases),
-      walks: toNumber(hitterStats.baseOnBalls || hitterStats.walks),
-      strikeouts: toNumber(
-        hitterStats.strikeOuts ||
-          hitterStats.strikeouts ||
-          pitcherStats.strikeouts,
-      ),
-      age: toNumber(favorite.age),
+      avg:         toNumber(hitterStats.battingAverage || hitterStats.avg),
+      rbi:         toNumber(hitterStats.runsBattedIn  || hitterStats.rbi),
     },
   };
 };
@@ -118,15 +113,21 @@ const getFutureStarsForUser = async (userId) => {
     createdAt: -1,
   });
 
-  if (favorites.length === 0) {
-    return [];
-  }
+  if (favorites.length === 0) return [];
 
   const favoritePlayers = favorites
     .map(toFutureStarFavorite)
-    .filter((player) => player.playerId);
+    .filter((p) => p.playerId);
 
-  const futureStars = await fetchFutureStars(favoritePlayers, 5);
+  // MLB Stats API から25歳以下の若手選手を動的に取得して候補にする
+  let candidates = [];
+  try {
+    candidates = await fetchYoungLeaguePlayers(25);
+  } catch (err) {
+    console.warn("Young players fetch failed, using empty candidates:", err.message);
+  }
+
+  const futureStars = await fetchFutureStars(favoritePlayers, candidates, 5);
   return futureStars || [];
 };
 

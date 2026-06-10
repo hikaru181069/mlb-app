@@ -21,23 +21,19 @@ function FutureStarCard({ player }) {
       <div className="future-star-card-top">
         <span className="future-star-badge">
           <Sparkles size={14} strokeWidth={2} />
-          Future Star
+          Rising Star
         </span>
         <span className="future-star-score">
-          {player.similarityPercentage}%
+          {player.similarityPercentage}% match
         </span>
       </div>
 
       <h3>{player.fullName}</h3>
       <p className="future-star-org">
-        {player.organization} · {player.level}
+        {player.organization}{player.position ? ` · ${player.position}` : ""}
       </p>
 
       <dl className="future-star-meta">
-        <div>
-          <dt>Position</dt>
-          <dd>{player.position}</dd>
-        </div>
         <div>
           <dt>Age</dt>
           <dd>{player.age}</dd>
@@ -47,10 +43,12 @@ function FutureStarCard({ player }) {
           <dd>{player.stats?.ops?.toFixed?.(3) ?? "-"}</dd>
         </div>
         <div>
-          <dt>HR / SB</dt>
-          <dd>
-            {player.stats?.homeRuns ?? "-"} / {player.stats?.stolenBases ?? "-"}
-          </dd>
+          <dt>HR</dt>
+          <dd>{player.stats?.homeRuns ?? "-"}</dd>
+        </div>
+        <div>
+          <dt>AVG</dt>
+          <dd>{player.stats?.avg?.toFixed?.(3) ?? "-"}</dd>
         </div>
       </dl>
 
@@ -60,10 +58,6 @@ function FutureStarCard({ player }) {
             <span key={reason}>{reason}</span>
           ))}
         </div>
-      )}
-
-      {player.isExperimental && (
-        <p className="future-star-note">Experimental prospect recommendation</p>
       )}
     </article>
   );
@@ -211,12 +205,12 @@ function RecommendationsPage() {
           <div className="section-heading-row">
             <div className="section-heading">
               <h2>
-                Future Stars
+                Rising Stars
                 {futureStars.length > 0 && (
                   <span className="count-badge">{futureStars.length}</span>
                 )}
               </h2>
-              <p>Experimental prospect matches calculated by the FastAPI engine.</p>
+              <p>Young MLB players (age 25 and under) who match your play style preferences.</p>
             </div>
             <Star className="recommendation-section-icon" size={24} />
           </div>
