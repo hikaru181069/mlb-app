@@ -4,8 +4,8 @@ const getSimilarPlayers = async (req, res) => {
   const { playerId } = req.params;
 
   try {
-    const { mlbSimilar, youngSimilar } = await fetchSimilarPlayers(playerId);
-    res.json({ mlbSimilar, youngSimilar });
+    const { mlbSimilar, youngSimilar, targetArchetype, targetStyleScores } = await fetchSimilarPlayers(playerId);
+    res.json({ mlbSimilar, youngSimilar, targetArchetype, targetStyleScores });
   } catch (error) {
     console.error("Similar players error:", error.message);
     res.status(500).json({ message: "Failed to fetch similar players." });

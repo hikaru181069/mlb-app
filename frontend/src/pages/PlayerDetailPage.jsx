@@ -25,6 +25,7 @@ function PlayerDetailPage() {
   const [player, setPlayer] = useState(null);
   const [mlbSimilar, setMlbSimilar] = useState([]);
   const [youngSimilar, setYoungSimilar] = useState([]);
+  const [targetArchetype, setTargetArchetype] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [statsRef, statsVisible] = useReveal();
@@ -55,7 +56,7 @@ function PlayerDetailPage() {
           setPlayer({ ...localPlayer, ...externalPlayer });
           setFavoriteRecord(savedFavorite || null);
           setErrorMessage("");
-          getSimilarPlayers(localPlayer.playerId).then(({ mlbSimilar = [], youngSimilar = [] }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); });
+          getSimilarPlayers(localPlayer.playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetype = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetype(targetArchetype); });
           return;
         }
 
@@ -67,7 +68,7 @@ function PlayerDetailPage() {
           setPlayer(externalPlayer);
           setFavoriteRecord(savedFavorite || null);
           setErrorMessage("");
-          getSimilarPlayers(playerId).then(({ mlbSimilar = [], youngSimilar = [] }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); });
+          getSimilarPlayers(playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetype = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetype(targetArchetype); });
           return;
         }
 
@@ -85,7 +86,7 @@ function PlayerDetailPage() {
         setPlayer({ ...favoritePlayer, ...externalPlayer });
         setFavoriteRecord(favoritePlayer);
         setErrorMessage("");
-        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(({ mlbSimilar = [], youngSimilar = [] }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); });
+        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetype = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetype(targetArchetype); });
       } catch (error) {
         console.error("Fetch player error:", error);
         setPlayer(null);
@@ -221,6 +222,14 @@ function PlayerDetailPage() {
           <div className="detail-hero-copy">
             {player.source && player.source !== "Manual" && (
               <p className="source-badge">{player.source}</p>
+            )}
+            {targetArchetype && (
+              <Link
+                to={`/archetype/${targetArchetype.toLowerCase().replace(/\s+/g, "-")}`}
+                className="archetype-badge"
+              >
+                {targetArchetype}
+              </Link>
             )}
             <h1>{displayName}</h1>
             <dl className="detail-meta-list">

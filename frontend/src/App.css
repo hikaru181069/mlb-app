@@ -363,6 +363,28 @@ input {
   font-size: 14px;
 }
 
+.archetype-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto 10px;
+  padding: 5px 14px;
+  color: var(--ctp-base);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background-color: var(--ctp-blue);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.archetype-badge:hover {
+  opacity: 0.8;
+}
+
 .source-badge {
   display: inline-flex;
   align-items: center;

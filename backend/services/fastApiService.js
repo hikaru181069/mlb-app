@@ -127,6 +127,29 @@ const fetchDiscoverSimilar = async (target, mlbCandidates, youngCandidates, topN
   }
 };
 
+/**
+ * FastAPI の /archetype/classify を呼び出す。
+ * リーグ選手リストを k-means で分類してアーキタイプを返す。
+ */
+const fetchArchetypeClassify = async (payload) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/archetype/classify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) {
+      console.warn(`FastAPI archetype/classify responded with ${response.status}`);
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn(`FastAPI archetype/classify error: ${error.message}`);
+    return null;
+  }
+};
+
 const fetchScoutingReport = async (payload) => {
   try {
     const response = await fetch(`${FASTAPI_URL}/scouting-report`, {
@@ -154,4 +177,5 @@ module.exports = {
   fetchSimilarPlayerIds,
   fetchRecommendationScores,
   fetchDiscoverSimilar,
+  fetchArchetypeClassify,
 };

@@ -11,6 +11,7 @@ const { fetchExternalPlayerDetails, fetchExternalPlayerStats } = require("./play
 const { formatExternalPlayer, formatExternalStats } = require("./playerFormatter");
 const { fetchLeagueStats, fetchYoungLeaguePlayers, fetchYoungPitchers } = require("./leagueStatsService");
 const { fetchDiscoverSimilar } = require("../fastApiService");
+const { getPlayerArchetype } = require("./archetypeService");
 
 // 対象選手のスタッツを FastAPI に渡せる形式に変換する
 const toDiscoverTarget = (player, hitterStats, pitcherStats) => ({
@@ -124,13 +125,19 @@ const fetchSimilarPlayers = async (playerId) => {
   const mlbIds = new Set(result.mlbSimilar.map((p) => p.playerId));
   const dedupedYoung = result.youngSimilar.filter((p) => !mlbIds.has(p.playerId));
 
-  // 6. マッチした選手の詳細情報を取得
-  const [mlbSimilar, youngSimilar] = await Promise.all([
+  // 6. マッチした選手の詳細情報 + 対象選手のアーキタイプを並行取得
+  const [mlbSimilar, youngSimilar, archetypeData] = await Promise.all([
     fetchMatchDetails(result.mlbSimilar),
     fetchMatchDetails(dedupedYoung),
+    getPlayerArchetype(playerId),
   ]);
 
-  return { mlbSimilar, youngSimilar };
+  return {
+    mlbSimilar,
+    youngSimilar,
+    targetArchetype: archetypeData?.archetype || null,
+    targetStyleScores: archetypeData?.styleScores || null,
+  };
 };
 
 module.exports = { fetchSimilarPlayers };

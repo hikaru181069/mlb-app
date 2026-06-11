@@ -26,6 +26,7 @@ import LeaguePage from "./pages/LeaguePage";
 import ProfilePage from "./pages/ProfilePage";
 import RecommendationsPage from "./pages/RecommendationsPage";
 import ScoutPage from "./pages/ScoutPage";
+import ArchetypePage from "./pages/ArchetypePage";
 
 // [Phase 4] ページ遷移アニメーション
 // location.key を React の key に渡すことで、ページが変わるたびにコンポーネントが
@@ -63,6 +64,7 @@ function AnimatedRoutes() {
         <Route path="/players/new" element={<AddPlayerPage />} />
         <Route path="/players/:id/edit" element={<EditPlayerPage />} />
         <Route path="/players/:playerId" element={<PlayerDetailPage />} />
+        <Route path="/archetype/:type" element={<ArchetypePage />} />
       </Routes>
     </div>
   );
