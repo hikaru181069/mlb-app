@@ -9,6 +9,7 @@ const {
   fetchExternalPlayerStats,
 } = require("./playerStatsService");
 const { fetchRecommendationScores } = require("../fastApiService");
+const { fetchArchetypes } = require("./archetypeService");
 
 const toNumber = (value) => {
   const number = Number(value);
@@ -215,10 +216,21 @@ const fetchRecommendedPlayersByTeam = async (
     return { ...player, ...recommendation };
   });
 
-  const hitters = scoredPlayers
+  // アーキタイプを一括取得してマップする（キャッシュ済みなので高速）
+  let archetypeMap = {};
+  try {
+    archetypeMap = await fetchArchetypes();
+  } catch { /* FastAPI 未起動時は無視 */ }
+
+  const scoredWithArchetype = scoredPlayers.map((player) => ({
+    ...player,
+    archetype: archetypeMap[Number(player.mlbPlayerId)]?.archetype || null,
+  }));
+
+  const hitters = scoredWithArchetype
     .filter((player) => player.playerType === "hitter")
     .sort((a, b) => b.recommendationScore - a.recommendationScore);
-  const pitchers = scoredPlayers
+  const pitchers = scoredWithArchetype
     .filter((player) => player.playerType === "pitcher")
     .sort((a, b) => b.recommendationScore - a.recommendationScore);
 

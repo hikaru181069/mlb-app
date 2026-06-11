@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { Bot, Sparkles, Star } from "lucide-react";
 
 import PageHeader from "../components/PageHeader";
-import PlayerCard from "../components/PlayerCard";
-import SkeletonCard from "../components/SkeletonCard";
 import {
   getFutureStars,
   getRecommendations,
@@ -14,6 +12,106 @@ import {
   isUnauthorizedError,
 } from "../services/api/apiError";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
+
+// アーキタイプ名 → スラッグ・カラー
+const ARCHETYPE_COLORS = {
+  "Power Hitter":    "var(--ctp-red)",
+  "Speedster":       "var(--ctp-teal)",
+  "Contact Hitter":  "var(--ctp-green)",
+  "Five-Tool Threat":"var(--ctp-yellow)",
+  "All-Around":      "var(--ctp-blue)",
+  "Ace":             "var(--ctp-mauve)",
+  "Power Pitcher":   "var(--ctp-maroon)",
+  "Control Artist":  "var(--ctp-sapphire)",
+  "Workhorse":       "var(--ctp-peach)",
+};
+
+const archetypeSlug = (name) => name?.toLowerCase().replace(/\s+/g, "-") ?? "";
+
+// "Recommended from your favorite team" は reason に表示するので reasons タグからは除く
+const GENERIC_REASONS = new Set([
+  "Recommended from your favorite team",
+  "Has current season stats",
+  "Active roster player",
+]);
+
+function RecommendedPlayerCard({ player }) {
+  const color = ARCHETYPE_COLORS[player.archetype];
+  const slug  = archetypeSlug(player.archetype);
+
+  const tagReasons = (player.recommendationReasons || []).filter(
+    (r) => !GENERIC_REASONS.has(r),
+  );
+
+  const h = player.hitterStats  || player.currentSeasonStats?.hitterStats;
+  const p = player.pitcherStats || player.currentSeasonStats?.pitcherStats;
+
+  return (
+    <article className="rec-player-card">
+      {/* ── 左: 顔写真 ── */}
+      {player.image && (
+        <Link to={`/players/${player.playerId}`} className="rec-player-img-wrap">
+          <img src={player.image} alt={player.fullName} className="rec-player-img" />
+        </Link>
+      )}
+
+      {/* ── 右: 情報 ── */}
+      <div className="rec-player-body">
+        {/* 名前 + アーキタイプ */}
+        <div className="rec-player-header">
+          <Link to={`/players/${player.playerId}`} className="rec-player-name">
+            {player.fullName}
+          </Link>
+          {player.archetype && (
+            <Link
+              to={`/archetype/${slug}`}
+              className="rec-archetype-badge"
+              style={{ background: color }}
+            >
+              {player.archetype}
+            </Link>
+          )}
+        </div>
+
+        {/* チーム + ポジション */}
+        <p className="rec-player-meta">{player.team} · {player.position}</p>
+
+        {/* スタッツ */}
+        {player.playerType === "hitter" && h && (
+          <div className="rec-player-stats">
+            <span>.{String(Math.round((parseFloat(h.battingAverage || h.avg || 0)) * 1000)).padStart(3, "0")} AVG</span>
+            <span>{h.homeRuns ?? "—"} HR</span>
+            <span>{h.rbis ?? h.rbi ?? "—"} RBI</span>
+            <span>{h.ops ? parseFloat(h.ops).toFixed(3) : "—"} OPS</span>
+          </div>
+        )}
+        {player.playerType === "pitcher" && p && (
+          <div className="rec-player-stats">
+            <span>{p.era ?? "—"} ERA</span>
+            <span>{p.strikeouts ?? "—"} K</span>
+            <span>{p.inningsPitched ?? "—"} IP</span>
+          </div>
+        )}
+
+        {/* Why recommended */}
+        {player.reason && (
+          <p className="rec-player-reason">
+            <span className="rec-reason-label">Why:</span> {player.reason}
+          </p>
+        )}
+
+        {/* 特徴タグ */}
+        {tagReasons.length > 0 && (
+          <div className="rec-player-tags">
+            {tagReasons.map((r) => (
+              <span key={r} className="rec-reason-badge">{r}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
 
 function FutureStarCard({ player }) {
   return (
@@ -180,15 +278,22 @@ function RecommendationsPage() {
           </div>
 
           {loading ? (
-            <div className="player-list">
+            <div className="rec-player-list">
               {Array.from({ length: 3 }, (_, i) => (
-                <SkeletonCard key={i} />
+                <div key={i} className="rec-player-card rec-player-card--loading">
+                  <div className="rec-player-img-wrap skeleton-block" />
+                  <div className="rec-player-body">
+                    <div className="skeleton-block" style={{ height: 16, width: "60%", borderRadius: 6 }} />
+                    <div className="skeleton-block" style={{ height: 12, width: "40%", borderRadius: 6, marginTop: 8 }} />
+                    <div className="skeleton-block" style={{ height: 12, width: "80%", borderRadius: 6, marginTop: 8 }} />
+                  </div>
+                </div>
               ))}
             </div>
           ) : recommendations.length > 0 ? (
-            <div className="player-list">
+            <div className="rec-player-list">
               {recommendations.map((player) => (
-                <PlayerCard
+                <RecommendedPlayerCard
                   key={player.playerId || player.mlbPlayerId}
                   player={player}
                 />
