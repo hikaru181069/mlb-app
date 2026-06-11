@@ -26,23 +26,25 @@ const ARCHETYPE_COLORS = {
 };
 
 // styleScores の各軸 → 表示ラベルとカラー
-const STYLE_TRAIT_DEFS = [
-  { key: "power",      label: "Power",      color: "var(--ctp-red)"      },
-  { key: "speed",      label: "Speed",      color: "var(--ctp-teal)"     },
-  { key: "contact",    label: "Contact",    color: "var(--ctp-green)"    },
+// 野手・投手それぞれ3軸を定義
+const HITTER_TRAITS = [
+  { key: "power",   label: "Power",   color: "var(--ctp-red)"      },
+  { key: "speed",   label: "Speed",   color: "var(--ctp-teal)"     },
+  { key: "contact", label: "Contact", color: "var(--ctp-green)"    },
+];
+const PITCHER_TRAITS = [
   { key: "dominance",  label: "Dominance",  color: "var(--ctp-mauve)"    },
   { key: "control",    label: "Control",    color: "var(--ctp-sapphire)" },
   { key: "durability", label: "Durability", color: "var(--ctp-peach)"    },
 ];
 
-// スコアが高い順に最大3つのトレイトタグを返す
-const getStyleTraits = (styleScores) => {
+// playerType に応じた3軸を常にスコア順で返す（0でも表示）
+const getStyleTraits = (styleScores, playerType) => {
   if (!styleScores) return [];
-  return STYLE_TRAIT_DEFS
-    .filter(({ key }) => (styleScores[key] ?? 0) > 0)
-    .map((def) => ({ ...def, score: styleScores[def.key] }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
+  const defs = playerType === "pitcher" ? PITCHER_TRAITS : HITTER_TRAITS;
+  return defs
+    .map((def) => ({ ...def, score: styleScores[def.key] ?? 0 }))
+    .sort((a, b) => b.score - a.score);
 };
 
 const archetypeSlug = (name) => name?.toLowerCase().replace(/\s+/g, "-") ?? "";
@@ -58,7 +60,7 @@ function RecommendedPlayerCard({ player }) {
   const isAllAround = player.archetype === "All-Around";
   const color = ARCHETYPE_COLORS[player.archetype];
   const slug  = archetypeSlug(player.archetype);
-  const styleTraits = isAllAround ? getStyleTraits(player.styleScores) : [];
+  const styleTraits = isAllAround ? getStyleTraits(player.styleScores, player.playerType) : [];
 
   const tagReasons = (player.recommendationReasons || []).filter(
     (r) => !GENERIC_REASONS.has(r),
