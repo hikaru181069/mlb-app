@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PlayerCard from "../components/PlayerCard";
+import PageHeader from "../components/PageHeader";
 import { getPlayersByArchetype } from "../services/api/archetypeApi";
 
 // "power-hitter" → "Power Hitter"
@@ -36,49 +37,43 @@ function ArchetypePage() {
   }, [type]);
 
   return (
-    <div className="home-page px-6 py-12">
-      <div className="detail-actions">
-        <Link className="detail-nav-link" to="/">
-          ← Home
-        </Link>
-      </div>
+    <div className="app-screen">
+      <PageHeader
+        title={title}
+        subtitle={description}
+        kicker={!loading ? `${players.length} players` : ""}
+        backTo="/"
+        backLabel="Home"
+      />
 
-      <div className="section-heading" style={{ marginTop: "2rem" }}>
-        <h1>{title}</h1>
-        {description && <p className="section-heading-desc">{description}</p>}
-        {!loading && (
-          <p className="section-heading-desc" style={{ marginTop: "0.25rem" }}>
-            {players.length} players
-          </p>
+      <div className="screen-body px-6 py-6 w-full">
+        {loading ? (
+          <div className="player-list arch-player-list">
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="player-card animate-pulse">
+                <div className="rounded-lg bg-ctp-surface1" style={{ height: "200px" }} />
+              </div>
+            ))}
+          </div>
+        ) : players.length > 0 ? (
+          <div className="player-list arch-player-list">
+            {players.map((p) => (
+              <PlayerCard key={p.mlbPlayerId} player={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="home-empty-state">
+            <img
+              src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
+              alt=""
+              width={36}
+              height={36}
+              style={{ opacity: 0.5 }}
+            />
+            <p className="empty-state-title">No players found</p>
+          </div>
         )}
       </div>
-
-      {loading ? (
-        <div className="player-list arch-player-list">
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="player-card animate-pulse">
-              <div className="rounded-lg bg-ctp-surface1" style={{ height: "200px" }} />
-            </div>
-          ))}
-        </div>
-      ) : players.length > 0 ? (
-        <div className="player-list arch-player-list">
-          {players.map((p) => (
-            <PlayerCard key={p.mlbPlayerId} player={p} />
-          ))}
-        </div>
-      ) : (
-        <div className="home-empty-state">
-          <img
-            src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
-            alt=""
-            width={36}
-            height={36}
-            style={{ opacity: 0.5 }}
-          />
-          <p className="empty-state-title">No players found</p>
-        </div>
-      )}
     </div>
   );
 }
