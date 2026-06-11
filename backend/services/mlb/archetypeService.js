@@ -68,14 +68,14 @@ const fetchArchetypes = async () => {
   const map = {};
   for (const p of hitterResult?.players || []) {
     map[p.playerId] = {
-      archetype: p.archetype,
+      archetypes: p.archetypes || [],
       styleScores: p.styleScores,
       playerType: "hitter",
     };
   }
   for (const p of pitcherResult?.players || []) {
     map[p.playerId] = {
-      archetype: p.archetype,
+      archetypes: p.archetypes || [],
       styleScores: p.styleScores,
       playerType: "pitcher",
     };
@@ -110,7 +110,7 @@ const fetchPlayersByArchetype = async (typeSlug) => {
 
   const results = [];
   for (const [id, data] of Object.entries(archetypeMap)) {
-    if (normalize(data.archetype) !== normalize(typeSlug)) continue;
+    if (!(data.archetypes || []).some((a) => normalize(a) === normalize(typeSlug))) continue;
     const base = playerIndex[Number(id)];
     if (!base) continue;
     results.push({
@@ -120,7 +120,7 @@ const fetchPlayersByArchetype = async (typeSlug) => {
       position: base.position,
       playerType: base.playerType,
       image: MLB_HEADSHOT(id),
-      archetype: data.archetype,
+      archetypes: data.archetypes || [],
       styleScores: data.styleScores,
     });
   }

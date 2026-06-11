@@ -57,10 +57,10 @@ const GENERIC_REASONS = new Set([
 ]);
 
 function RecommendedPlayerCard({ player }) {
-  const isAllAround = player.archetype === "All-Around";
-  const color = ARCHETYPE_COLORS[player.archetype];
-  const slug  = archetypeSlug(player.archetype);
-  const styleTraits = isAllAround ? getStyleTraits(player.styleScores, player.playerType) : [];
+  const archetypes = player.archetypes || [];
+  const styleTraits = archetypes.length === 0
+    ? getStyleTraits(player.styleScores, player.playerType)
+    : [];
 
   const tagReasons = (player.recommendationReasons || []).filter(
     (r) => !GENERIC_REASONS.has(r),
@@ -80,27 +80,26 @@ function RecommendedPlayerCard({ player }) {
 
       {/* ── 右: 情報 ── */}
       <div className="rec-player-body">
-        {/* 名前 + アーキタイプ or スタイルトレイト */}
+        {/* 名前 + アーキタイプバッジ（複数）or スタイルトレイト */}
         <div className="rec-player-header">
           <Link to={`/players/${player.playerId}`} className="rec-player-name">
             {player.fullName}
           </Link>
-          {/* All-Around → スタイルトレイトタグを表示 */}
-          {isAllAround && styleTraits.map(({ key, label, color: c }) => (
+          {archetypes.map((arch) => (
+            <Link
+              key={arch}
+              to={`/archetype/${archetypeSlug(arch)}`}
+              className="rec-archetype-badge"
+              style={{ background: ARCHETYPE_COLORS[arch] }}
+            >
+              {arch}
+            </Link>
+          ))}
+          {styleTraits.map(({ key, label, color: c }) => (
             <span key={key} className="rec-style-trait" style={{ background: c }}>
               {label}
             </span>
           ))}
-          {/* その他 → アーキタイプバッジ */}
-          {!isAllAround && player.archetype && (
-            <Link
-              to={`/archetype/${slug}`}
-              className="rec-archetype-badge"
-              style={{ background: color }}
-            >
-              {player.archetype}
-            </Link>
-          )}
         </div>
 
         {/* チーム + ポジション */}
