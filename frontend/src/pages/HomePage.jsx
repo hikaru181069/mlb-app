@@ -26,6 +26,18 @@ import { useReveal } from "../hooks/useReveal";
 
 const SKELETON_COUNTS = { team: 2, favorites: 6, recommendations: 6, today: 4 };
 
+const ARCHETYPES = [
+  { slug: "power-hitter",    label: "Power Hitter",    desc: "Elite HR production",         color: "var(--ctp-red)"      },
+  { slug: "speedster",       label: "Speedster",        desc: "Elite speed & stolen bases",  color: "var(--ctp-teal)"     },
+  { slug: "contact-hitter",  label: "Contact Hitter",   desc: "High avg, consistent contact",color: "var(--ctp-green)"    },
+  { slug: "five-tool-threat",label: "Five-Tool Threat", desc: "Power, speed, and contact",   color: "var(--ctp-yellow)"   },
+  { slug: "all-around",      label: "All-Around",       desc: "Balanced offensive player",   color: "var(--ctp-blue)"     },
+  { slug: "ace",             label: "Ace",              desc: "Staff cornerstone pitcher",   color: "var(--ctp-mauve)"    },
+  { slug: "power-pitcher",   label: "Power Pitcher",    desc: "Overpowering strikeouts",     color: "var(--ctp-maroon)"   },
+  { slug: "control-artist",  label: "Control Artist",   desc: "Exceptional command",         color: "var(--ctp-sapphire)" },
+  { slug: "workhorse",       label: "Workhorse",        desc: "Durable innings-eater",       color: "var(--ctp-peach)"    },
+];
+
 const QUICK_ACTIONS = [
   { to: "/search",    Icon: Search,  label: "Search"    },
   { to: "/league",    Icon: Trophy,  label: "League"    },
@@ -81,6 +93,21 @@ function EmptyState({ config }) {
       <Link className="home-link secondary" to={config.action.to}>
         {config.action.label}
       </Link>
+    </div>
+  );
+}
+
+function ArchetypeGrid() {
+  return (
+    <div className="arch-grid">
+      {ARCHETYPES.map(({ slug, label, desc, color }) => (
+        <Link key={slug} to={`/archetype/${slug}`} className="arch-tile">
+          <span className="arch-tile-dot" style={{ background: color }} />
+          <span className="arch-tile-name">{label}</span>
+          <span className="arch-tile-desc">{desc}</span>
+          <span className="arch-tile-arrow">→</span>
+        </Link>
+      ))}
     </div>
   );
 }
@@ -221,6 +248,7 @@ function HomePage() {
   const [todayRef, todayVisible] = useReveal();
   const [favRef, favVisible] = useReveal();
   const [recRef, recVisible] = useReveal();
+  const [archetypeRef, archetypeVisible] = useReveal();
   const token = getAuthToken();
 
   // 個人化データ（ユーザー・お気に入り・おすすめ・My Team サマリー）をまとめて取得
@@ -601,6 +629,18 @@ function HomePage() {
             SKELETON_COUNTS.recommendations,
             EMPTY_STATES.recommendations,
           )}
+        </section>
+
+        {/* アーキタイプ一覧 */}
+        <section
+          ref={archetypeRef}
+          className={`home-player-section reveal reveal-delay-3${archetypeVisible ? " visible" : ""}`}
+        >
+          <SectionHeading
+            title="Browse by Archetype"
+            desc="Players classified by playing style using ML clustering."
+          />
+          <ArchetypeGrid />
         </section>
       </div>
     </div>
