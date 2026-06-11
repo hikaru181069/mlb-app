@@ -6372,3 +6372,302 @@ button:active {
   font-weight: 800;
   color: var(--ctp-text);
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Statistical Edge (ComparePage FastAPI 分析)
+───────────────────────────────────────────────────────────── */
+.edge-wrap {
+  margin-top: 1.5rem;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.edge-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ctp-subtext0);
+  margin-bottom: 16px;
+}
+
+.edge-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.edge-bar-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ctp-surface1);
+  overflow: hidden;
+  display: flex;
+}
+
+.edge-bar-fill--left {
+  height: 100%;
+  background: var(--ctp-blue);
+  border-radius: 999px 0 0 999px;
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.edge-bar-fill--right {
+  height: 100%;
+  background: var(--ctp-mauve);
+  border-radius: 0 999px 999px 0;
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.edge-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ctp-subtext1);
+  min-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.edge-name--left  { text-align: right; color: var(--ctp-blue); }
+.edge-name--right { text-align: left;  color: var(--ctp-mauve); }
+
+.edge-score-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.edge-score-num {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ctp-subtext0);
+}
+
+.edge-score-num--win { color: var(--ctp-text); }
+.edge-score-sep { color: var(--ctp-overlay0); font-size: 1rem; }
+
+.edge-insight {
+  font-size: 0.82rem;
+  color: var(--ctp-subtext1);
+  text-align: center;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.edge-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.edge-cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  min-width: 52px;
+  background: var(--ctp-surface1);
+}
+
+.edge-cat--player1 { border: 1px solid var(--ctp-blue);    background: color-mix(in srgb, var(--ctp-blue) 12%, var(--ctp-surface0)); }
+.edge-cat--player2 { border: 1px solid var(--ctp-mauve);   background: color-mix(in srgb, var(--ctp-mauve) 12%, var(--ctp-surface0)); }
+.edge-cat--tie     { border: 1px solid var(--ctp-surface2); }
+
+.edge-cat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ctp-subtext0);
+}
+
+.edge-cat-scores {
+  font-size: 0.68rem;
+  color: var(--ctp-overlay1);
+  margin-top: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Matchup Prediction (MatchupPage FastAPI 予想成績)
+───────────────────────────────────────────────────────────── */
+.pred-wrap {
+  margin-top: 1.5rem;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.pred-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ctp-subtext0);
+  margin-bottom: 4px;
+}
+
+.pred-subtitle {
+  font-size: 0.72rem;
+  color: var(--ctp-overlay1);
+  margin-bottom: 16px;
+}
+
+.pred-adv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.pred-adv-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ctp-surface1);
+  overflow: hidden;
+}
+
+.pred-adv-fill--pitcher {
+  height: 100%;
+  background: var(--ctp-red);
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pred-adv-fill--batter {
+  height: 100%;
+  background: var(--ctp-green);
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pred-adv-fill--even {
+  height: 100%;
+  background: var(--ctp-yellow);
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pred-adv-name {
+  font-size: 0.70rem;
+  font-weight: 600;
+  min-width: 72px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pred-adv-name--pitcher { text-align: right; color: var(--ctp-red);   }
+.pred-adv-name--batter  { text-align: left;  color: var(--ctp-green); }
+
+.pred-adv-label {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ctp-subtext0);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+
+.pred-quality-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.pred-quality-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 10px;
+  min-width: 110px;
+}
+
+.pred-quality-pill--pitcher { background: color-mix(in srgb, var(--ctp-red)   12%, var(--ctp-surface0)); border: 1px solid var(--ctp-red);   }
+.pred-quality-pill--batter  { background: color-mix(in srgb, var(--ctp-green) 12%, var(--ctp-surface0)); border: 1px solid var(--ctp-green); }
+
+.pred-quality-score {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--ctp-text);
+  line-height: 1;
+}
+
+.pred-quality-label {
+  font-size: 0.64rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ctp-subtext0);
+  margin-top: 4px;
+}
+
+.pred-bars { margin-bottom: 16px; }
+
+.pred-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ctp-surface1);
+}
+
+.pred-bar-row:last-child { border-bottom: none; }
+
+.pred-bar-label {
+  width: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ctp-subtext1);
+  flex-shrink: 0;
+}
+
+.pred-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ctp-surface1);
+  overflow: hidden;
+}
+
+.pred-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pred-bar-fill--blue   { background: var(--ctp-blue);   }
+.pred-bar-fill--red    { background: var(--ctp-red);    }
+.pred-bar-fill--green  { background: var(--ctp-green);  }
+.pred-bar-fill--orange { background: var(--ctp-peach);  }
+
+.pred-bar-value {
+  width: 44px;
+  text-align: right;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ctp-text);
+  flex-shrink: 0;
+}
+
+.pred-insight {
+  font-size: 0.82rem;
+  color: var(--ctp-subtext1);
+  text-align: center;
+  line-height: 1.5;
+  padding-top: 12px;
+  border-top: 1px solid var(--ctp-surface1);
+}

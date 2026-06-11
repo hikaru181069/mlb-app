@@ -13,3 +13,11 @@ export const getMatchupStats = async (pitcherId, batterId) => {
   if (!res.ok) throw new Error("Failed to fetch matchup stats");
   return res.json();
 };
+
+export const getMatchupPrediction = async (pitcherId, batterId) => {
+  const res = await fetch(
+    `${API_URL}/api/matchup/predict?pitcherId=${pitcherId}&batterId=${batterId}`,
+  );
+  if (!res.ok) return null;
+  return res.json();
+};

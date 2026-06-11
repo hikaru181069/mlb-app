@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
 import PageHeader from "../components/PageHeader";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
+import { getCompareAnalysis } from "../services/api/compareApi";
 
 // --- stat definitions ---
 const HITTER_STATS = [
@@ -208,11 +209,85 @@ function BattleResult({ player1, player2, leftHitter, leftPitcher, rightHitter, 
   );
 }
 
+// --- StatisticalEdge (FastAPI /compare/analyze の結果を表示) ---
+const CAT_LABEL = {
+  ops: "OPS", homeRuns: "HR", stolenBases: "SB", avg: "AVG", rbi: "RBI",
+  era: "ERA", whip: "WHIP", strikeouts: "K", walks: "BB", wins: "W", innings: "IP",
+};
+
+function StatisticalEdge({ analysis, name1, name2 }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!analysis) return null;
+
+  const { edgeScore, overallEdge, insight, categoryWinners,
+          player1Percentiles, player2Percentiles } = analysis;
+
+  // edgeScore 0-100: 50=互角、>50=player1 有利
+  const p1Pct = edgeScore;          // player1 バーの幅
+  const p2Pct = 100 - edgeScore;    // player2 バーの幅
+
+  return (
+    <div className="edge-wrap">
+      <p className="edge-title">Statistical Edge</p>
+
+      {/* 左右バー */}
+      <div className="edge-bar-row">
+        <span className="edge-name edge-name--left">{name1}</span>
+        <div className="edge-bar-track">
+          <div
+            className="edge-bar-fill edge-bar-fill--left"
+            style={{ width: visible ? `${p1Pct}%` : "50%" }}
+          />
+          <div
+            className="edge-bar-fill edge-bar-fill--right"
+            style={{ width: visible ? `${p2Pct}%` : "50%" }}
+          />
+        </div>
+        <span className="edge-name edge-name--right">{name2}</span>
+      </div>
+
+      {/* スコア表示 */}
+      <div className="edge-score-row">
+        <span className={`edge-score-num ${overallEdge === "player1" ? "edge-score-num--win" : ""}`}>
+          {p1Pct}
+        </span>
+        <span className="edge-score-sep">—</span>
+        <span className={`edge-score-num ${overallEdge === "player2" ? "edge-score-num--win" : ""}`}>
+          {p2Pct}
+        </span>
+      </div>
+
+      {/* インサイト文 */}
+      <p className="edge-insight">{insight}</p>
+
+      {/* カテゴリ別ピル */}
+      <div className="edge-cats">
+        {Object.entries(categoryWinners).map(([cat, winner]) => {
+          const p1 = player1Percentiles[cat] ?? 0;
+          const p2 = player2Percentiles[cat] ?? 0;
+          return (
+            <div key={cat} className={`edge-cat edge-cat--${winner}`}>
+              <span className="edge-cat-label">{CAT_LABEL[cat] ?? cat}</span>
+              <span className="edge-cat-scores">{p1} vs {p2}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // --- Main page ---
 function ComparePage() {
   const [searchParams] = useSearchParams();
   const [player1, setPlayer1] = useState(null);
   const [player2, setPlayer2] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
   const [loadingInit, setLoadingInit] = useState(false);
 
   // URL params から自動ロード (Favorites 経由)
@@ -239,6 +314,17 @@ function ComparePage() {
     load();
   }, [searchParams]);
 
+  // 両選手が揃ったら FastAPI 分析を取得
+  useEffect(() => {
+    if (!player1?.mlbPlayerId || !player2?.mlbPlayerId) {
+      setAnalysis(null);
+      return;
+    }
+    getCompareAnalysis(player1.mlbPlayerId, player2.mlbPlayerId)
+      .then(setAnalysis)
+      .catch(() => setAnalysis(null));
+  }, [player1?.mlbPlayerId, player2?.mlbPlayerId]);
+
   const season     = new Date().getFullYear();
   const bothLoaded = player1 && player2;
 
@@ -249,6 +335,9 @@ function ComparePage() {
   const leftPitcher = player1?.currentSeasonStats?.pitcherStats || player1?.pitcherStats;
   const rightHitter = player2?.currentSeasonStats?.hitterStats  || player2?.hitterStats;
   const rightPitcher= player2?.currentSeasonStats?.pitcherStats || player2?.pitcherStats;
+
+  const name1 = player1?.fullName || player1?.name || "Player 1";
+  const name2 = player2?.fullName || player2?.name || "Player 2";
 
   return (
     <div className="app-screen">
@@ -282,6 +371,16 @@ function ComparePage() {
                 leftPitcher={leftPitcher}
                 rightHitter={rightHitter}
                 rightPitcher={rightPitcher}
+              />
+            )}
+
+            {/* FastAPI 統計的優劣分析 */}
+            {bothLoaded && (
+              <StatisticalEdge
+                key={animKey}
+                analysis={analysis}
+                name1={name1}
+                name2={name2}
               />
             )}
 

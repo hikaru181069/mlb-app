@@ -11,7 +11,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
 import PageHeader from "../components/PageHeader";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
-import { getMatchupStats } from "../services/api/matchupApi";
+import { getMatchupStats, getMatchupPrediction } from "../services/api/matchupApi";
 
 // レートスタット: 棒グラフで視覚化（max は現実的な上限値）
 const RATE_STATS = [
@@ -93,7 +93,7 @@ function RateBar({ statDef, value }) {
 }
 
 // 対戦成績（新デザイン）
-function MatchupStatsGrid({ stats, pitcher, batter }) {
+function MatchupStatsGrid({ stats }) {
   return (
     <div className="matchup-stats-wrap">
       <p className="matchup-stats-title">Career Matchup Stats</p>
@@ -139,11 +139,93 @@ function MatchupStatsGrid({ stats, pitcher, batter }) {
   );
 }
 
+// ── Matchup Prediction (FastAPI /matchup/predict の結果を表示) ───────────────
+function PredictionBar({ label, value, max, color }) {
+  const [animated, setAnimated] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 80);
+    return () => clearTimeout(t);
+  }, []);
+  const pct = Math.min(100, (value / max) * 100);
+  return (
+    <div className="pred-bar-row">
+      <span className="pred-bar-label">{label}</span>
+      <div className="pred-bar-track">
+        <div
+          className={`pred-bar-fill pred-bar-fill--${color}`}
+          style={{ width: animated ? `${pct}%` : "0%" }}
+        />
+      </div>
+      <span className="pred-bar-value">{value}</span>
+    </div>
+  );
+}
+
+function MatchupPrediction({ prediction, pitcherName, batterName }) {
+  if (!prediction) return null;
+
+  const {
+    expectedBA, kProbability, bbProbability, hrProbabilityPerPA,
+    advantage, advantageScore, pitcherQualityScore, batterQualityScore, insight,
+  } = prediction;
+
+  const advantageLabel =
+    advantage === "pitcher" ? pitcherName :
+    advantage === "batter"  ? batterName  : "Even";
+
+  return (
+    <div className="pred-wrap">
+      <p className="pred-title">Matchup Prediction</p>
+      <p className="pred-subtitle">Based on 2025 season stats vs league distribution</p>
+
+      {/* アドバンテージバー */}
+      <div className="pred-adv-row">
+        <span className="pred-adv-name pred-adv-name--pitcher">{pitcherName}</span>
+        <div className="pred-adv-track">
+          <div
+            className={`pred-adv-fill pred-adv-fill--${advantage}`}
+            style={{ width: `${advantageScore}%` }}
+          />
+        </div>
+        <span className="pred-adv-name pred-adv-name--batter">{batterName}</span>
+      </div>
+      <p className="pred-adv-label">
+        {advantageLabel === "Even" ? "Competitive Matchup" : `${advantageLabel} Advantage`}
+      </p>
+
+      {/* 品質スコア */}
+      <div className="pred-quality-row">
+        <div className="pred-quality-pill pred-quality-pill--pitcher">
+          <span className="pred-quality-score">{pitcherQualityScore}</span>
+          <span className="pred-quality-label">Pitcher Quality</span>
+        </div>
+        <div className="pred-quality-pill pred-quality-pill--batter">
+          <span className="pred-quality-score">{batterQualityScore}</span>
+          <span className="pred-quality-label">Batter Quality</span>
+        </div>
+      </div>
+
+      {/* 予想成績バー */}
+      <div className="pred-bars">
+        <p className="mstats-section-title">Predicted Outcomes</p>
+        <PredictionBar label="Expected BA"  value={expectedBA}        max={0.5}  color="blue" />
+        <PredictionBar label="K %"          value={`${kProbability}%`}  max={60}   color="red"  />
+        <PredictionBar label="BB %"         value={`${bbProbability}%`} max={25}   color="green"/>
+        <PredictionBar label="HR / PA"      value={`${hrProbabilityPerPA}%`} max={15} color="orange"/>
+      </div>
+
+      {/* インサイト */}
+      <p className="pred-insight">{insight}</p>
+    </div>
+  );
+}
+
 function MatchupPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [pitcher, setPitcher] = useState(null);
   const [batter, setBatter] = useState(null);
   const [matchupStats, setMatchupStats] = useState(null);
+  const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [loadingInit, setLoadingInit] = useState(false);
@@ -172,29 +254,31 @@ function MatchupPage() {
     load();
   }, []);  // 初回マウント時のみ
 
-  // 両選手が揃ったら対戦成績を取得
+  // 両選手が揃ったら対戦成績 + 予想成績を並列取得
   useEffect(() => {
     if (!pitcher || !batter) {
       setMatchupStats(null);
+      setPrediction(null);
       return;
     }
 
-    const fetchStats = async () => {
+    const fetchAll = async () => {
       setLoading(true);
       setError("");
       try {
-        const result = await getMatchupStats(
-          pitcher.mlbPlayerId,
-          batter.mlbPlayerId,
-        );
-        setMatchupStats(result);
+        const [stats, pred] = await Promise.all([
+          getMatchupStats(pitcher.mlbPlayerId, batter.mlbPlayerId),
+          getMatchupPrediction(pitcher.mlbPlayerId, batter.mlbPlayerId),
+        ]);
+        setMatchupStats(stats);
+        setPrediction(pred);
       } catch {
         setError("Failed to load matchup stats.");
       } finally {
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchAll();
   }, [pitcher, batter]);
 
   // 選手選択時に URL params を更新（ブックマーク・共有対応）
@@ -267,7 +351,16 @@ function MatchupPage() {
               </div>
             )}
 
-            {/* 対戦成績 */}
+            {/* FastAPI 予想成績 */}
+            {bothSelected && !loading && (
+              <MatchupPrediction
+                prediction={prediction}
+                pitcherName={pitcher?.fullName || pitcher?.name || "Pitcher"}
+                batterName={batter?.fullName  || batter?.name  || "Batter"}
+              />
+            )}
+
+            {/* MLB Stats API 実際の対戦成績 */}
             {loading && (
               <p className="compare-loading">Loading matchup stats…</p>
             )}
