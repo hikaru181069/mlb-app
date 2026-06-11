@@ -54,7 +54,7 @@ function ArchetypePage() {
       </div>
 
       {loading ? (
-        <div className="player-list">
+        <div className="player-list arch-player-list">
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="player-card animate-pulse">
               <div className="rounded-lg bg-ctp-surface1" style={{ height: "200px" }} />
@@ -62,7 +62,7 @@ function ArchetypePage() {
           ))}
         </div>
       ) : players.length > 0 ? (
-        <div className="player-list">
+        <div className="player-list arch-player-list">
           {players.map((p) => (
             <PlayerCard key={p.mlbPlayerId} player={p} />
           ))}
