@@ -117,6 +117,7 @@ const fetchPlayersByArchetype = async (typeSlug) => {
       mlbPlayerId: Number(id),
       name: base.name,
       team: base.team,
+      position: base.position,
       playerType: base.playerType,
       image: MLB_HEADSHOT(id),
       archetype: data.archetype,
