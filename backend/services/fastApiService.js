@@ -171,6 +171,52 @@ const fetchScoutingReport = async (payload) => {
   }
 };
 
+/**
+ * FastAPI の /compare/analyze を呼び出す。
+ * 2選手のスタッツとリーグ分布を渡し、カテゴリ別優劣 + 総合アドバンテージを返す。
+ */
+const fetchCompareAnalyze = async (payload) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/compare/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) {
+      console.warn(`FastAPI compare/analyze responded with ${response.status}`);
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn(`FastAPI compare/analyze error: ${error.message}`);
+    return null;
+  }
+};
+
+/**
+ * FastAPI の /matchup/predict を呼び出す。
+ * 投手と打者のスタッツとリーグ分布を渡し、予想成績 + アドバンテージを返す。
+ */
+const fetchMatchupPredict = async (payload) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/matchup/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) {
+      console.warn(`FastAPI matchup/predict responded with ${response.status}`);
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn(`FastAPI matchup/predict error: ${error.message}`);
+    return null;
+  }
+};
+
 module.exports = {
   fetchFutureStars,
   fetchScoutingReport,
@@ -178,4 +224,6 @@ module.exports = {
   fetchRecommendationScores,
   fetchDiscoverSimilar,
   fetchArchetypeClassify,
+  fetchCompareAnalyze,
+  fetchMatchupPredict,
 };

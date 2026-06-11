@@ -1,13 +1,13 @@
 // 対戦成績コントローラー
-// MLB Stats API の vsPlayer エンドポイントを使い、
-// 投手 vs 打者のキャリア通算対戦成績を返す。
 //
-// データの流れ:
-//   GET /api/matchup?pitcherId=660271&batterId=592450
-//     → MLB Stats API: /people/{pitcherId}/stats?stats=vsPlayer&group=pitching&opposingPlayerId={batterId}
-//     → 集計データを整形して返す
+// エンドポイント:
+//   GET /api/matchup          → MLB Stats API vsPlayer で実際の対戦成績
+//   GET /api/matchup/predict  → FastAPI でスタッツベースの予想成績を算出
 
 const { fetchFromMlbApi } = require("../services/mlb/mlbClient");
+const { fetchExternalPlayerFullDetails } = require("../services/mlb");
+const { fetchLeagueStats } = require("../services/mlb/leagueStatsService");
+const { fetchMatchupPredict } = require("../services/fastApiService");
 
 const getMatchupStats = async (req, res) => {
   const { pitcherId, batterId } = req.query;
@@ -60,4 +60,64 @@ const getMatchupStats = async (req, res) => {
   }
 };
 
-module.exports = { getMatchupStats };
+// GET /api/matchup/predict?pitcherId=X&batterId=Y
+// FastAPI でスタッツベースの予想成績を算出して返す
+const getMatchupPrediction = async (req, res) => {
+  const { pitcherId, batterId } = req.query;
+
+  if (!pitcherId || !batterId) {
+    return res.status(400).json({ message: "pitcherId and batterId are required." });
+  }
+
+  try {
+    const [pitcherData, batterData, leagueStats] = await Promise.all([
+      fetchExternalPlayerFullDetails(parseInt(pitcherId)),
+      fetchExternalPlayerFullDetails(parseInt(batterId)),
+      fetchLeagueStats(),
+    ]);
+
+    if (!pitcherData || !batterData) {
+      return res.status(404).json({ message: "One or both players not found." });
+    }
+
+    const ps = pitcherData.currentSeasonStats?.pitcherStats || {};
+    const bs = batterData.currentSeasonStats?.hitterStats   || {};
+
+    const payload = {
+      pitcher: {
+        playerId:   parseInt(pitcherId),
+        name:       pitcherData.fullName || pitcherData.name || "",
+        era:        parseFloat(ps.era)            || 0,
+        whip:       parseFloat(ps.whip)           || 0,
+        strikeouts: parseInt(ps.strikeouts)        || 0,
+        walks:      parseInt(ps.baseOnBalls)       || 0,
+        wins:       parseInt(ps.wins)              || 0,
+        innings:    parseFloat(ps.inningsPitched)  || 0,
+      },
+      batter: {
+        playerId:    parseInt(batterId),
+        name:        batterData.fullName || batterData.name || "",
+        avg:         parseFloat(bs.battingAverage) || 0,
+        ops:         parseFloat(bs.ops)            || 0,
+        homeRuns:    parseInt(bs.homeRuns)          || 0,
+        stolenBases: parseInt(bs.stolenBases)       || 0,
+        rbi:         parseInt(bs.runsBattedIn)      || 0,
+      },
+      pitcherLeague: leagueStats.pitcher.distributions,
+      batterLeague:  leagueStats.hitter.distributions,
+    };
+
+    const prediction = await fetchMatchupPredict(payload);
+
+    if (!prediction) {
+      return res.status(503).json({ message: "FastAPI prediction unavailable." });
+    }
+
+    res.json(prediction);
+  } catch (error) {
+    console.error("Matchup predict error:", error.message);
+    res.status(500).json({ message: "Failed to fetch matchup prediction." });
+  }
+};
+
+module.exports = { getMatchupStats, getMatchupPrediction };

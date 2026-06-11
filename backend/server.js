@@ -19,6 +19,7 @@ const gameRoutes = require("./routes/gameRoutes");
 const newsRoutes = require("./routes/newsRoutes");
 const scoutRoutes = require("./routes/scoutRoutes");
 const archetypeRoutes = require("./routes/archetypeRoutes");
+const compareRoutes = require("./routes/compareRoutes");
 
 dotenv.config();
 connectDB();
@@ -59,6 +60,7 @@ app.use("/api/games", gameRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/scout", scoutRoutes);
 app.use("/api/archetype", archetypeRoutes);
+app.use("/api/compare", compareRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend server is running");
