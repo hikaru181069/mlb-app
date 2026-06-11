@@ -13,17 +13,36 @@ import {
 } from "../services/api/apiError";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 
-// アーキタイプ名 → スラッグ・カラー
+// アーキタイプ名 → カラー
 const ARCHETYPE_COLORS = {
   "Power Hitter":    "var(--ctp-red)",
   "Speedster":       "var(--ctp-teal)",
   "Contact Hitter":  "var(--ctp-green)",
   "Five-Tool Threat":"var(--ctp-yellow)",
-  "All-Around":      "var(--ctp-blue)",
   "Ace":             "var(--ctp-mauve)",
   "Power Pitcher":   "var(--ctp-maroon)",
   "Control Artist":  "var(--ctp-sapphire)",
   "Workhorse":       "var(--ctp-peach)",
+};
+
+// styleScores の各軸 → 表示ラベルとカラー
+const STYLE_TRAIT_DEFS = [
+  { key: "power",      label: "Power",      color: "var(--ctp-red)"      },
+  { key: "speed",      label: "Speed",      color: "var(--ctp-teal)"     },
+  { key: "contact",    label: "Contact",    color: "var(--ctp-green)"    },
+  { key: "dominance",  label: "Dominance",  color: "var(--ctp-mauve)"    },
+  { key: "control",    label: "Control",    color: "var(--ctp-sapphire)" },
+  { key: "durability", label: "Durability", color: "var(--ctp-peach)"    },
+];
+
+// スコアが高い順に最大3つのトレイトタグを返す
+const getStyleTraits = (styleScores) => {
+  if (!styleScores) return [];
+  return STYLE_TRAIT_DEFS
+    .filter(({ key }) => (styleScores[key] ?? 0) > 0)
+    .map((def) => ({ ...def, score: styleScores[def.key] }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
 };
 
 const archetypeSlug = (name) => name?.toLowerCase().replace(/\s+/g, "-") ?? "";
@@ -36,8 +55,10 @@ const GENERIC_REASONS = new Set([
 ]);
 
 function RecommendedPlayerCard({ player }) {
+  const isAllAround = player.archetype === "All-Around";
   const color = ARCHETYPE_COLORS[player.archetype];
   const slug  = archetypeSlug(player.archetype);
+  const styleTraits = isAllAround ? getStyleTraits(player.styleScores) : [];
 
   const tagReasons = (player.recommendationReasons || []).filter(
     (r) => !GENERIC_REASONS.has(r),
@@ -57,12 +78,19 @@ function RecommendedPlayerCard({ player }) {
 
       {/* ── 右: 情報 ── */}
       <div className="rec-player-body">
-        {/* 名前 + アーキタイプ */}
+        {/* 名前 + アーキタイプ or スタイルトレイト */}
         <div className="rec-player-header">
           <Link to={`/players/${player.playerId}`} className="rec-player-name">
             {player.fullName}
           </Link>
-          {player.archetype && (
+          {/* All-Around → スタイルトレイトタグを表示 */}
+          {isAllAround && styleTraits.map(({ key, label, color: c }) => (
+            <span key={key} className="rec-style-trait" style={{ background: c }}>
+              {label}
+            </span>
+          ))}
+          {/* その他 → アーキタイプバッジ */}
+          {!isAllAround && player.archetype && (
             <Link
               to={`/archetype/${slug}`}
               className="rec-archetype-badge"

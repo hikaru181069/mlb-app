@@ -6793,6 +6793,20 @@ button:active {
   background: var(--ctp-surface1);
 }
 
+/* All-Around 選手のスタイルトレイトタグ */
+.rec-style-trait {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ctp-base);
+  opacity: 0.85;
+}
+
 /* ── Archetype Grid (HomePage) ──────────────────────────────────────── */
 .arch-grid {
   display: grid;

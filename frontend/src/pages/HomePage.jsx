@@ -31,7 +31,6 @@ const ARCHETYPES = [
   { slug: "speedster",       label: "Speedster",        desc: "Elite speed & stolen bases",  color: "var(--ctp-teal)"     },
   { slug: "contact-hitter",  label: "Contact Hitter",   desc: "High avg, consistent contact",color: "var(--ctp-green)"    },
   { slug: "five-tool-threat",label: "Five-Tool Threat", desc: "Power, speed, and contact",   color: "var(--ctp-yellow)"   },
-  { slug: "all-around",      label: "All-Around",       desc: "Balanced offensive player",   color: "var(--ctp-blue)"     },
   { slug: "ace",             label: "Ace",              desc: "Staff cornerstone pitcher",   color: "var(--ctp-mauve)"    },
   { slug: "power-pitcher",   label: "Power Pitcher",    desc: "Overpowering strikeouts",     color: "var(--ctp-maroon)"   },
   { slug: "control-artist",  label: "Control Artist",   desc: "Exceptional command",         color: "var(--ctp-sapphire)" },

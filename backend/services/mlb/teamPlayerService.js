@@ -224,7 +224,8 @@ const fetchRecommendedPlayersByTeam = async (
 
   const scoredWithArchetype = scoredPlayers.map((player) => ({
     ...player,
-    archetype: archetypeMap[Number(player.mlbPlayerId)]?.archetype || null,
+    archetype:   archetypeMap[Number(player.mlbPlayerId)]?.archetype    || null,
+    styleScores: archetypeMap[Number(player.mlbPlayerId)]?.styleScores || null,
   }));
 
   const hitters = scoredWithArchetype
