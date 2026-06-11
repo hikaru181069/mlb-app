@@ -135,7 +135,7 @@ const fetchSimilarPlayers = async (playerId) => {
   return {
     mlbSimilar,
     youngSimilar,
-    targetArchetype: archetypeData?.archetype || null,
+    targetArchetypes: archetypeData?.archetypes || [],
     targetStyleScores: archetypeData?.styleScores || null,
   };
 };

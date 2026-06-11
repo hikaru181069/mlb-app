@@ -12,7 +12,7 @@ const formatRecommendation = (player, reason) => {
     active: player.active,
     recommendationScore: player.recommendationScore,
     recommendationReasons: player.recommendationReasons,
-    archetype:   player.archetype   || null,
+    archetypes:  player.archetypes  || [],
     styleScores: player.styleScores || null,
     source: "Recommendation",
     reason,

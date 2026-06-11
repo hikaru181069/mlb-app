@@ -25,7 +25,7 @@ function PlayerDetailPage() {
   const [player, setPlayer] = useState(null);
   const [mlbSimilar, setMlbSimilar] = useState([]);
   const [youngSimilar, setYoungSimilar] = useState([]);
-  const [targetArchetype, setTargetArchetype] = useState(null);
+  const [targetArchetypes, setTargetArchetypes] = useState([]);
   const [targetStyleScores, setTargetStyleScores] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [favoriteRecord, setFavoriteRecord] = useState(null);
@@ -57,7 +57,7 @@ function PlayerDetailPage() {
           setPlayer({ ...localPlayer, ...externalPlayer });
           setFavoriteRecord(savedFavorite || null);
           setErrorMessage("");
-          getSimilarPlayers(localPlayer.playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetype = null, targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetype(targetArchetype); setTargetStyleScores(targetStyleScores); });
+          getSimilarPlayers(localPlayer.playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); });
           return;
         }
 
@@ -69,7 +69,7 @@ function PlayerDetailPage() {
           setPlayer(externalPlayer);
           setFavoriteRecord(savedFavorite || null);
           setErrorMessage("");
-          getSimilarPlayers(playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetype = null, targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetype(targetArchetype); setTargetStyleScores(targetStyleScores); });
+          getSimilarPlayers(playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); });
           return;
         }
 
@@ -87,7 +87,7 @@ function PlayerDetailPage() {
         setPlayer({ ...favoritePlayer, ...externalPlayer });
         setFavoriteRecord(favoritePlayer);
         setErrorMessage("");
-        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetype = null, targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetype(targetArchetype); setTargetStyleScores(targetStyleScores); });
+        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); });
       } catch (error) {
         console.error("Fetch player error:", error);
         setPlayer(null);
@@ -224,36 +224,39 @@ function PlayerDetailPage() {
             {player.source && player.source !== "Manual" && (
               <p className="source-badge">{player.source}</p>
             )}
-            {targetArchetype && targetArchetype !== "All-Around" && (
-              <Link
-                to={`/archetype/${targetArchetype.toLowerCase().replace(/\s+/g, "-")}`}
-                className="archetype-badge"
-              >
-                {targetArchetype}
-              </Link>
-            )}
-            {targetArchetype === "All-Around" && targetStyleScores && (() => {
-              const isP = player?.playerType === "pitcher" || player?.position === "P";
-              const defs = isP
-                ? [
-                    { key: "dominance",  label: "Dominance",  color: "var(--ctp-mauve)"    },
-                    { key: "control",    label: "Control",    color: "var(--ctp-sapphire)" },
-                    { key: "durability", label: "Durability", color: "var(--ctp-peach)"    },
-                  ]
-                : [
-                    { key: "power",   label: "Power",   color: "var(--ctp-red)"   },
-                    { key: "speed",   label: "Speed",   color: "var(--ctp-teal)"  },
-                    { key: "contact", label: "Contact", color: "var(--ctp-green)" },
-                  ];
-              return defs
-                .map((d) => ({ ...d, score: targetStyleScores[d.key] ?? 0 }))
-                .sort((a, b) => b.score - a.score)
-                .map(({ key, label, color }) => (
-                  <span key={key} className="archetype-badge" style={{ background: color, color: "var(--ctp-base)" }}>
-                    {label}
-                  </span>
-                ));
-            })()}
+            {targetArchetypes.length > 0
+              ? targetArchetypes.map((arch) => (
+                  <Link
+                    key={arch}
+                    to={`/archetype/${arch.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="archetype-badge"
+                  >
+                    {arch}
+                  </Link>
+                ))
+              : targetStyleScores && (() => {
+                  const isP = player?.playerType === "pitcher" || player?.position === "P";
+                  const defs = isP
+                    ? [
+                        { key: "dominance",  label: "Dominance",  color: "var(--ctp-mauve)"    },
+                        { key: "control",    label: "Control",    color: "var(--ctp-sapphire)" },
+                        { key: "durability", label: "Durability", color: "var(--ctp-peach)"    },
+                      ]
+                    : [
+                        { key: "power",   label: "Power",   color: "var(--ctp-red)"   },
+                        { key: "speed",   label: "Speed",   color: "var(--ctp-teal)"  },
+                        { key: "contact", label: "Contact", color: "var(--ctp-green)" },
+                      ];
+                  return defs
+                    .map((d) => ({ ...d, score: targetStyleScores[d.key] ?? 0 }))
+                    .sort((a, b) => b.score - a.score)
+                    .map(({ key, label, color }) => (
+                      <span key={key} className="archetype-badge" style={{ background: color, color: "var(--ctp-base)" }}>
+                        {label}
+                      </span>
+                    ));
+                })()
+            }
             <h1>{displayName}</h1>
             <dl className="detail-meta-list">
               <div>
