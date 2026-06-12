@@ -13,3 +13,17 @@ export const getLeaders = async ({ type = "hitting", limit = 10 } = {}) => {
 
   return data;
 };
+
+export const getHotPlayers = async ({ days = 14 } = {}) => {
+  const params = new URLSearchParams({ days: String(days) });
+  const response = await fetch(`${API_URL}/api/stats/hot?${params}`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    const error = new Error(data.message || "Failed to fetch hot players.");
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+};
