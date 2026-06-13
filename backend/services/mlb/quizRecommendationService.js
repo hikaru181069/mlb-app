@@ -121,7 +121,7 @@ const fetchQuizPitchers = async ({ style = "ace", position = "both", age = "any"
     group: "pitching",
     sortStat: cfg.sortStat,
     order: cfg.order,
-    fetchLimit: 80,
+    fetchLimit: 120,   // リリーフ絞り込み後に5件残るよう多めに取得
   });
 
   let players = splits.map((s) => toPlayer(s, cfg.statField, cfg.statLabel));

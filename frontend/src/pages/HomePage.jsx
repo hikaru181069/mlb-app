@@ -163,7 +163,7 @@ function LeadersTabs({ hitting, pitching }) {
           {current.leaders.map((p) => (
             <Link
               key={p.playerId}
-              to={`/player/${p.playerId}`}
+              to={`/players/${p.playerId}`}
               className="leaders-list-row"
             >
               <span className="leaders-rank">{p.rank}</span>
@@ -206,7 +206,7 @@ function HotStreakList({ players, statLabel }) {
   return (
     <div className="leaders-list">
       {players.map((p, i) => (
-        <Link key={p.playerId} to={`/player/${p.playerId}`} className="leaders-list-row">
+        <Link key={p.playerId} to={`/players/${p.playerId}`} className="leaders-list-row">
           <span className="leaders-rank">{i + 1}</span>
           <img
             src={HEADSHOT_URL(p.playerId)}

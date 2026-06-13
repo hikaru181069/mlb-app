@@ -92,7 +92,7 @@ function QuizOption({ option, selected, onSelect }) {
 // ── 結果カード ─────────────────────────────────────────────────────────────
 function ResultCard({ player, rank }) {
   return (
-    <Link to={`/player/${player.playerId}`} className="quiz-result-card">
+    <Link to={`/players/${player.playerId}`} className="quiz-result-card">
       <span className="quiz-result-rank">{rank}</span>
       <div className="quiz-result-headshot">
         <img
