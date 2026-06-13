@@ -21,6 +21,20 @@ export const getRecommendations = async (token) => {
   return data;
 };
 
+export const getQuizRecommendations = async (token, { type, style, age, league, position }) => {
+  const params = new URLSearchParams({ type, style, age, league, position });
+  const response = await fetch(`${API_URL}/api/recommendations/quiz?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    const error = new Error(data.message || "Failed to load quiz recommendations.");
+    error.status = response.status;
+    throw error;
+  }
+  return data.players || [];
+};
+
 export const getFutureStars = async (token) => {
   if (!token) {
     return [];

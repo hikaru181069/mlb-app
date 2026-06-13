@@ -1,376 +1,286 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Bot, Sparkles, Star } from "lucide-react";
+import { ChevronLeft, RotateCcw } from "lucide-react";
 
-import PageHeader from "../components/PageHeader";
-import {
-  getFutureStars,
-  getRecommendations,
-} from "../services/api/recommendationApi";
-import {
-  getApiErrorMessage,
-  isUnauthorizedError,
-} from "../services/api/apiError";
-import { clearAuthData, getAuthToken } from "../utils/authStorage";
+import { getAuthToken } from "../utils/authStorage";
+import { getQuizRecommendations } from "../services/api/recommendationApi";
 
-// アーキタイプ名 → カラー
-const ARCHETYPE_COLORS = {
-  "Power Hitter":    "var(--ctp-red)",
-  "Speedster":       "var(--ctp-teal)",
-  "Contact Hitter":  "var(--ctp-green)",
-  "Five-Tool Threat":"var(--ctp-yellow)",
-  "Ace":             "var(--ctp-mauve)",
-  "Power Pitcher":   "var(--ctp-maroon)",
-  "Control Artist":  "var(--ctp-sapphire)",
-  "Workhorse":       "var(--ctp-peach)",
-};
+const HEADSHOT_URL = (id) =>
+  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
 
-// styleScores の各軸 → 表示ラベルとカラー
-// 野手・投手それぞれ3軸を定義
-const HITTER_TRAITS = [
-  { key: "power",   label: "Power",   color: "var(--ctp-red)"      },
-  { key: "speed",   label: "Speed",   color: "var(--ctp-teal)"     },
-  { key: "contact", label: "Contact", color: "var(--ctp-green)"    },
+// ── クイズ設定 ──────────────────────────────────────────────────────────────
+
+const HITTER_QUESTIONS = [
+  {
+    id: "style",
+    question: "What batting style do you like?",
+    options: [
+      { value: "power",    label: "Power",    desc: "Home runs & slugging" },
+      { value: "speed",    label: "Speed",    desc: "Stolen bases & baserunning" },
+      { value: "contact",  label: "Contact",  desc: "High batting average" },
+      { value: "balanced", label: "Balanced", desc: "All-around excellence (OPS)" },
+    ],
+  },
+  {
+    id: "age",
+    question: "Age group?",
+    options: [
+      { value: "young", label: "Rising Stars", desc: "25 years old and under" },
+      { value: "prime", label: "Prime",        desc: "Ages 26 – 32" },
+      { value: "any",   label: "Any",          desc: "No preference" },
+    ],
+  },
+  {
+    id: "league",
+    question: "Which league?",
+    options: [
+      { value: "AL",   label: "American League", desc: "AL teams only" },
+      { value: "NL",   label: "National League", desc: "NL teams only" },
+      { value: "both", label: "Both",            desc: "No preference" },
+    ],
+  },
 ];
-const PITCHER_TRAITS = [
-  { key: "dominance",  label: "Dominance",  color: "var(--ctp-mauve)"    },
-  { key: "control",    label: "Control",    color: "var(--ctp-sapphire)" },
-  { key: "durability", label: "Durability", color: "var(--ctp-peach)"    },
+
+const PITCHER_QUESTIONS = [
+  {
+    id: "style",
+    question: "What pitching style do you like?",
+    options: [
+      { value: "power",     label: "Power Pitcher",  desc: "Strikeout dominance" },
+      { value: "control",   label: "Control Artist", desc: "Low walks, low WHIP" },
+      { value: "ace",       label: "Ace",            desc: "Low ERA, game changer" },
+      { value: "workhorse", label: "Workhorse",      desc: "Deep into games, high IP" },
+    ],
+  },
+  {
+    id: "position",
+    question: "Starter or Reliever?",
+    options: [
+      { value: "starter",  label: "Starter",  desc: "Takes the mound every 5 days" },
+      { value: "reliever", label: "Reliever", desc: "High-leverage bullpen arms" },
+      { value: "both",     label: "Both",     desc: "No preference" },
+    ],
+  },
+  {
+    id: "age",
+    question: "Age group?",
+    options: [
+      { value: "young", label: "Rising Stars", desc: "25 years old and under" },
+      { value: "prime", label: "Prime",        desc: "Ages 26 – 32" },
+      { value: "any",   label: "Any",          desc: "No preference" },
+    ],
+  },
 ];
 
-// playerType に応じた3軸を常にスコア順で返す（0でも表示）
-const getStyleTraits = (styleScores, playerType) => {
-  if (!styleScores) return [];
-  const defs = playerType === "pitcher" ? PITCHER_TRAITS : HITTER_TRAITS;
-  return defs
-    .map((def) => ({ ...def, score: styleScores[def.key] ?? 0 }))
-    .sort((a, b) => b.score - a.score);
-};
+const DEFAULT_HITTER_ANSWERS  = { style: "balanced", age: "any", league: "both" };
+const DEFAULT_PITCHER_ANSWERS = { style: "ace", position: "both", age: "any" };
 
-const archetypeSlug = (name) => name?.toLowerCase().replace(/\s+/g, "-") ?? "";
-
-// "Recommended from your favorite team" は reason に表示するので reasons タグからは除く
-const GENERIC_REASONS = new Set([
-  "Recommended from your favorite team",
-  "Has current season stats",
-  "Active roster player",
-]);
-
-function RecommendedPlayerCard({ player }) {
-  const archetypes = player.archetypes || [];
-  const styleTraits = archetypes.length === 0
-    ? getStyleTraits(player.styleScores, player.playerType)
-    : [];
-
-  const tagReasons = (player.recommendationReasons || []).filter(
-    (r) => !GENERIC_REASONS.has(r),
-  );
-
-  const h = player.hitterStats  || player.currentSeasonStats?.hitterStats;
-  const p = player.pitcherStats || player.currentSeasonStats?.pitcherStats;
-
+// ── 選択肢ボタン ───────────────────────────────────────────────────────────
+function QuizOption({ option, selected, onSelect }) {
   return (
-    <article className="rec-player-card">
-      {/* ── 左: 顔写真 ── */}
-      {player.image && (
-        <Link to={`/players/${player.playerId}`} className="rec-player-img-wrap">
-          <img src={player.image} alt={player.fullName} className="rec-player-img" />
-        </Link>
-      )}
-
-      {/* ── 右: 情報 ── */}
-      <div className="rec-player-body">
-        {/* 名前 + アーキタイプバッジ（複数）or スタイルトレイト */}
-        <div className="rec-player-header">
-          <Link to={`/players/${player.playerId}`} className="rec-player-name">
-            {player.fullName}
-          </Link>
-          {archetypes.map((arch) => (
-            <Link
-              key={arch}
-              to={`/archetype/${archetypeSlug(arch)}`}
-              className="rec-archetype-badge"
-              style={{ background: ARCHETYPE_COLORS[arch] }}
-            >
-              {arch}
-            </Link>
-          ))}
-          {styleTraits.map(({ key, label, color: c }) => (
-            <span key={key} className="rec-style-trait" style={{ background: c }}>
-              {label}
-            </span>
-          ))}
-        </div>
-
-        {/* チーム + ポジション */}
-        <p className="rec-player-meta">{player.team} · {player.position}</p>
-
-        {/* スタッツ */}
-        {player.playerType === "hitter" && h && (
-          <div className="rec-player-stats">
-            <span>.{String(Math.round((parseFloat(h.battingAverage || h.avg || 0)) * 1000)).padStart(3, "0")} AVG</span>
-            <span>{h.homeRuns ?? "—"} HR</span>
-            <span>{h.rbis ?? h.rbi ?? "—"} RBI</span>
-            <span>{h.ops ? parseFloat(h.ops).toFixed(3) : "—"} OPS</span>
-          </div>
-        )}
-        {player.playerType === "pitcher" && p && (
-          <div className="rec-player-stats">
-            <span>{p.era ?? "—"} ERA</span>
-            <span>{p.strikeouts ?? "—"} K</span>
-            <span>{p.inningsPitched ?? "—"} IP</span>
-          </div>
-        )}
-
-        {/* Why recommended */}
-        {player.reason && (
-          <p className="rec-player-reason">
-            <span className="rec-reason-label">Why:</span> {player.reason}
-          </p>
-        )}
-
-        {/* 特徴タグ */}
-        {tagReasons.length > 0 && (
-          <div className="rec-player-tags">
-            {tagReasons.map((r) => (
-              <span key={r} className="rec-reason-badge">{r}</span>
-            ))}
-          </div>
-        )}
-      </div>
-    </article>
+    <button
+      type="button"
+      className={`quiz-option${selected ? " selected" : ""}`}
+      onClick={() => onSelect(option.value)}
+    >
+      <span className="quiz-option-label">{option.label}</span>
+      <span className="quiz-option-desc">{option.desc}</span>
+    </button>
   );
 }
 
-function FutureStarCard({ player }) {
+// ── 結果カード ─────────────────────────────────────────────────────────────
+function ResultCard({ player, rank }) {
   return (
-    <article className="future-star-card">
-      <div className="future-star-card-top">
-        <span className="future-star-badge">
-          <Sparkles size={14} strokeWidth={2} />
-          Rising Star
-        </span>
-        <span className="future-star-score">
-          {player.similarityPercentage}% match
-        </span>
-      </div>
-
-      <h3>{player.fullName}</h3>
-      <p className="future-star-org">
-        {player.organization}{player.position ? ` · ${player.position}` : ""}
-      </p>
-
-      <dl className="future-star-meta">
-        <div>
-          <dt>Age</dt>
-          <dd>{player.age}</dd>
-        </div>
-        <div>
-          <dt>OPS</dt>
-          <dd>{player.stats?.ops?.toFixed?.(3) ?? "-"}</dd>
-        </div>
-        <div>
-          <dt>HR</dt>
-          <dd>{player.stats?.homeRuns ?? "-"}</dd>
-        </div>
-        <div>
-          <dt>AVG</dt>
-          <dd>{player.stats?.avg?.toFixed?.(3) ?? "-"}</dd>
-        </div>
-      </dl>
-
-      {player.reasons?.length > 0 && (
-        <div className="future-star-reasons">
-          {player.reasons.slice(0, 4).map((reason) => (
-            <span key={reason}>{reason}</span>
-          ))}
-        </div>
-      )}
-    </article>
-  );
-}
-
-function RecommendationsPage() {
-  const [recommendations, setRecommendations] = useState([]);
-  const [futureStars, setFutureStars] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-  const token = getAuthToken();
-
-  useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    let active = true;
-
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setErrorMessage("");
-
-        const [regularResult, futureStarsResult] = await Promise.allSettled([
-          getRecommendations(token),
-          getFutureStars(token),
-        ]);
-
-        if (!active) return;
-
-        if (regularResult.status === "fulfilled") {
-          setRecommendations(regularResult.value);
-        }
-
-        if (futureStarsResult.status === "fulfilled") {
-          setFutureStars(futureStarsResult.value);
-        }
-
-        if (
-          regularResult.status === "rejected" &&
-          futureStarsResult.status === "rejected"
-        ) {
-          throw regularResult.reason;
-        }
-      } catch (error) {
-        if (!active) return;
-        console.error("Recommendations page error:", error);
-
-        if (isUnauthorizedError(error)) {
-          clearAuthData();
-          setErrorMessage("Your login session expired. Please login again.");
-          return;
-        }
-
-        setErrorMessage(
-          getApiErrorMessage(error, "Failed to load recommendations."),
-        );
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      active = false;
-    };
-  }, [token]);
-
-  if (!token) {
-    return (
-      <div className="app-screen">
-        <PageHeader
-          kicker="Personalized"
-          title="Recommendations"
-          subtitle="Login to see players matched to your favorites."
+    <Link to={`/player/${player.playerId}`} className="quiz-result-card">
+      <span className="quiz-result-rank">{rank}</span>
+      <div className="quiz-result-headshot">
+        <img
+          src={HEADSHOT_URL(player.playerId)}
+          alt={player.playerName}
+          className="quiz-result-img"
+          onError={(e) => { e.currentTarget.style.opacity = "0.3"; }}
         />
-        <div className="screen-body px-6 py-6 w-full">
-          <div className="tool-placeholder">
-            <p>Login to view personalized recommendations.</p>
+        {player.teamId && (
+          <img
+            src={`https://www.mlbstatic.com/team-logos/${player.teamId}.svg`}
+            alt={player.teamName}
+            className="quiz-result-team-badge"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+        )}
+      </div>
+      <div className="quiz-result-info">
+        <span className="quiz-result-name">{player.playerName}</span>
+        <span className="quiz-result-team">{player.teamName}</span>
+      </div>
+      <div className="quiz-result-stat">
+        <span className="quiz-result-value">{player.stat}</span>
+        <span className="quiz-result-statlabel">{player.statLabel}</span>
+      </div>
+    </Link>
+  );
+}
+
+// ── メインページ ───────────────────────────────────────────────────────────
+function RecommendationsPage() {
+  const [step, setStep]       = useState("type");
+  const [type, setType]       = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState("");
+
+  const token     = getAuthToken();
+  const questions = type === "pitcher" ? PITCHER_QUESTIONS : HITTER_QUESTIONS;
+  const defaults  = type === "pitcher" ? DEFAULT_PITCHER_ANSWERS : DEFAULT_HITTER_ANSWERS;
+  const merged    = { ...defaults, ...answers };
+
+  const handleTypeSelect = (t) => {
+    setType(t);
+    setAnswers({});
+    setStep("questions");
+  };
+
+  const handleAnswer = (qId, val) => setAnswers((prev) => ({ ...prev, [qId]: val }));
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const players = await getQuizRecommendations(token, {
+        type,
+        style:    merged.style,
+        age:      merged.age,
+        league:   merged.league    ?? "both",
+        position: merged.position  ?? "both",
+      });
+      setResults(players);
+      setStep("results");
+    } catch (err) {
+      setError(err.message || "Failed to fetch recommendations.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setStep("type");
+    setType(null);
+    setAnswers({});
+    setResults([]);
+    setError("");
+  };
+
+  // ─── Step: type ──────────────────────────────────────────────────────────
+  if (step === "type") {
+    return (
+      <div className="quiz-page">
+        <div className="quiz-container">
+          <div className="quiz-header">
+            <h1 className="quiz-title">Find Your Next Favorite Player</h1>
+            <p className="quiz-subtitle">
+              Answer 3 quick questions to discover MLB players you might love.
+            </p>
           </div>
-          <div className="home-actions mt-6">
-            <Link className="home-link" to="/login">
-              Login
-            </Link>
+          <div className="quiz-type-cards">
+            <button className="quiz-type-card" onClick={() => handleTypeSelect("hitter")}>
+              <span className="quiz-type-icon">🪄</span>
+              <span className="quiz-type-label">Hitters</span>
+              <span className="quiz-type-desc">Batting average, home runs, stolen bases</span>
+            </button>
+            <button className="quiz-type-card" onClick={() => handleTypeSelect("pitcher")}>
+              <span className="quiz-type-icon">⚡</span>
+              <span className="quiz-type-label">Pitchers</span>
+              <span className="quiz-type-desc">ERA, strikeouts, WHIP, innings pitched</span>
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
+  // ─── Step: questions ─────────────────────────────────────────────────────
+  if (step === "questions") {
+    const allAnswered = questions.every((q) => merged[q.id]);
+    return (
+      <div className="quiz-page">
+        <div className="quiz-container">
+          <button className="quiz-back-btn" onClick={handleReset}>
+            <ChevronLeft size={16} />
+            Back
+          </button>
+          <div className="quiz-header">
+            <p className="quiz-kicker">{type === "pitcher" ? "Pitchers" : "Hitters"}</p>
+            <h1 className="quiz-title">What kind of player are you looking for?</h1>
+          </div>
+
+          <div className="quiz-questions">
+            {questions.map((q, i) => (
+              <div key={q.id} className="quiz-question-block">
+                <p className="quiz-question-label">
+                  <span className="quiz-question-num">{i + 1}</span>
+                  {q.question}
+                </p>
+                <div className="quiz-options">
+                  {q.options.map((opt) => (
+                    <QuizOption
+                      key={opt.value}
+                      option={opt}
+                      selected={merged[q.id] === opt.value}
+                      onSelect={(val) => handleAnswer(q.id, val)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {error && <p className="error-message">{error}</p>}
+
+          <button
+            className="quiz-submit-btn"
+            onClick={handleSubmit}
+            disabled={loading || !allAnswered}
+          >
+            {loading ? "Searching..." : "Find Players →"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Step: results ───────────────────────────────────────────────────────
   return (
-    <div className="app-screen">
-      <PageHeader
-        accentColor="var(--ctp-teal)"
-        backTo="/"
-        backLabel="Home"
-        kicker="Personalized"
-        title="Recommendations"
-        subtitle="Discover MLB players and Future Stars based on your favorites."
-      />
+    <div className="quiz-page">
+      <div className="quiz-container">
+        <div className="quiz-header">
+          <p className="quiz-kicker">
+            {type === "pitcher" ? "Pitchers" : "Hitters"} · {merged.style}
+          </p>
+          <h1 className="quiz-title">Your Recommended Players</h1>
+          <p className="quiz-subtitle">
+            Click any player to see the full scouting report.
+          </p>
+        </div>
 
-      <div className="screen-body recommendations-page px-6 py-6 w-full">
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-        <section className="recommendation-section">
-          <div className="section-heading-row">
-            <div className="section-heading">
-              <h2>
-                MLB Picks
-                {recommendations.length > 0 && (
-                  <span className="count-badge">{recommendations.length}</span>
-                )}
-              </h2>
-              <p>Current MLB players selected from your team and saved players.</p>
-            </div>
-            <Bot className="recommendation-section-icon" size={24} />
+        {results.length > 0 ? (
+          <div className="quiz-results">
+            {results.map((p, i) => (
+              <ResultCard key={p.playerId} player={p} rank={i + 1} />
+            ))}
           </div>
-
-          {loading ? (
-            <div className="rec-player-list">
-              {Array.from({ length: 3 }, (_, i) => (
-                <div key={i} className="rec-player-card rec-player-card--loading">
-                  <div className="rec-player-img-wrap skeleton-block" />
-                  <div className="rec-player-body">
-                    <div className="skeleton-block" style={{ height: 16, width: "60%", borderRadius: 6 }} />
-                    <div className="skeleton-block" style={{ height: 12, width: "40%", borderRadius: 6, marginTop: 8 }} />
-                    <div className="skeleton-block" style={{ height: 12, width: "80%", borderRadius: 6, marginTop: 8 }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : recommendations.length > 0 ? (
-            <div className="rec-player-list">
-              {recommendations.map((player) => (
-                <RecommendedPlayerCard
-                  key={player.playerId || player.mlbPlayerId}
-                  player={player}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="tool-placeholder">
-              <p>Save favorite players to unlock MLB recommendations.</p>
-            </div>
-          )}
-        </section>
-
-        <section className="recommendation-section future-stars-section">
-          <div className="section-heading-row">
-            <div className="section-heading">
-              <h2>
-                Rising Stars
-                {futureStars.length > 0 && (
-                  <span className="count-badge">{futureStars.length}</span>
-                )}
-              </h2>
-              <p>Young MLB players (age 25 and under) who match your play style preferences.</p>
-            </div>
-            <Star className="recommendation-section-icon" size={24} />
+        ) : (
+          <div className="home-empty-state">
+            <p className="empty-state-title">No players found</p>
+            <p className="empty-state-desc">Try different answers to find matching players.</p>
           </div>
+        )}
 
-          {loading ? (
-            <div className="future-stars-grid">
-              {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="future-star-card future-star-card--loading">
-                  <span className="skeleton-block" />
-                  <span className="skeleton-block" />
-                  <span className="skeleton-block" />
-                </div>
-              ))}
-            </div>
-          ) : futureStars.length > 0 ? (
-            <div className="future-stars-grid">
-              {futureStars.map((player) => (
-                <FutureStarCard key={player.playerId} player={player} />
-              ))}
-            </div>
-          ) : (
-            <div className="tool-placeholder">
-              <p>Future Stars will appear after favorites are available and FastAPI is running.</p>
-            </div>
-          )}
-        </section>
+        <button className="quiz-reset-btn" onClick={handleReset}>
+          <RotateCcw size={15} />
+          Try Again
+        </button>
       </div>
     </div>
   );
