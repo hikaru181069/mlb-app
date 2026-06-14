@@ -8,6 +8,8 @@ const {
   fetchHotPitchers,
 } = require("../services/mlb/hotPlayersService");
 
+const { fetchRisingStars } = require("../services/mlb/risingStarsService");
+
 const getLeaders = async (req, res) => {
   const type = req.query.type === "pitching" ? "pitching" : "hitting";
   const limit = Math.min(Number(req.query.limit) || 10, 20);
@@ -42,4 +44,15 @@ const getHotPlayers = async (req, res) => {
   }
 };
 
-module.exports = { getLeaders, getHotPlayers };
+// GET /api/stats/rising-stars
+const getRisingStars = async (req, res) => {
+  try {
+    const data = await fetchRisingStars({ limit: 6 });
+    res.json(data);
+  } catch (error) {
+    console.error("Rising stars error:", error.message);
+    res.status(500).json({ message: "Failed to fetch rising stars" });
+  }
+};
+
+module.exports = { getLeaders, getHotPlayers, getRisingStars };

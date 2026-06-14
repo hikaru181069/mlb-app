@@ -27,3 +27,16 @@ export const getHotPlayers = async ({ days = 14 } = {}) => {
 
   return data;
 };
+
+export const getRisingStars = async () => {
+  const response = await fetch(`${API_URL}/api/stats/rising-stars`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    const error = new Error(data.message || "Failed to fetch rising stars.");
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+};
