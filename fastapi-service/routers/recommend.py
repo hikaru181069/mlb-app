@@ -4,10 +4,18 @@
 """
 
 import numpy as np
+from collections import Counter
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from core.math_utils import cosine_similarity, discovery_vector
+from core.math_utils import (
+    cosine_similarity,
+    build_hitter_pct_funcs,
+    hitter_percentile_vector,
+    position_score,
+    STAT_WEIGHT,
+    POS_WEIGHT,
+)
 
 router = APIRouter()
 
@@ -161,13 +169,6 @@ class FutureStarResponse(BaseModel):
     futureStars: list[FutureStar]
 
 
-def average_favorite_vector(players: list[FavoriteFutureStarPlayer]) -> np.ndarray:
-    vectors = [discovery_vector(player.stats) for player in players]
-    if not vectors:
-        return np.zeros(5, dtype=float)
-    return np.mean(vectors, axis=0)
-
-
 def rising_star_reasons(candidate: YoungPlayerCandidate) -> list[str]:
     reasons = []
     if candidate.ops >= 0.850:
@@ -195,15 +196,29 @@ def rising_star_reasons(candidate: YoungPlayerCandidate) -> list[str]:
 
 @router.post("/recommend/future-stars", response_model=FutureStarResponse)
 def recommend_future_stars(req: FutureStarRequest):
-    """お気に入り選手の平均プロフィールに近い若手 MLB 選手を返す"""
+    """
+    お気に入り選手の平均プロフィールに近い若手 MLB 選手を返す。
+    正規化: 候補プールの実際の分布からパーセンタイルを計算する（固定値を使わない）。
+    """
     if not req.favoritePlayers or not req.candidates:
         return FutureStarResponse(futureStars=[])
 
-    target_vec = average_favorite_vector(req.favoritePlayers)
+    # 候補プール全体の分布から正規化関数を構築する
+    pct_funcs = build_hitter_pct_funcs(req.candidates)
+
+    # お気に入り選手の平均ベクトルをパーセンタイル空間で計算する
+    fav_vectors = [hitter_percentile_vector(p.stats, pct_funcs) for p in req.favoritePlayers]
+    target_vec  = np.mean(fav_vectors, axis=0) if fav_vectors else np.zeros(5, dtype=float)
+
+    # お気に入りの中で最も多いポジションを代表ポジションとして使う
+    pos_counts   = Counter(p.position for p in req.favoritePlayers if p.position)
+    fav_position = pos_counts.most_common(1)[0][0] if pos_counts else ""
+
     scored = []
     for candidate in req.candidates:
-        similarity = max(0.0, cosine_similarity(target_vec, discovery_vector(candidate)))
-        scored.append((candidate, similarity))
+        stat_sim = max(0.0, cosine_similarity(target_vec, hitter_percentile_vector(candidate, pct_funcs)))
+        blended  = STAT_WEIGHT * stat_sim + POS_WEIGHT * position_score(fav_position, candidate.position)
+        scored.append((candidate, blended))
 
     scored.sort(key=lambda item: item[1], reverse=True)
     limit = max(1, min(req.topN, len(req.candidates)))

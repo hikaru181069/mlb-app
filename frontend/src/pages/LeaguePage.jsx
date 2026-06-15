@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getStandings, getScores, getWildCard } from "../services/api/leagueApi";
+import { getLeaders, getHotPlayers } from "../services/api/statsApi";
 import ScoreCard from "../components/ScoreCard";
 import PageHeader from "../components/PageHeader";
 import { CalendarDays } from "lucide-react";
@@ -17,7 +18,9 @@ import { mlbToday } from "../utils/datetime";
 const TABS = [
   { key: "standings", label: "Standings" },
   { key: "wildcard",  label: "Wild Card" },
-  { key: "scores",    label: "Scores" },
+  { key: "scores",    label: "Scores"    },
+  { key: "leaders",   label: "Leaders"   },
+  { key: "hot",       label: "Hot"       },
 ];
 
 // 地区の表示順（AL → NL、East → Central → West）
@@ -266,6 +269,142 @@ function WildCardTab({ season }) {
   );
 }
 
+// ── League Leaders タブ ───────────────────────────────────────────────────────
+const FEATURED_HITTING  = ["battingAverage", "homeRuns", "runsBattedIn", "stolenBases", "onBasePlusSlugging"];
+const FEATURED_PITCHING = ["earnedRunAverage", "strikeouts", "saves"];
+
+const HEADSHOT_URL = (id) =>
+  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
+
+function LeadersTab() {
+  const [hitting, setHitting]   = useState([]);
+  const [pitching, setPitching] = useState([]);
+  const [tab, setTab]           = useState("hitting");
+  const [catIdx, setCatIdx]     = useState(0);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const [h, p] = await Promise.all([
+          getLeaders({ type: "hitting",  limit: 5 }),
+          getLeaders({ type: "pitching", limit: 5 }),
+        ]);
+        setHitting(
+          (h?.categories ?? [])
+            .filter((c) => FEATURED_HITTING.includes(c.category))
+            .sort((a, b) => FEATURED_HITTING.indexOf(a.category) - FEATURED_HITTING.indexOf(b.category)),
+        );
+        setPitching((p?.categories ?? []).filter((c) => FEATURED_PITCHING.includes(c.category)));
+      } catch { /* silent */ }
+      finally { setLoading(false); }
+    };
+    fetch();
+  }, []);
+
+  const cats    = tab === "hitting" ? hitting : pitching;
+  const current = cats[catIdx] ?? cats[0];
+
+  const handleTabChange = (next) => { setTab(next); setCatIdx(0); };
+
+  if (loading) return <p className="compare-loading">Loading leaders…</p>;
+
+  return (
+    <div className="leaders-tabs-wrap">
+      <div className="leaders-tab-bar">
+        <button className={`leaders-tab${tab === "hitting"  ? " active" : ""}`} onClick={() => handleTabChange("hitting")}>Hitting</button>
+        <button className={`leaders-tab${tab === "pitching" ? " active" : ""}`} onClick={() => handleTabChange("pitching")}>Pitching</button>
+      </div>
+      <div className="leaders-cat-chips">
+        {cats.map((c, i) => (
+          <button key={c.category} className={`leaders-cat-chip${catIdx === i ? " active" : ""}`} onClick={() => setCatIdx(i)}>
+            {c.abbr}
+          </button>
+        ))}
+      </div>
+      {current && (
+        <div className="leaders-list">
+          {current.leaders.map((p) => (
+            <Link key={p.playerId} to={`/players/${p.playerId}`} className="leaders-list-row">
+              <span className="leaders-rank">{p.rank}</span>
+              <img src={HEADSHOT_URL(p.playerId)} alt={p.playerName} className="leaders-list-headshot"
+                onError={(e) => { e.currentTarget.style.opacity = "0.3"; }} />
+              <div className="leaders-list-info">
+                <span className="leaders-list-name">{p.playerName}</span>
+                {p.teamId && (
+                  <span className="leaders-list-team">
+                    <img src={`https://www.mlbstatic.com/team-logos/${p.teamId}.svg`} alt={p.teamName}
+                      width={14} height={14} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    {p.teamName}
+                  </span>
+                )}
+              </div>
+              <span className="leaders-list-value">{p.value}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Hot Right Now タブ ────────────────────────────────────────────────────────
+function HotTab() {
+  const [hitters, setHitters]   = useState([]);
+  const [pitchers, setPitchers] = useState([]);
+  const [tab, setTab]           = useState("hitters");
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const data = await getHotPlayers({ days: 14 });
+        setHitters(data.hitters ?? []);
+        setPitchers(data.pitchers ?? []);
+      } catch { /* silent */ }
+      finally { setLoading(false); }
+    };
+    fetch();
+  }, []);
+
+  const players = tab === "hitters" ? hitters : pitchers;
+
+  if (loading) return <p className="compare-loading">Loading hot players…</p>;
+
+  return (
+    <div className="leaders-tabs-wrap home-hot-section">
+      <div className="leaders-tab-bar">
+        <button className={`leaders-tab${tab === "hitters"  ? " active" : ""}`} onClick={() => setTab("hitters")}>Hitters</button>
+        <button className={`leaders-tab${tab === "pitchers" ? " active" : ""}`} onClick={() => setTab("pitchers")}>Pitchers</button>
+      </div>
+      <p className="hot-period-label">Last 14 days</p>
+      <div className="leaders-list">
+        {players.map((p, i) => (
+          <Link key={p.playerId} to={`/players/${p.playerId}`} className="leaders-list-row">
+            <span className="leaders-rank">{i + 1}</span>
+            <img src={HEADSHOT_URL(p.playerId)} alt={p.playerName} className="leaders-list-headshot"
+              onError={(e) => { e.currentTarget.style.opacity = "0.3"; }} />
+            <div className="leaders-list-info">
+              <span className="leaders-list-name">{p.playerName}</span>
+              {p.teamId && (
+                <span className="leaders-list-team">
+                  <img src={`https://www.mlbstatic.com/team-logos/${p.teamId}.svg`} alt={p.teamName}
+                    width={14} height={14} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                  {p.teamName}
+                </span>
+              )}
+            </div>
+            <div className="hot-streak-stat">
+              <span className="leaders-list-value" style={{ color: "var(--ctp-peach)" }}>{p.stat}</span>
+              <span className="leaders-card-abbr">{p.statLabel}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── メインページ ─────────────────────────────────────────────────────────────
 function LeaguePage() {
   const [activeTab, setActiveTab] = useState("standings");
@@ -286,6 +425,8 @@ function LeaguePage() {
         {activeTab === "standings" && <StandingsTab season={season} />}
         {activeTab === "wildcard"  && <WildCardTab season={season} />}
         {activeTab === "scores"    && <ScoresTab />}
+        {activeTab === "leaders"   && <LeadersTab />}
+        {activeTab === "hot"       && <HotTab />}
       </div>
     </div>
   );

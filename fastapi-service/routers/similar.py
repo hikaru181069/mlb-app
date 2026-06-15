@@ -6,7 +6,16 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from core.math_utils import cosine_similarity, discovery_vector, scout_pitcher_vector
+from core.math_utils import (
+    cosine_similarity,
+    build_hitter_pct_funcs,
+    build_pitcher_pct_funcs,
+    hitter_percentile_vector,
+    pitcher_percentile_vector,
+    position_score,
+    STAT_WEIGHT,
+    POS_WEIGHT,
+)
 
 router = APIRouter()
 
@@ -14,6 +23,7 @@ router = APIRouter()
 class SimilarPlayer(BaseModel):
     playerId: int
     playerType: str = "hitter"
+    position: str = ""
     # 野手スタッツ
     ops: float = 0
     homeRuns: float = 0
@@ -46,20 +56,30 @@ class SimilarResponse(BaseModel):
     results: list[SimilarResult]  # スコア付き
 
 
-def make_vector(player: SimilarPlayer):
-    if player.playerType == "pitcher":
-        return scout_pitcher_vector(player)
-    return discovery_vector(player)
-
-
 @router.post("/similar", response_model=SimilarResponse)
 def find_similar_players(request: SimilarRequest):
+    """
+    類似選手を返す（レガシーエンドポイント）。
+    正規化: 候補プール全体の分布からパーセンタイルを計算する（固定値を使わない）。
+    """
+    is_pitcher = request.target.playerType == "pitcher"
+    all_pool   = request.candidates + [request.target]
+
+    if is_pitcher:
+        pct_funcs   = build_pitcher_pct_funcs(all_pool)
+        make_vector = lambda p: pitcher_percentile_vector(p, pct_funcs)
+    else:
+        pct_funcs   = build_hitter_pct_funcs(all_pool)
+        make_vector = lambda p: hitter_percentile_vector(p, pct_funcs)
+
     target_vec = make_vector(request.target)
-    scored = [
-        (c, max(0.0, cosine_similarity(target_vec, make_vector(c))))
-        for c in request.candidates
-        if c.playerId != request.target.playerId
-    ]
+    scored = []
+    for c in request.candidates:
+        if c.playerId == request.target.playerId:
+            continue
+        stat_sim = max(0.0, cosine_similarity(target_vec, make_vector(c)))
+        blended  = STAT_WEIGHT * stat_sim + POS_WEIGHT * position_score(request.target.position, c.position)
+        scored.append((c, blended))
     scored.sort(key=lambda x: x[1], reverse=True)
     top = scored[: request.topN]
     return SimilarResponse(
