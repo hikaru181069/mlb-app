@@ -12,6 +12,9 @@ from core.math_utils import (
     build_pitcher_pct_funcs,
     hitter_percentile_vector,
     pitcher_percentile_vector,
+    position_score,
+    STAT_WEIGHT,
+    POS_WEIGHT,
 )
 
 router = APIRouter()
@@ -20,6 +23,7 @@ router = APIRouter()
 class SimilarPlayer(BaseModel):
     playerId: int
     playerType: str = "hitter"
+    position: str = ""
     # 野手スタッツ
     ops: float = 0
     homeRuns: float = 0
@@ -69,11 +73,13 @@ def find_similar_players(request: SimilarRequest):
         make_vector = lambda p: hitter_percentile_vector(p, pct_funcs)
 
     target_vec = make_vector(request.target)
-    scored = [
-        (c, max(0.0, cosine_similarity(target_vec, make_vector(c))))
-        for c in request.candidates
-        if c.playerId != request.target.playerId
-    ]
+    scored = []
+    for c in request.candidates:
+        if c.playerId == request.target.playerId:
+            continue
+        stat_sim = max(0.0, cosine_similarity(target_vec, make_vector(c)))
+        blended  = STAT_WEIGHT * stat_sim + POS_WEIGHT * position_score(request.target.position, c.position)
+        scored.append((c, blended))
     scored.sort(key=lambda x: x[1], reverse=True)
     top = scored[: request.topN]
     return SimilarResponse(

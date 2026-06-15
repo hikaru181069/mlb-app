@@ -17,6 +17,7 @@ const { getPlayerArchetype } = require("./archetypeService");
 const toDiscoverTarget = (player, hitterStats, pitcherStats) => ({
   playerId:    Number(player.mlbPlayerId),
   playerType:  player.playerType || "hitter",
+  position:    player.position   || "",
   // 野手スタッツ
   ops:         parseFloat(hitterStats?.ops)            || 0,
   homeRuns:    parseInt(hitterStats?.homeRuns)          || 0,

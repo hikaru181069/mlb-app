@@ -88,6 +88,48 @@ def scout_pitcher_vector(player) -> np.ndarray:
     return np.array([era_v, whip_v, k_v, bb_v, w_v, ip_v], dtype=float)
 
 
+# ── ポジション類似度 ───────────────────────────────────────────────────────────
+# 同じポジション・同じポジショングループほど高いスコアを返す。
+# コサイン類似度（スタット）と混合して最終スコアを出す。
+
+POSITION_GROUPS: dict[str, str] = {
+    "C":  "catcher",
+    "1B": "corner_infield",
+    "3B": "corner_infield",
+    "2B": "middle_infield",
+    "SS": "middle_infield",
+    "LF": "corner_outfield",
+    "RF": "corner_outfield",
+    "OF": "corner_outfield",
+    "CF": "center_field",
+    "DH": "designated_hitter",
+    "SP": "starter",
+    "RP": "reliever",
+    "P":  "starter",
+}
+
+# スタット類似度 85% + ポジション類似度 15% で最終スコアを構成する
+STAT_WEIGHT: float = 0.85
+POS_WEIGHT:  float = 0.15
+
+
+def position_score(pos1: str, pos2: str) -> float:
+    """
+    ポジションの近さを 0〜1 で返す。
+    同一ポジション → 1.0 / 同一グループ（例: LF と RF）→ 0.5 / 別グループ → 0.0
+    空文字の場合はスコアを付けない（0.0）。
+    """
+    if not pos1 or not pos2:
+        return 0.0
+    if pos1 == pos2:
+        return 1.0
+    g1 = POSITION_GROUPS.get(pos1)
+    g2 = POSITION_GROUPS.get(pos2)
+    if g1 and g2 and g1 == g2:
+        return 0.5
+    return 0.0
+
+
 # ── パーセンタイルベクトル（類似選手・推薦計算用） ────────────────────────────
 # 候補プール全体の実際の分布から正規化する。固定値を使わない。
 # 「このプールの中で何パーセンタイルか」を 0〜1 に変換し、次元ごとの重みを乗算してベクトルにする。

@@ -4,6 +4,7 @@
 """
 
 import numpy as np
+from collections import Counter
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -11,6 +12,9 @@ from core.math_utils import (
     cosine_similarity,
     build_hitter_pct_funcs,
     hitter_percentile_vector,
+    position_score,
+    STAT_WEIGHT,
+    POS_WEIGHT,
 )
 
 router = APIRouter()
@@ -206,10 +210,15 @@ def recommend_future_stars(req: FutureStarRequest):
     fav_vectors = [hitter_percentile_vector(p.stats, pct_funcs) for p in req.favoritePlayers]
     target_vec  = np.mean(fav_vectors, axis=0) if fav_vectors else np.zeros(5, dtype=float)
 
+    # お気に入りの中で最も多いポジションを代表ポジションとして使う
+    pos_counts   = Counter(p.position for p in req.favoritePlayers if p.position)
+    fav_position = pos_counts.most_common(1)[0][0] if pos_counts else ""
+
     scored = []
     for candidate in req.candidates:
-        similarity = max(0.0, cosine_similarity(target_vec, hitter_percentile_vector(candidate, pct_funcs)))
-        scored.append((candidate, similarity))
+        stat_sim = max(0.0, cosine_similarity(target_vec, hitter_percentile_vector(candidate, pct_funcs)))
+        blended  = STAT_WEIGHT * stat_sim + POS_WEIGHT * position_score(fav_position, candidate.position)
+        scored.append((candidate, blended))
 
     scored.sort(key=lambda item: item[1], reverse=True)
     limit = max(1, min(req.topN, len(req.candidates)))

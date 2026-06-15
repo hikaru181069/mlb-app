@@ -13,6 +13,9 @@ from core.math_utils import (
     build_pitcher_pct_funcs,
     hitter_percentile_vector,
     pitcher_percentile_vector,
+    position_score,
+    STAT_WEIGHT,
+    POS_WEIGHT,
 )
 
 router = APIRouter()
@@ -21,6 +24,7 @@ router = APIRouter()
 class DiscoverTarget(BaseModel):
     playerId: int
     playerType: str = "hitter"
+    position: str = ""
     # 野手スタッツ
     ops: float = 0
     homeRuns: float = 0
@@ -101,11 +105,13 @@ def discover_similar(req: DiscoverRequest):
     target_vec = make_vector(req.target)
 
     def rank(candidates: list[DiscoverCandidate]) -> list[DiscoverMatch]:
-        scored = [
-            (c, max(0.0, cosine_similarity(target_vec, make_vector(c))))
-            for c in candidates
-            if c.playerId != req.target.playerId
-        ]
+        scored = []
+        for c in candidates:
+            if c.playerId == req.target.playerId:
+                continue
+            stat_sim = max(0.0, cosine_similarity(target_vec, make_vector(c)))
+            blended  = STAT_WEIGHT * stat_sim + POS_WEIGHT * position_score(req.target.position, c.position)
+            scored.append((c, blended))
         scored.sort(key=lambda x: x[1], reverse=True)
         return [
             DiscoverMatch(
