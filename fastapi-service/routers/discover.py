@@ -7,7 +7,13 @@ Express 側がリーグ統計キャッシュから候補リストを作成して
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from core.math_utils import cosine_similarity, discovery_vector, scout_pitcher_vector
+from core.math_utils import (
+    cosine_similarity,
+    build_hitter_pct_funcs,
+    build_pitcher_pct_funcs,
+    hitter_percentile_vector,
+    pitcher_percentile_vector,
+)
 
 router = APIRouter()
 
@@ -77,12 +83,20 @@ class DiscoverResponse(BaseModel):
 def discover_similar(req: DiscoverRequest):
     """
     対象選手と類似スタイルを持つ選手を2つのプールから返す。
-    野手: OPS/HR/SB/AVG/RBI ベクトル / 投手: ERA/WHIP/K/BB/W/IP ベクトル
+    正規化: 候補プール全体の実際の分布からパーセンタイルを計算する（固定値を使わない）。
+    野手: OPS/HR/SB/AVG/RBI / 投手: ERA/WHIP/K/BB/W/IP
     """
     is_pitcher = req.target.playerType == "pitcher"
 
-    def make_vector(item):
-        return scout_pitcher_vector(item) if is_pitcher else discovery_vector(item)
+    # 全候補（MLB + 若手 + target）を合わせて分布を計算する
+    all_pool = req.mlbCandidates + req.youngCandidates + [req.target]
+
+    if is_pitcher:
+        pct_funcs  = build_pitcher_pct_funcs(all_pool)
+        make_vector = lambda p: pitcher_percentile_vector(p, pct_funcs)
+    else:
+        pct_funcs  = build_hitter_pct_funcs(all_pool)
+        make_vector = lambda p: hitter_percentile_vector(p, pct_funcs)
 
     target_vec = make_vector(req.target)
 
