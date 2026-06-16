@@ -6,6 +6,7 @@ const {
   fetchPlayerSuggestions,
 } = require("../services/mlb");
 const { fetchFromMlbApi } = require("../services/mlb/mlbClient");
+const { fetchOnboardingPlayers } = require("../services/mlb/leagueStatsService");
 
 const searchExternalPlayers = async (req, res) => {
   try {
@@ -115,6 +116,16 @@ const getPlayerYearByYear = async (req, res) => {
   }
 };
 
+const getOnboardingPlayers = async (req, res) => {
+  try {
+    const players = await fetchOnboardingPlayers();
+    res.json(players);
+  } catch (error) {
+    console.error("Onboarding players error:", error.message);
+    res.status(500).json({ message: "Failed to fetch onboarding players" });
+  }
+};
+
 module.exports = {
   getExternalPlayersByTeam,
   getRecommendedPlayersByTeam,
@@ -122,4 +133,5 @@ module.exports = {
   getExternalPlayerById,
   getPlayerSuggestions,
   getPlayerYearByYear,
+  getOnboardingPlayers,
 };

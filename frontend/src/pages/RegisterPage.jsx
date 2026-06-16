@@ -20,7 +20,7 @@ function RegisterPage() {
       setErrorMessage("");
       const data = await registerUser(formData);
       saveAuthData(data);
-      navigate("/onboarding/team");
+      navigate("/onboarding/favorites");
     } catch (error) {
       console.error("Register error:", error);
       setErrorMessage(error.message || "Failed to register. Please check your input.");

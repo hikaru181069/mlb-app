@@ -62,6 +62,15 @@ export const fetchPlayerSuggestions = async (searchText) => {
   return data;
 };
 
+export const getOnboardingPlayers = async () => {
+  const response = await fetch(`${API_URL}/api/external/players/popular`);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to load onboarding players.");
+  }
+  return data;
+};
+
 export const getRecommendedPlayersByTeam = async (teamId) => {
   const response = await fetch(
     `${API_URL}/api/external/players/team/${teamId}/recommended`,

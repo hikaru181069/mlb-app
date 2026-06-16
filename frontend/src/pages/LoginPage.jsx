@@ -28,7 +28,7 @@ function LoginPage() {
     try {
       const data = await loginUser({ email, password });
       saveAuthData(data);
-      navigate(data.hasCompletedOnboarding ? "/" : "/onboarding/team");
+      navigate(data.hasCompletedOnboarding ? "/" : "/onboarding/favorites");
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(
