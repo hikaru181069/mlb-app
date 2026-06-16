@@ -135,9 +135,9 @@ def position_score(pos1: str, pos2: str) -> float:
 # 「このプールの中で何パーセンタイルか」を 0〜1 に変換し、次元ごとの重みを乗算してベクトルにする。
 
 # 野手重み: [OPS, HR, SB, AVG, RBI, OAA]
-# OPS は打撃総合力として最重要。RBI はチーム状況依存のため控えめ。
-# OAA は守備スタイルの識別に有効（Gold Glove 型 vs 打撃特化型の区別）。
-HITTER_WEIGHTS = np.array([2.0, 1.5, 1.0, 1.2, 1.0, 1.2], dtype=float)
+# OPS は打撃総合力として最重要。RBI はチーム打線依存のため最低重み。
+# OAA は HR の次に重視（守備スタイルの識別に有効）。
+HITTER_WEIGHTS = np.array([2.0, 1.5, 1.1, 1.0, 0.8, 1.3], dtype=float)
 
 # 投手重み: [ERA, WHIP, K, BB, W, IP]
 # ERA/WHIP を最重視。W（勝利数）はチーム依存度が高いため最低重み。
