@@ -3,7 +3,6 @@ const express = require("express");
 const {
   getExternalPlayerById,
   getExternalPlayersByTeam,
-  getRecommendedPlayersByTeam,
   searchExternalPlayers,
   getPlayerSuggestions,
   getPlayerYearByYear,
@@ -21,7 +20,6 @@ router.get("/popular", getOnboardingPlayers);
 // "/suggestions" が /:playerId にマッチしてしまう
 router.get("/suggestions", getPlayerSuggestions);
 
-router.get("/team/:teamId/recommended", getRecommendedPlayersByTeam);
 router.get("/team/:teamId", getExternalPlayersByTeam);
 router.get("/teams/:teamId/players", getExternalPlayersByTeam);
 router.get("/:playerId/year-by-year", getPlayerYearByYear);

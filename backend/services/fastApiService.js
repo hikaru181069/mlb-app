@@ -38,42 +38,6 @@ const fetchSimilarPlayerIds = async (target, candidates, topN = 3) => {
 };
 
 /**
- * FastAPI の /recommend を呼び出し、各選手の推薦スコアを計算してもらう。
- * 計算ロジックは FastAPI 側（Python）に集約し、Express は取得と整形に専念する。
- *
- * FastAPI が未起動・タイムアウト・エラーの場合は null を返す。
- * 呼び出し側は null を「フォールバック（ローカル計算）の合図」として扱う。
- * （Similar Players と同じく、FastAPI が落ちてもアプリは動き続ける）
- *
- * @param {Array} players - スコアリング対象の選手リスト
- *   各要素: { playerId, name, playerType, active, hitterStats, pitcherStats }
- * @returns {Map<number, {recommendationScore, recommendationReasons}> | null}
- *   playerId をキーにしたスコアの Map。失敗時は null。
- */
-const fetchRecommendationScores = async (players) => {
-  try {
-    const response = await fetch(`${FASTAPI_URL}/recommend`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ players }),
-      signal: AbortSignal.timeout(5000),
-    });
-
-    if (!response.ok) {
-      console.warn(`FastAPI responded with ${response.status} — using local scoring`);
-      return null;
-    }
-
-    const data = await response.json();
-    // 配列 → Map に変換して、呼び出し側で playerId から引けるようにする
-    return new Map(data.players.map((p) => [p.playerId, p]));
-  } catch (error) {
-    console.warn(`FastAPI unreachable: ${error.message} — using local scoring`);
-    return null;
-  }
-};
-
-/**
  * FastAPI の /recommend/future-stars を呼び出し、Future Stars候補を返す。
  * 失敗時は null を返し、呼び出し側で空配列や別フォールバックに切り替える。
  *
@@ -221,7 +185,6 @@ module.exports = {
   fetchFutureStars,
   fetchScoutingReport,
   fetchSimilarPlayerIds,
-  fetchRecommendationScores,
   fetchDiscoverSimilar,
   fetchArchetypeClassify,
   fetchCompareAnalyze,

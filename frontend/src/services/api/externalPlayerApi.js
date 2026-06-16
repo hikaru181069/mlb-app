@@ -70,20 +70,3 @@ export const getOnboardingPlayers = async () => {
   }
   return data;
 };
-
-export const getRecommendedPlayersByTeam = async (teamId) => {
-  const response = await fetch(
-    `${API_URL}/api/external/players/team/${teamId}/recommended`,
-  );
-  const data = await response.json();
-
-  if (!response.ok) {
-    const error = new Error(
-      data.message || "Failed to load recommended team players.",
-    );
-    error.status = response.status;
-    throw error;
-  }
-
-  return data;
-};

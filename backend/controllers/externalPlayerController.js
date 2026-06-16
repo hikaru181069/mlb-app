@@ -1,7 +1,6 @@
 const {
   fetchExternalPlayerFullDetails,
   fetchExternalPlayersByTeam,
-  fetchRecommendedPlayersByTeam,
   fetchExternalPlayers,
   fetchPlayerSuggestions,
 } = require("../services/mlb");
@@ -44,21 +43,6 @@ const getExternalPlayersByTeam = async (req, res) => {
   } catch (error) {
     console.error("External team players error:", error.message);
     res.status(500).json({ message: "Failed to fetch team players" });
-  }
-};
-
-const getRecommendedPlayersByTeam = async (req, res) => {
-  try {
-    const players = await fetchRecommendedPlayersByTeam(req.params.teamId, {
-      limit: 12,
-      hitterLimit: 8,
-      pitcherLimit: 4,
-    });
-
-    res.json(players);
-  } catch (error) {
-    console.error("Recommended team players error:", error.message);
-    res.status(500).json({ message: "Failed to fetch recommended players" });
   }
 };
 
@@ -128,7 +112,6 @@ const getOnboardingPlayers = async (req, res) => {
 
 module.exports = {
   getExternalPlayersByTeam,
-  getRecommendedPlayersByTeam,
   searchExternalPlayers,
   getExternalPlayerById,
   getPlayerSuggestions,
