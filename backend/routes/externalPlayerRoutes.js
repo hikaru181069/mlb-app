@@ -7,11 +7,13 @@ const {
   searchExternalPlayers,
   getPlayerSuggestions,
   getPlayerYearByYear,
+  getOnboardingPlayers,
 } = require("../controllers/externalPlayerController");
 
 const router = express.Router();
 
 router.get("/search", searchExternalPlayers);
+router.get("/popular", getOnboardingPlayers);
 
 // [Suggestions] 候補取得エンドポイント
 // ⚠️ /:playerId より前に定義する必要がある

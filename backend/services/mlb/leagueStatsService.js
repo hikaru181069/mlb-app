@@ -225,4 +225,68 @@ const fetchLeagueStats = async () => {
   return cache;
 };
 
-module.exports = { fetchLeagueStats, fetchYoungLeaguePlayers, fetchYoungPitchers };
+// ── オンボーディング用人気選手リスト ──────────────────────────────────────────
+// リーグ上位野手 + 投手をまとめて返す。チーム選択なしで選手を発見できるようにする。
+
+const fetchOnboardingPlayers = async ({ hitterLimit = 14, pitcherLimit = 6 } = {}) => {
+  const leagueStats = await fetchLeagueStats();
+
+  // 野手: OPS 上位から取得（既にリーダーボードデータなので上位順）
+  const topHitters = leagueStats.hitter.players.slice(0, hitterLimit);
+  // 投手: ERA 昇順でソート
+  const topPitchers = [...leagueStats.pitcher.players]
+    .filter((p) => p.era > 0)
+    .sort((a, b) => a.era - b.era)
+    .slice(0, pitcherLimit);
+
+  // 野手の position + teamId をバッチ取得する
+  const hitterIds = topHitters.map((p) => p.playerId);
+  const metaMap = {};
+  if (hitterIds.length > 0) {
+    try {
+      const data = await fetchFromMlbApi(
+        `https://statsapi.mlb.com/api/v1/people?personIds=${hitterIds.join(",")}`,
+        "Failed to fetch onboarding player meta",
+      );
+      for (const person of data.people || []) {
+        metaMap[person.id] = {
+          teamId:   person.currentTeam?.id   ?? null,
+          position: person.primaryPosition?.abbreviation ?? "",
+        };
+      }
+    } catch { /* メタ取得失敗はスキップ */ }
+  }
+
+  const HEADSHOT = (id) =>
+    `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
+
+  const hitters = topHitters.map((p) => ({
+    mlbPlayerId: p.playerId,
+    fullName:    p.name,
+    teamName:    p.team,
+    teamId:      metaMap[p.playerId]?.teamId   ?? null,
+    position:    metaMap[p.playerId]?.position ?? "",
+    playerType:  "hitter",
+    imageUrl:    HEADSHOT(p.playerId),
+    currentSeasonStats: {
+      hitterStats: { ops: p.ops, homeRuns: p.homeRuns, battingAverage: p.avg, rbis: p.rbi },
+    },
+  }));
+
+  const pitchers = topPitchers.map((p) => ({
+    mlbPlayerId: p.playerId,
+    fullName:    p.name,
+    teamName:    p.team,
+    teamId:      null,
+    position:    "P",
+    playerType:  "pitcher",
+    imageUrl:    HEADSHOT(p.playerId),
+    currentSeasonStats: {
+      pitcherStats: { era: p.era, strikeouts: p.strikeouts, inningsPitched: p.innings },
+    },
+  }));
+
+  return [...hitters, ...pitchers];
+};
+
+module.exports = { fetchLeagueStats, fetchYoungLeaguePlayers, fetchYoungPitchers, fetchOnboardingPlayers };
