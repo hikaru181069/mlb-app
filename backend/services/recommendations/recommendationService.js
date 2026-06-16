@@ -3,6 +3,7 @@ const { fetchLeagueStats, fetchYoungLeaguePlayers } = require("../mlb/leagueStat
 const { fetchDiscoverSimilar, fetchFutureStars } = require("../fastApiService");
 const { fetchExternalPlayerStats } = require("../mlb/playerStatsService");
 const { formatExternalStats } = require("../mlb/playerFormatter");
+const { getOaaMap } = require("../mlb/baseballSavantService");
 const { fallbackPlayers } = require("./fallbackPlayers");
 
 const toNumber = (value) => {
@@ -14,22 +15,26 @@ const toNumber = (value) => {
 // お気に入り選手のライブスタッツを取得し、FastAPI /discover/similar で
 // 類似選手を計算して返す。お気に入りがない場合は人気選手をフォールバックにする。
 
-const buildTarget = (fav, hitterStats, pitcherStats) => ({
-  playerId:    Number(fav.mlbPlayerId),
-  playerType:  fav.playerType || "hitter",
-  position:    fav.position   || "",
-  ops:         toNumber(hitterStats?.ops),
-  homeRuns:    toNumber(hitterStats?.homeRuns),
-  stolenBases: toNumber(hitterStats?.stolenBases),
-  avg:         toNumber(hitterStats?.battingAverage),
-  rbi:         toNumber(hitterStats?.rbis || hitterStats?.rbi),
-  era:         toNumber(pitcherStats?.era),
-  whip:        toNumber(pitcherStats?.whip),
-  strikeouts:  toNumber(pitcherStats?.strikeouts),
-  walks:       toNumber(pitcherStats?.baseOnBalls),
-  wins:        toNumber(pitcherStats?.wins),
-  innings:     toNumber(pitcherStats?.inningsPitched),
-});
+const buildTarget = (fav, hitterStats, pitcherStats) => {
+  const oaaMap = getOaaMap();
+  return {
+    playerId:    Number(fav.mlbPlayerId),
+    playerType:  fav.playerType || "hitter",
+    position:    fav.position   || "",
+    ops:         toNumber(hitterStats?.ops),
+    homeRuns:    toNumber(hitterStats?.homeRuns),
+    stolenBases: toNumber(hitterStats?.stolenBases),
+    avg:         toNumber(hitterStats?.battingAverage),
+    rbi:         toNumber(hitterStats?.rbis || hitterStats?.rbi),
+    oaa:         oaaMap[Number(fav.mlbPlayerId)] ?? 0,
+    era:         toNumber(pitcherStats?.era),
+    whip:        toNumber(pitcherStats?.whip),
+    strikeouts:  toNumber(pitcherStats?.strikeouts),
+    walks:       toNumber(pitcherStats?.baseOnBalls),
+    wins:        toNumber(pitcherStats?.wins),
+    innings:     toNumber(pitcherStats?.inningsPitched),
+  };
+};
 
 const toHitterCandidate = (p) => ({
   playerId:    p.playerId,
@@ -42,6 +47,7 @@ const toHitterCandidate = (p) => ({
   stolenBases: p.stolenBases,
   avg:         p.avg,
   rbi:         p.rbi,
+  oaa:         p.oaa         ?? 0,
 });
 
 const toPitcherCandidate = (p) => ({

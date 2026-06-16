@@ -1,4 +1,5 @@
 const { fetchFromMlbApi } = require("./mlbClient");
+const { getOaaMap }       = require("./baseballSavantService");
 
 const MLB_LEADERS_URL = "https://statsapi.mlb.com/api/v1/stats/leaders";
 const CURRENT_SEASON = new Date().getFullYear().toString();
@@ -138,6 +139,7 @@ const fetchYoungLeaguePlayers = async (maxAge = 26) => {
   const { ageMap, positionMap } = await fetchPlayerMeta(players.map((p) => p.playerId));
 
   // 年齢が取得できた選手のみキャッシュに保存（年齢不明は除外）
+  const oaaMap = getOaaMap();
   youngPlayersCache = players
     .filter((p) => (ageMap[p.playerId] ?? 99) < 99)
     .map((p) => ({
@@ -151,6 +153,7 @@ const fetchYoungLeaguePlayers = async (maxAge = 26) => {
       stolenBases: p.stolenBases,
       avg:         p.avg,
       rbi:         p.rbi,
+      oaa:         oaaMap[p.playerId] ?? 0,
     }));
   youngPlayersCacheTime = Date.now();
   return youngPlayersCache.filter((p) => p.age <= maxAge);
@@ -209,7 +212,14 @@ const fetchLeagueStats = async () => {
     }),
   ]);
 
-  cache = { hitter, pitcher };
+  // OAA（守備指標）をローカル CSV から野手データにマージする
+  const oaaMap = getOaaMap();
+  const hitterWithOaa = {
+    ...hitter,
+    players: hitter.players.map((p) => ({ ...p, oaa: oaaMap[p.playerId] ?? 0 })),
+  };
+
+  cache = { hitter: hitterWithOaa, pitcher };
   cacheTime = Date.now();
 
   return cache;

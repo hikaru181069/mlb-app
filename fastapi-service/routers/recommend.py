@@ -142,6 +142,7 @@ class YoungPlayerCandidate(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    oaa: float = 0
 
 
 class FutureStarRequest(BaseModel):

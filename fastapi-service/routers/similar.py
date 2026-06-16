@@ -30,6 +30,7 @@ class SimilarPlayer(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    oaa: float = 0
     # 投手スタッツ
     era: float = 0
     whip: float = 0

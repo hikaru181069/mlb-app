@@ -134,9 +134,10 @@ def position_score(pos1: str, pos2: str) -> float:
 # 候補プール全体の実際の分布から正規化する。固定値を使わない。
 # 「このプールの中で何パーセンタイルか」を 0〜1 に変換し、次元ごとの重みを乗算してベクトルにする。
 
-# 野手重み: [OPS, HR, SB, AVG, RBI]
+# 野手重み: [OPS, HR, SB, AVG, RBI, OAA]
 # OPS は打撃総合力として最重要。RBI はチーム状況依存のため控えめ。
-HITTER_WEIGHTS = np.array([2.0, 1.5, 1.0, 1.2, 1.0], dtype=float)
+# OAA は守備スタイルの識別に有効（Gold Glove 型 vs 打撃特化型の区別）。
+HITTER_WEIGHTS = np.array([2.0, 1.5, 1.0, 1.2, 1.0, 1.2], dtype=float)
 
 # 投手重み: [ERA, WHIP, K, BB, W, IP]
 # ERA/WHIP を最重視。W（勝利数）はチーム依存度が高いため最低重み。
@@ -157,6 +158,7 @@ def build_hitter_pct_funcs(candidates: list) -> dict:
     sb_dist  = [c.stolenBases for c in candidates]
     avg_dist = [c.avg         for c in candidates]
     rbi_dist = [c.rbi         for c in candidates]
+    oaa_dist = [getattr(c, "oaa", 0) for c in candidates]
 
     return {
         "ops": lambda v: calc_percentile(v, ops_dist, higher_is_better=True)  / 100,
@@ -164,6 +166,7 @@ def build_hitter_pct_funcs(candidates: list) -> dict:
         "sb":  lambda v: calc_percentile(v, sb_dist,  higher_is_better=True)  / 100,
         "avg": lambda v: calc_percentile(v, avg_dist, higher_is_better=True)  / 100,
         "rbi": lambda v: calc_percentile(v, rbi_dist, higher_is_better=True)  / 100,
+        "oaa": lambda v: calc_percentile(v, oaa_dist, higher_is_better=True)  / 100,
     }
 
 
@@ -179,6 +182,7 @@ def hitter_percentile_vector(player, pct_funcs: dict) -> np.ndarray:
         pct_funcs["sb"](player.stolenBases),
         pct_funcs["avg"](player.avg),
         pct_funcs["rbi"](player.rbi),
+        pct_funcs["oaa"](getattr(player, "oaa", 0)),
     ], dtype=float)
     return raw * HITTER_WEIGHTS
 
