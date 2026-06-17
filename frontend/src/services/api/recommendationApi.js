@@ -35,6 +35,19 @@ export const getQuizRecommendations = async (token, { type, style, age, league, 
   return data.players || [];
 };
 
+export const getProspectRecommendations = async (token) => {
+  const response = await fetch(`${API_URL}/api/recommendations/prospects`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    const error = new Error(data.message || "Failed to load prospect recommendations.");
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+};
+
 export const getFutureStars = async (token) => {
   if (!token) {
     return [];

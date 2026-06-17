@@ -7990,3 +7990,167 @@ button:active {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── ProspectsPage ─────────────────────────────────────────────────────── */
+
+.prospect-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.prospect-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 16px;
+  background: var(--ctp-mantle);
+  text-decoration: none;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  position: relative;
+}
+
+.prospect-card:hover {
+  border-color: var(--ctp-lavender);
+  background: var(--ctp-surface0);
+  transform: translateY(-2px);
+}
+
+.prospect-card--skeleton {
+  pointer-events: none;
+}
+
+.prospect-card-headshot {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.prospect-card-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--ctp-surface1);
+}
+
+.prospect-card-org-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ctp-crust);
+  border: 2px solid var(--ctp-mantle);
+  object-fit: contain;
+}
+
+.prospect-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.prospect-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.prospect-card-level {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ctp-green);
+  background: color-mix(in srgb, var(--ctp-green) 12%, transparent);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.prospect-card-age,
+.prospect-card-pos {
+  font-size: 11px;
+  color: var(--ctp-subtext0);
+}
+
+.prospect-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ctp-text);
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prospect-card-team {
+  font-size: 12px;
+  color: var(--ctp-subtext1);
+  margin: 0 0 2px;
+}
+
+.prospect-card-org {
+  font-size: 11px;
+  color: var(--ctp-subtext0);
+  margin: 0 0 6px;
+}
+
+.prospect-card-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.prospect-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.prospect-stat-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ctp-text);
+}
+
+.prospect-stat-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ctp-subtext0);
+}
+
+.prospect-card-reason {
+  font-size: 11px;
+  color: var(--ctp-lavender);
+  margin: 4px 0 0;
+}
+
+.prospect-card-sim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+
+.prospect-sim-pct {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ctp-lavender);
+}
+
+.prospect-sim-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ctp-subtext0);
+}

@@ -8,6 +8,8 @@ const {
   fetchQuizPitchers,
 } = require("../services/mlb/quizRecommendationService");
 
+const { getProspectsForUser } = require("../services/recommendations/prospectRecommendationService");
+
 const getRecommendations = async (req, res) => {
   try {
     const recommendations = await getRecommendationsForUser(req.user._id);
@@ -48,8 +50,19 @@ const getQuizRecommendations = async (req, res) => {
   }
 };
 
+const getProspectRecommendations = async (req, res) => {
+  try {
+    const prospects = await getProspectsForUser(req.user._id);
+    res.json(prospects);
+  } catch (error) {
+    console.error("Prospect recommendation error:", error.message);
+    res.status(500).json({ message: "Failed to fetch prospect recommendations" });
+  }
+};
+
 module.exports = {
   getFutureStars,
   getRecommendations,
   getQuizRecommendations,
+  getProspectRecommendations,
 };
