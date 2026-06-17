@@ -5,8 +5,7 @@ const PEOPLE_URL  = "https://statsapi.mlb.com/api/v1/people";
 const TEAMS_URL   = "https://statsapi.mlb.com/api/v1/teams";
 const SEASON      = new Date().getFullYear().toString();
 
-// AAA=11, AA=12
-const SPORT_IDS   = [11, 12];
+const SPORT_IDS   = [11, 12]; // AAA=11, AA=12
 const SPORT_LABEL = { 11: "Triple-A", 12: "Double-A" };
 
 const HITTER_CATEGORIES = [
@@ -17,12 +16,28 @@ const HITTER_CATEGORIES = [
   "runsBattedIn",
 ];
 
-const CAT_KEY = {
+const PITCHER_CATEGORIES = [
+  "earnedRunAverage",
+  "walksAndHitsPerInningPitched",
+  "strikeouts",
+  "wins",
+  "inningsPitched",
+];
+
+const HITTER_CAT_KEY = {
   onBasePlusSlugging: "ops",
   homeRuns:           "homeRuns",
   stolenBases:        "stolenBases",
   battingAverage:     "avg",
   runsBattedIn:       "rbi",
+};
+
+const PITCHER_CAT_KEY = {
+  earnedRunAverage:             "era",
+  walksAndHitsPerInningPitched: "whip",
+  strikeouts:                   "strikeouts",
+  wins:                         "wins",
+  inningsPitched:               "innings",
 };
 
 const HEADSHOT = (id) =>
@@ -34,15 +49,14 @@ let cache     = null;
 let cacheTime = 0;
 const TTL_MS  = 24 * 60 * 60 * 1000;
 
+const teamCache = {};
+
 // ── ヘルパー ───────────────────────────────────────────────────────────────
 
 const toNum = (v) => {
   const n = parseFloat(v);
   return Number.isFinite(n) ? n : 0;
 };
-
-// team.id → { parentOrgName, parentOrgId, level } のキャッシュ
-const teamCache = {};
 
 const getTeamMeta = async (teamId) => {
   if (teamCache[teamId]) return teamCache[teamId];
@@ -61,16 +75,12 @@ const getTeamMeta = async (teamId) => {
   }
 };
 
-// ── メイン取得関数 ─────────────────────────────────────────────────────────
-
-const fetchProspects = async () => {
-  if (cache && Date.now() - cacheTime < TTL_MS) return cache;
-
-  // 1. 各 sportId × カテゴリでリーダーを取得し、playerId をキーにしたマップへ集約
+// sportId × カテゴリでリーダーを取得し playerMap に集約する
+const fetchLeaders = async (categories, catKey, defaultStats) => {
   const playerMap = {};
 
   for (const sportId of SPORT_IDS) {
-    const url = `${LEADERS_URL}?sportId=${sportId}&leaderCategories=${HITTER_CATEGORIES.join(",")}&season=${SEASON}&limit=60`;
+    const url = `${LEADERS_URL}?sportId=${sportId}&leaderCategories=${categories.join(",")}&season=${SEASON}&limit=60`;
     let data;
     try {
       data = await fetchFromMlbApi(url);
@@ -79,7 +89,7 @@ const fetchProspects = async () => {
     }
 
     for (const cat of data.leagueLeaders || []) {
-      const statKey = CAT_KEY[cat.leaderCategory];
+      const statKey = catKey[cat.leaderCategory];
       if (!statKey) continue;
 
       for (const item of cat.leaders || []) {
@@ -93,68 +103,97 @@ const fetchProspects = async () => {
             teamId:   item.team?.id   || null,
             teamName: item.team?.name || "",
             sportId,
-            ops: 0, homeRuns: 0, stolenBases: 0, avg: 0, rbi: 0,
+            ...defaultStats,
           };
         }
 
         playerMap[id][statKey] = toNum(item.value);
-        // sportId は AAA 優先（数値が小さいほど上位リーグ）
         if (sportId < playerMap[id].sportId) playerMap[id].sportId = sportId;
       }
     }
   }
 
-  const players = Object.values(playerMap);
+  return Object.values(playerMap);
+};
 
-  // 2. age + position をバッチ取得（50人ずつ）
+// age + position をバッチ取得して Map で返す
+const fetchPeopleMap = async (players) => {
   const ids = players.map((p) => p.playerId);
-  const peopleMap = {};
+  const map = {};
   for (let i = 0; i < ids.length; i += 50) {
     const chunk = ids.slice(i, i + 50).join(",");
     try {
       const data = await fetchFromMlbApi(`${PEOPLE_URL}?personIds=${chunk}`);
       for (const person of data.people || []) {
-        peopleMap[person.id] = {
+        map[person.id] = {
           age:      person.currentAge || 0,
           position: person.primaryPosition?.abbreviation || "",
         };
       }
     } catch { /* スキップ */ }
   }
+  return map;
+};
 
-  // 3. チームメタ（親球団）を並列取得
-  const uniqueTeamIds = [...new Set(players.map((p) => p.teamId).filter(Boolean))];
+// raw playerMap エントリを表示用オブジェクトへ変換する
+const buildProspect = (p, peopleMap) => {
+  const meta  = peopleMap[p.playerId] || {};
+  const tMeta = p.teamId ? teamCache[p.teamId] || {} : {};
+  return {
+    playerId:    p.playerId,
+    fullName:    p.fullName,
+    level:       tMeta.level || SPORT_LABEL[p.sportId] || "MiLB",
+    team:        p.teamName,
+    teamId:      p.teamId,
+    parentOrg:   tMeta.parentOrgName || "",
+    parentOrgId: tMeta.parentOrgId   || null,
+    age:         meta.age      || 0,
+    position:    meta.position || "",
+    imageUrl:    HEADSHOT(p.playerId),
+    // 野手スタッツ
+    ops:         p.ops         ?? 0,
+    homeRuns:    p.homeRuns    ?? 0,
+    stolenBases: p.stolenBases ?? 0,
+    avg:         p.avg         ?? 0,
+    rbi:         p.rbi         ?? 0,
+    // 投手スタッツ
+    era:         p.era         ?? 0,
+    whip:        p.whip        ?? 0,
+    strikeouts:  p.strikeouts  ?? 0,
+    wins:        p.wins        ?? 0,
+    innings:     p.innings     ?? 0,
+  };
+};
+
+// ── メイン取得関数 ─────────────────────────────────────────────────────────
+
+const fetchProspects = async () => {
+  if (cache && Date.now() - cacheTime < TTL_MS) return cache;
+
+  const [hitterRaw, pitcherRaw] = await Promise.all([
+    fetchLeaders(HITTER_CATEGORIES,  HITTER_CAT_KEY,  { ops:0, homeRuns:0, stolenBases:0, avg:0, rbi:0 }),
+    fetchLeaders(PITCHER_CATEGORIES, PITCHER_CAT_KEY, { era:0, whip:0, strikeouts:0, wins:0, innings:0 }),
+  ]);
+
+  // age + position を全選手まとめてバッチ取得する
+  const allPlayers = [...hitterRaw, ...pitcherRaw];
+  const peopleMap  = await fetchPeopleMap(allPlayers);
+
+  // チームメタを並列取得する
+  const uniqueTeamIds = [...new Set(allPlayers.map((p) => p.teamId).filter(Boolean))];
   await Promise.all(uniqueTeamIds.map(getTeamMeta));
 
-  // 4. 最終データを組み立て
-  const prospects = players.map((p) => {
-    const meta  = peopleMap[p.playerId] || {};
-    const tMeta = p.teamId ? teamCache[p.teamId] || {} : {};
-    return {
-      playerId:      p.playerId,
-      fullName:      p.fullName,
-      level:         tMeta.level || SPORT_LABEL[p.sportId] || "MiLB",
-      team:          p.teamName,
-      teamId:        p.teamId,
-      parentOrg:     tMeta.parentOrgName || "",
-      parentOrgId:   tMeta.parentOrgId   || null,
-      age:           meta.age      || 0,
-      position:      meta.position || "",
-      ops:           p.ops,
-      homeRuns:      p.homeRuns,
-      stolenBases:   p.stolenBases,
-      avg:           p.avg,
-      rbi:           p.rbi,
-      imageUrl:      HEADSHOT(p.playerId),
-    };
-  });
+  const hitters  = hitterRaw.map((p) => buildProspect(p, peopleMap))
+    .sort((a, b) => b.ops - a.ops);
 
-  // OPS 降順でソート（スコアリング前の並び順）
-  prospects.sort((a, b) => b.ops - a.ops);
+  // 投手は ERA 昇順（低いほど良い）、ただし ERA=0 は除外
+  const pitchers = pitcherRaw.map((p) => buildProspect(p, peopleMap))
+    .filter((p) => p.era > 0)
+    .sort((a, b) => a.era - b.era);
 
-  cache     = prospects;
+  cache     = { hitters, pitchers };
   cacheTime = Date.now();
-  return prospects;
+  return cache;
 };
 
 module.exports = { fetchProspects };

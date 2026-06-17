@@ -7,22 +7,14 @@ import { getProspectRecommendations } from "../services/api/recommendationApi";
 const HEADSHOT_URL = (id) =>
   `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
 
-function ProspectCard({ prospect }) {
+function ProspectCard({ prospect, showSim }) {
   const {
-    playerId,
-    fullName,
-    level,
-    team,
-    parentOrg,
-    parentOrgId,
-    age,
-    position,
-    ops,
-    homeRuns,
-    stolenBases,
-    similarityPercentage,
-    reason,
+    playerId, fullName, level, team, parentOrg, parentOrgId,
+    age, position, ops, homeRuns, stolenBases, era, strikeouts, wins,
+    similarityPercentage, reason,
   } = prospect;
+
+  const isPitcher = era > 0 && ops === 0;
 
   return (
     <Link to={`/players/${playerId}`} className="prospect-card">
@@ -52,37 +44,58 @@ function ProspectCard({ prospect }) {
 
         <p className="prospect-card-name">{fullName}</p>
         <p className="prospect-card-team">{team}</p>
-        {parentOrg && (
-          <p className="prospect-card-org">{parentOrg} prospect</p>
-        )}
+        {parentOrg && <p className="prospect-card-org">{parentOrg} prospect</p>}
 
         <div className="prospect-card-stats">
-          {ops > 0 && (
-            <span className="prospect-stat">
-              <span className="prospect-stat-val">{ops.toFixed(3)}</span>
-              <span className="prospect-stat-label">OPS</span>
-            </span>
-          )}
-          {homeRuns > 0 && (
-            <span className="prospect-stat">
-              <span className="prospect-stat-val">{homeRuns}</span>
-              <span className="prospect-stat-label">HR</span>
-            </span>
-          )}
-          {stolenBases > 0 && (
-            <span className="prospect-stat">
-              <span className="prospect-stat-val">{stolenBases}</span>
-              <span className="prospect-stat-label">SB</span>
-            </span>
+          {isPitcher ? (
+            <>
+              {era > 0 && (
+                <span className="prospect-stat">
+                  <span className="prospect-stat-val">{era.toFixed(2)}</span>
+                  <span className="prospect-stat-label">ERA</span>
+                </span>
+              )}
+              {strikeouts > 0 && (
+                <span className="prospect-stat">
+                  <span className="prospect-stat-val">{strikeouts}</span>
+                  <span className="prospect-stat-label">K</span>
+                </span>
+              )}
+              {wins > 0 && (
+                <span className="prospect-stat">
+                  <span className="prospect-stat-val">{wins}</span>
+                  <span className="prospect-stat-label">W</span>
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              {ops > 0 && (
+                <span className="prospect-stat">
+                  <span className="prospect-stat-val">{ops.toFixed(3)}</span>
+                  <span className="prospect-stat-label">OPS</span>
+                </span>
+              )}
+              {homeRuns > 0 && (
+                <span className="prospect-stat">
+                  <span className="prospect-stat-val">{homeRuns}</span>
+                  <span className="prospect-stat-label">HR</span>
+                </span>
+              )}
+              {stolenBases > 0 && (
+                <span className="prospect-stat">
+                  <span className="prospect-stat-val">{stolenBases}</span>
+                  <span className="prospect-stat-label">SB</span>
+                </span>
+              )}
+            </>
           )}
         </div>
 
-        {reason && (
-          <p className="prospect-card-reason">{reason}</p>
-        )}
+        {reason && <p className="prospect-card-reason">{reason}</p>}
       </div>
 
-      {similarityPercentage != null && (
+      {showSim && similarityPercentage != null && (
         <div className="prospect-card-sim">
           <span className="prospect-sim-pct">{similarityPercentage}%</span>
           <span className="prospect-sim-label">match</span>
@@ -95,7 +108,7 @@ function ProspectCard({ prospect }) {
 function SkeletonProspectCard() {
   return (
     <div className="prospect-card prospect-card--skeleton">
-      <div className="prospect-card-headshot skeleton-block" style={{ borderRadius: "50%", width: 64, height: 64 }} />
+      <div className="prospect-card-headshot skeleton-block" style={{ borderRadius: "50%", width: 64, height: 64, flexShrink: 0 }} />
       <div className="prospect-card-body">
         <div className="skeleton-block" style={{ width: 60, height: 14, borderRadius: 4, marginBottom: 6 }} />
         <div className="skeleton-block" style={{ width: 130, height: 18, borderRadius: 4, marginBottom: 4 }} />
@@ -105,16 +118,41 @@ function SkeletonProspectCard() {
   );
 }
 
+function ProspectSection({ title, prospects, showSim, loading }) {
+  return (
+    <div className="prospect-section">
+      <h2 className="prospect-section-title">{title}</h2>
+      {loading ? (
+        <div className="prospect-list">
+          {Array.from({ length: 4 }, (_, i) => <SkeletonProspectCard key={i} />)}
+        </div>
+      ) : prospects.length === 0 ? (
+        <p className="prospect-section-empty">No prospects available.</p>
+      ) : (
+        <div className="prospect-list">
+          {prospects.map((p) => (
+            <ProspectCard key={p.playerId} prospect={p} showSim={showSim} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProspectsPage() {
   const token = getAuthToken();
-  const [prospects, setProspects] = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState("");
+  const [hitters, setHitters]   = useState([]);
+  const [pitchers, setPitchers] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
 
   useEffect(() => {
     if (!token) { setLoading(false); return; }
     getProspectRecommendations(token)
-      .then(setProspects)
+      .then(({ hitters: h, pitchers: p }) => {
+        setHitters(h || []);
+        setPitchers(p || []);
+      })
       .catch((err) => setError(err.message || "Failed to load prospects."))
       .finally(() => setLoading(false));
   }, [token]);
@@ -134,6 +172,8 @@ function ProspectsPage() {
     );
   }
 
+  const hasHitterFavs = hitters.some((p) => p.similarityPercentage != null);
+
   return (
     <div className="home-page px-6 py-10">
       <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
@@ -142,32 +182,25 @@ function ProspectsPage() {
           Prospects to Watch
         </h1>
         <p className="home-description mt-4 text-base">
-          AAA and AA players with a playstyle similar to your favorites.
+          AAA and AA players to keep an eye on this season.
         </p>
       </section>
 
-      <div className="home-content mt-2 w-full">
+      <div className="home-content mt-2 w-full" style={{ maxWidth: 680 }}>
         {error && <p className="error-message">{error}</p>}
 
-        {loading ? (
-          <div className="prospect-list">
-            {Array.from({ length: 6 }, (_, i) => <SkeletonProspectCard key={i} />)}
-          </div>
-        ) : prospects.length === 0 ? (
-          <div className="home-empty-state">
-            <p className="empty-state-title">No prospects found</p>
-            <p className="empty-state-desc">
-              Add favorite players on the{" "}
-              <Link to="/favorites" className="text-accent">Favorites</Link> page to get matched prospects.
-            </p>
-          </div>
-        ) : (
-          <div className="prospect-list">
-            {prospects.map((p) => (
-              <ProspectCard key={p.playerId} prospect={p} />
-            ))}
-          </div>
-        )}
+        <ProspectSection
+          title="Hitters"
+          prospects={hitters}
+          showSim={hasHitterFavs}
+          loading={loading}
+        />
+        <ProspectSection
+          title="Pitchers"
+          prospects={pitchers}
+          showSim={false}
+          loading={loading}
+        />
       </div>
     </div>
   );

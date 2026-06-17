@@ -8154,3 +8154,20 @@ button:active {
   letter-spacing: 0.05em;
   color: var(--ctp-subtext0);
 }
+
+.prospect-section {
+  margin-bottom: 40px;
+}
+
+.prospect-section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ctp-text);
+  margin: 0 0 14px;
+  letter-spacing: -0.02em;
+}
+
+.prospect-section-empty {
+  font-size: 13px;
+  color: var(--ctp-subtext0);
+}
