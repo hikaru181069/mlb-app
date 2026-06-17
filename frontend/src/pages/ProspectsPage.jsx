@@ -186,21 +186,23 @@ function ProspectsPage() {
         </p>
       </section>
 
-      <div className="home-content mt-2 w-full" style={{ maxWidth: 680 }}>
+      <div className="home-content mt-2 w-full">
         {error && <p className="error-message">{error}</p>}
 
-        <ProspectSection
-          title="Hitters"
-          prospects={hitters}
-          showSim={hasHitterFavs}
-          loading={loading}
-        />
-        <ProspectSection
-          title="Pitchers"
-          prospects={pitchers}
-          showSim={false}
-          loading={loading}
-        />
+        <div className="prospects-columns">
+          <ProspectSection
+            title="Hitters"
+            prospects={hitters}
+            showSim={hasHitterFavs}
+            loading={loading}
+          />
+          <ProspectSection
+            title="Pitchers"
+            prospects={pitchers}
+            showSim={false}
+            loading={loading}
+          />
+        </div>
       </div>
     </div>
   );

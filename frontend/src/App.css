@@ -8171,3 +8171,17 @@ button:active {
   font-size: 13px;
   color: var(--ctp-subtext0);
 }
+
+.prospects-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .prospects-columns {
+    grid-template-columns: 1fr;
+  }
+}
