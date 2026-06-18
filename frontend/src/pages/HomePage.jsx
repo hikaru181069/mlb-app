@@ -201,7 +201,9 @@ function HomePage() {
 
         <section className="discovery-section">
           <div className="discovery-section-header">
-            <h2 className="discovery-section-title">Browse by Style</h2>
+            <div className="discovery-section-title-row">
+              <h2 className="discovery-section-title">Browse by Style</h2>
+            </div>
             <p className="discovery-section-desc">Explore players by playing style</p>
           </div>
           <div className="discovery-archetypes">
@@ -261,13 +263,13 @@ function HomePage() {
       {(loadingUser || hasFavorites !== false) && (
         <section className="discovery-section">
           <div className="discovery-section-header">
-            <h2 className="discovery-section-title">Recommended For You</h2>
-            <div className="discovery-section-header-row">
-              <p className="discovery-section-desc">
-                {hasGroups ? "Based on your favorites" : "Popular MLB players"}
-              </p>
+            <div className="discovery-section-title-row">
+              <h2 className="discovery-section-title">Recommended For You</h2>
               <Link to="/foryou" className="discovery-see-all">See all →</Link>
             </div>
+            <p className="discovery-section-desc">
+              {hasGroups ? "Based on your favorites" : "Popular MLB players"}
+            </p>
           </div>
 
           {loadingUser ? (
@@ -296,7 +298,9 @@ function HomePage() {
       {/* 若手スター */}
       <section className="discovery-section">
         <div className="discovery-section-header">
-          <h2 className="discovery-section-title">Young Stars</h2>
+          <div className="discovery-section-title-row">
+            <h2 className="discovery-section-title">Young Stars</h2>
+          </div>
           <p className="discovery-section-desc">25 and under, turning heads this season</p>
         </div>
         <div className="discovery-tab-bar">
@@ -333,12 +337,14 @@ function HomePage() {
       {/* プロスペクトへの導線 */}
       <section className="discovery-section">
         <div className="discovery-section-header">
-          <h2 className="discovery-section-title">Discover Prospects</h2>
-          <Link to="/prospects" className="discovery-see-all">See all →</Link>
+          <div className="discovery-section-title-row">
+            <h2 className="discovery-section-title">Discover Prospects</h2>
+            <Link to="/prospects" className="discovery-see-all">See all →</Link>
+          </div>
+          <p className="discovery-section-desc">
+            AAA &amp; AA players on the verge of breaking through
+          </p>
         </div>
-        <p className="discovery-section-desc" style={{ marginBottom: "12px" }}>
-          AAA &amp; AA players on the verge of breaking through
-        </p>
         <Link to="/prospects" className="home-prospects-banner">
           <span className="home-prospects-banner-text">Explore Minor League Prospects</span>
           <span className="home-prospects-banner-arrow">→</span>
@@ -348,7 +354,9 @@ function HomePage() {
       {/* プレースタイル別に探す */}
       <section className="discovery-section">
         <div className="discovery-section-header">
-          <h2 className="discovery-section-title">Browse by Style</h2>
+          <div className="discovery-section-title-row">
+            <h2 className="discovery-section-title">Browse by Style</h2>
+          </div>
           <p className="discovery-section-desc">Explore players by playing style</p>
         </div>
         <div className="discovery-archetypes">
