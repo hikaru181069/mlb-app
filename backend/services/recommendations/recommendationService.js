@@ -206,6 +206,7 @@ const getGroupedRecommendationsForUser = async (userId) => {
 
   if (favorites.length === 0) {
     return {
+      hasFavorites: false,
       groups: [],
       fallback: fallbackPlayers.slice(0, 5).map((p) => ({
         mlbPlayerId: p.playerId,
@@ -299,7 +300,7 @@ const getGroupedRecommendationsForUser = async (userId) => {
     }
   }
 
-  return { groups };
+  return { hasFavorites: true, groups };
 };
 
 module.exports = {

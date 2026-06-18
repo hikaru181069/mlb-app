@@ -21,6 +21,13 @@ const ARCHETYPES = [
   { type: "workhorse",      label: "Workhorse",       color: "var(--ctp-teal)"     },
 ];
 
+const JOURNEY_STEPS = [
+  { num: "1", label: "Add Favorites" },
+  { num: "2", label: "Get Matched"   },
+  { num: "3", label: "Young Stars"   },
+  { num: "4", label: "Prospects"     },
+];
+
 const getGreeting = () => {
   const h = new Date().getHours();
   if (h < 5)  return "Good night";
@@ -70,6 +77,16 @@ function DiscoveryCard({ playerId, playerName, teamId, teamName, stat, statLabel
   );
 }
 
+function DiscoveryCardSkeleton() {
+  return (
+    <div className="discovery-card-skeleton">
+      <div className="skeleton-block discovery-skeleton-img" />
+      <div className="skeleton-block discovery-skeleton-name" />
+      <div className="skeleton-block discovery-skeleton-stat" />
+    </div>
+  );
+}
+
 // ── Because you like X グループ行 ──────────────────────────────────────────
 function RecommendationGroup({ group }) {
   const lastName = group.seedPlayer.name.split(" ").slice(-1)[0];
@@ -100,25 +117,15 @@ function RecommendationGroup({ group }) {
   );
 }
 
-function DiscoveryCardSkeleton() {
-  return (
-    <div className="discovery-card-skeleton">
-      <div className="skeleton-block discovery-skeleton-img" />
-      <div className="skeleton-block discovery-skeleton-name" />
-      <div className="skeleton-block discovery-skeleton-stat" />
-    </div>
-  );
-}
-
 // ── ホームページ ───────────────────────────────────────────────────────────
 function HomePage() {
-  const [user, setUser]                   = useState(null);
-  const [recData, setRecData]             = useState(null);
+  const [user, setUser]             = useState(null);
+  const [recData, setRecData]       = useState(null);
   const [risingHitters, setRisingHitters] = useState([]);
   const [risingPitchers, setRisingPitchers] = useState([]);
-  const [loadingUser, setLoadingUser]     = useState(true);
+  const [loadingUser, setLoadingUser]   = useState(true);
   const [loadingRising, setLoadingRising] = useState(true);
-  const [risingTab, setRisingTab]         = useState("hitters");
+  const [risingTab, setRisingTab]   = useState("hitters");
 
   const token = getAuthToken();
 
@@ -128,7 +135,6 @@ function HomePage() {
       try {
         const currentUser = await getCurrentUser(token);
         setUser(currentUser);
-
         const recs = await getForYouRecommendations(token);
         setRecData(recs);
       } catch (err) {
@@ -158,14 +164,31 @@ function HomePage() {
   if (!token) {
     return (
       <div className="home-discovery">
+        {/* ヒーロー: 発見の流れを説明 */}
         <section className="guest-hero">
           <div className="guest-hero-text">
             <p className="home-kicker">MLB Player Discovery</p>
-            <h1 className="guest-hero-title">Find Your Next<br />Favorite Player</h1>
+            <h1 className="guest-hero-title">Your Next Favorite<br />Player Is Already Here</h1>
             <p className="home-description">
-              Discover MLB players by playing style, age, and league.
-              Get personalized picks powered by real stats.
+              Add players you love. We&apos;ll automatically find similar players,
+              rising stars, and prospects — like Spotify for MLB.
             </p>
+
+            {/* 発見フロー可視化 */}
+            <div className="guest-journey">
+              {JOURNEY_STEPS.map((step, i) => (
+                <div key={step.num} className="guest-journey-item">
+                  <div className="guest-journey-step">
+                    <span className="guest-journey-num">{step.num}</span>
+                    <span className="guest-journey-label">{step.label}</span>
+                  </div>
+                  {i < JOURNEY_STEPS.length - 1 && (
+                    <span className="guest-journey-arrow">→</span>
+                  )}
+                </div>
+              ))}
+            </div>
+
             <div className="home-actions">
               <Link className="home-link" to="/register">Get Started</Link>
               <Link className="home-link secondary" to="/login">Login</Link>
@@ -205,7 +228,9 @@ function HomePage() {
   }
 
   // ─── ログイン済み表示 ─────────────────────────────────────────────────────
-  const risingPlayers = risingTab === "hitters" ? risingHitters : risingPitchers;
+  const risingPlayers  = risingTab === "hitters" ? risingHitters : risingPitchers;
+  const hasFavorites   = recData?.hasFavorites;
+  const hasGroups      = (recData?.groups?.length ?? 0) > 0;
 
   return (
     <div className="home-discovery">
@@ -216,31 +241,30 @@ function HomePage() {
         </p>
       </header>
 
-      {/* 発見CTA */}
-      <section className="discovery-cta">
-        <p className="discovery-cta-label">Player Discovery</p>
-        <h2 className="discovery-cta-title">Find Your Next Favorite Player</h2>
-        <p className="discovery-cta-desc">
-          Answer 3 questions and we&apos;ll find players you&apos;ll love.
-        </p>
-        <div className="discovery-cta-buttons">
-          <Link to="/recommendations" className="discovery-cta-btn">
-            Hitters
-          </Link>
-          <Link to="/recommendations" className="discovery-cta-btn secondary">
-            Pitchers
-          </Link>
-        </div>
-      </section>
+      {/* お気に入りなし → 発見のスタートCTA */}
+      {!loadingUser && hasFavorites === false && (
+        <section className="home-start">
+          <div className="home-start-inner">
+            <h2 className="home-start-title">Start Your Discovery</h2>
+            <p className="home-start-desc">
+              Add players you love. We&apos;ll automatically find similar players,
+              young stars, and prospects.
+            </p>
+            <Link to="/onboarding/favorites" className="home-start-btn">
+              Add Favorite Players
+            </Link>
+          </div>
+        </section>
+      )}
 
-      {/* あなたへのおすすめ */}
-      {(loadingUser || (recData?.groups?.length ?? 0) > 0 || (recData?.fallback?.length ?? 0) > 0) && (
+      {/* あなたへのおすすめ（お気に入りありの場合） */}
+      {(loadingUser || hasFavorites !== false) && (
         <section className="discovery-section">
           <div className="discovery-section-header">
             <h2 className="discovery-section-title">Recommended For You</h2>
             <div className="discovery-section-header-row">
               <p className="discovery-section-desc">
-                {recData?.groups?.length > 0 ? "Based on your favorites" : "Popular MLB players"}
+                {hasGroups ? "Based on your favorites" : "Popular MLB players"}
               </p>
               <Link to="/foryou" className="discovery-see-all">See all →</Link>
             </div>
@@ -250,7 +274,7 @@ function HomePage() {
             <div className="discovery-scroll">
               {[...Array(3)].map((_, i) => <DiscoveryCardSkeleton key={i} />)}
             </div>
-          ) : recData?.groups?.length > 0 ? (
+          ) : hasGroups ? (
             recData.groups.map((group) => (
               <RecommendationGroup key={group.seedPlayer.mlbPlayerId} group={group} />
             ))
@@ -269,10 +293,10 @@ function HomePage() {
         </section>
       )}
 
-      {/* Rising Stars */}
+      {/* 若手スター */}
       <section className="discovery-section">
         <div className="discovery-section-header">
-          <h2 className="discovery-section-title">Rising Stars</h2>
+          <h2 className="discovery-section-title">Young Stars</h2>
           <p className="discovery-section-desc">25 and under, turning heads this season</p>
         </div>
         <div className="discovery-tab-bar">
@@ -304,6 +328,21 @@ function HomePage() {
                 />
               ))}
         </div>
+      </section>
+
+      {/* プロスペクトへの導線 */}
+      <section className="discovery-section">
+        <div className="discovery-section-header">
+          <h2 className="discovery-section-title">Discover Prospects</h2>
+          <Link to="/prospects" className="discovery-see-all">See all →</Link>
+        </div>
+        <p className="discovery-section-desc" style={{ marginBottom: "12px" }}>
+          AAA &amp; AA players on the verge of breaking through
+        </p>
+        <Link to="/prospects" className="home-prospects-banner">
+          <span className="home-prospects-banner-text">Explore Minor League Prospects</span>
+          <span className="home-prospects-banner-arrow">→</span>
+        </Link>
       </section>
 
       {/* プレースタイル別に探す */}

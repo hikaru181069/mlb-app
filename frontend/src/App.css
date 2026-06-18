@@ -1138,6 +1138,125 @@ input {
   transform: translateY(-1px);
 }
 
+/* お気に入りなし → 発見スタートCTA ─────────────────────────────────────── */
+.home-start {
+  margin: 20px 16px 0;
+  background: linear-gradient(135deg, var(--ctp-surface0), var(--ctp-mantle));
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 18px;
+  padding: 32px 28px;
+}
+
+.home-start-inner {
+  max-width: 480px;
+}
+
+.home-start-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ctp-text);
+  margin: 0 0 8px;
+}
+
+.home-start-desc {
+  font-size: 13px;
+  color: var(--ctp-subtext0);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.home-start-btn {
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: var(--ctp-sapphire);
+  color: var(--ctp-base);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 150ms ease;
+}
+.home-start-btn:hover { opacity: 0.85; }
+
+/* プロスペクトバナー ──────────────────────────────────────────────────────── */
+.home-prospects-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--ctp-surface1);
+  background: var(--ctp-surface0);
+  text-decoration: none;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.home-prospects-banner:hover {
+  border-color: var(--ctp-sapphire);
+  background: color-mix(in srgb, var(--ctp-sapphire) 8%, var(--ctp-surface0));
+}
+
+.home-prospects-banner-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ctp-text);
+}
+
+.home-prospects-banner-arrow {
+  font-size: 16px;
+  color: var(--ctp-sapphire);
+}
+
+/* ゲストヒーロー: 発見フロー ─────────────────────────────────────────────── */
+.guest-journey {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 20px 0 24px;
+}
+
+.guest-journey-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.guest-journey-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.guest-journey-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ctp-base);
+  background: var(--ctp-sapphire);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guest-journey-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ctp-subtext1);
+  white-space: nowrap;
+}
+
+.guest-journey-arrow {
+  font-size: 14px;
+  color: var(--ctp-overlay0);
+}
+
 /* セクション共通 */
 .discovery-section {
   margin-top: 36px;
