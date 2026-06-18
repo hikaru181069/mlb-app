@@ -8338,19 +8338,19 @@ button:active {
 /* カード群 */
 .foryou-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
 }
 
 /* 推薦カード */
 .foryou-card {
   background: var(--ctp-surface0);
   border: 1px solid var(--ctp-surface1);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
   transition: border-color 150ms ease, transform 150ms ease;
 }
 .foryou-card:hover {
@@ -8358,27 +8358,27 @@ button:active {
   transform: translateY(-2px);
 }
 
-.foryou-card--simple { gap: 10px; }
+.foryou-card--simple { gap: 14px; }
 
 .foryou-card-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 14px;
 }
 
 .foryou-card-player-link {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   text-decoration: none;
   flex: 1;
   min-width: 0;
 }
 
 .foryou-card-img {
-  width: 56px;
-  height: 56px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--ctp-surface1);
@@ -8388,17 +8388,17 @@ button:active {
 .foryou-card-info { min-width: 0; }
 
 .foryou-card-name {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--ctp-text);
-  margin: 0 0 3px;
+  margin: 0 0 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .foryou-card-meta {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ctp-subtext0);
   margin: 0;
   white-space: nowrap;
@@ -8409,35 +8409,35 @@ button:active {
 /* 類似度バッジ */
 .foryou-sim-badge {
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--ctp-base);
   background: var(--ctp-green);
   border-radius: 999px;
-  padding: 3px 9px;
+  padding: 4px 12px;
   line-height: 1.4;
 }
 
 /* スタット比較テーブル */
 .foryou-stat-comparison {
   background: var(--ctp-mantle);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .foryou-stat-header,
 .foryou-stat-row {
   display: grid;
-  grid-template-columns: 36px 1fr 1fr;
+  grid-template-columns: 44px 1fr 1fr;
   align-items: center;
   gap: 4px;
 }
 
 .foryou-stat-col-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -8448,7 +8448,7 @@ button:active {
 .foryou-stat-col-seed  { color: var(--ctp-subtext0); }
 
 .foryou-stat-key {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--ctp-subtext0);
   text-transform: uppercase;
@@ -8456,7 +8456,7 @@ button:active {
 }
 
 .foryou-stat-val {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   text-align: right;
 }
@@ -8468,10 +8468,10 @@ button:active {
 .foryou-scout-btn {
   display: block;
   text-align: center;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 11px;
+  border-radius: 10px;
   border: 1px solid var(--ctp-surface1);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ctp-sapphire);
   text-decoration: none;
