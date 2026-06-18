@@ -1,6 +1,7 @@
 const {
   getFutureStarsForUser,
   getRecommendationsForUser,
+  getGroupedRecommendationsForUser,
 } = require("../services/recommendations");
 
 const {
@@ -60,9 +61,20 @@ const getProspectRecommendations = async (req, res) => {
   }
 };
 
+const getForYouRecommendations = async (req, res) => {
+  try {
+    const data = await getGroupedRecommendationsForUser(req.user._id);
+    res.json(data);
+  } catch (error) {
+    console.error("For You recommendation error:", error.message);
+    res.status(500).json({ message: "Failed to fetch For You recommendations" });
+  }
+};
+
 module.exports = {
   getFutureStars,
   getRecommendations,
   getQuizRecommendations,
   getProspectRecommendations,
+  getForYouRecommendations,
 };

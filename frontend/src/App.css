@@ -1262,6 +1262,88 @@ input {
   color: var(--ctp-subtext0);
 }
 
+/* 推薦カードラッパー（Scout リンク付き） */
+.discovery-card-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.discovery-card-sim-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--ctp-base);
+  background: var(--ctp-green);
+  border-radius: 999px;
+  padding: 1px 5px;
+  line-height: 1.5;
+}
+
+.discovery-card-reason {
+  font-size: 10px;
+  color: var(--ctp-subtext0);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discovery-card-scout-link {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ctp-sapphire);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.discovery-card-scout-link:hover { text-decoration: underline; }
+
+/* ホーム推薦グループ */
+.discovery-section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.discovery-see-all {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ctp-sapphire);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.discovery-see-all:hover { text-decoration: underline; }
+
+.home-rec-group {
+  margin-bottom: 12px;
+}
+
+.home-rec-group-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ctp-subtext1);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.home-rec-seed-img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--ctp-surface1);
+}
+
 /* スケルトンカード */
 .discovery-card-skeleton {
   flex-shrink: 0;
@@ -8182,6 +8264,248 @@ button:active {
 
 @media (max-width: 700px) {
   .prospects-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   For You Page
+═══════════════════════════════════════════════════════════════════ */
+
+.foryou-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.foryou-header {
+  margin-bottom: 28px;
+}
+
+.foryou-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ctp-text);
+  margin: 0 0 6px;
+}
+
+.foryou-subtitle {
+  font-size: 13px;
+  color: var(--ctp-subtext0);
+  margin: 0;
+}
+
+/* グループ */
+.foryou-group {
+  margin-bottom: 36px;
+}
+
+.foryou-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ctp-surface0);
+}
+
+.foryou-group-header--fallback { border: none; }
+
+.foryou-seed-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--ctp-surface1);
+}
+
+.foryou-group-because {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ctp-subtext0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 2px;
+}
+
+.foryou-group-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ctp-text);
+  margin: 0;
+}
+
+/* カード群 */
+.foryou-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* 推薦カード */
+.foryou-card {
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+.foryou-card:hover {
+  border-color: var(--ctp-sapphire);
+  transform: translateY(-2px);
+}
+
+.foryou-card--simple { gap: 10px; }
+
+.foryou-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.foryou-card-player-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.foryou-card-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--ctp-surface1);
+  flex-shrink: 0;
+}
+
+.foryou-card-info { min-width: 0; }
+
+.foryou-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ctp-text);
+  margin: 0 0 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.foryou-card-meta {
+  font-size: 11px;
+  color: var(--ctp-subtext0);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 類似度バッジ */
+.foryou-sim-badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ctp-base);
+  background: var(--ctp-green);
+  border-radius: 999px;
+  padding: 3px 9px;
+  line-height: 1.4;
+}
+
+/* スタット比較テーブル */
+.foryou-stat-comparison {
+  background: var(--ctp-mantle);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.foryou-stat-header,
+.foryou-stat-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr;
+  align-items: center;
+  gap: 4px;
+}
+
+.foryou-stat-col-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: right;
+}
+
+.foryou-stat-col-match { color: var(--ctp-lavender); }
+.foryou-stat-col-seed  { color: var(--ctp-subtext0); }
+
+.foryou-stat-key {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ctp-subtext0);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.foryou-stat-val {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.foryou-stat-val.foryou-stat-col-match { color: var(--ctp-text); }
+.foryou-stat-val.foryou-stat-col-seed  { color: var(--ctp-subtext1); }
+
+/* Scout ボタン */
+.foryou-scout-btn {
+  display: block;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--ctp-surface1);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ctp-sapphire);
+  text-decoration: none;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.foryou-scout-btn:hover {
+  background: var(--ctp-surface1);
+  border-color: var(--ctp-sapphire);
+}
+
+/* ログインゲート / 空状態 */
+.foryou-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ctp-subtext0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.foryou-login-btn {
+  padding: 10px 24px;
+  border-radius: 999px;
+  background: var(--ctp-sapphire);
+  color: var(--ctp-base);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+}
+.foryou-login-btn:hover { opacity: 0.85; }
+
+@media (max-width: 600px) {
+  .foryou-cards {
     grid-template-columns: 1fr;
   }
 }

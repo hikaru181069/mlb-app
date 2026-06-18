@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getCurrentUser } from "../services/api/userApi";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import { isUnauthorizedError } from "../services/api/apiError";
-import { getRecommendations } from "../services/api/recommendationApi";
+import { getForYouRecommendations } from "../services/api/recommendationApi";
 import { getRisingStars } from "../services/api/statsApi";
 
 const MLB_LOGO = "https://www.mlbstatic.com/team-logos/league-on-dark/1.svg";
@@ -30,32 +30,73 @@ const getGreeting = () => {
 };
 
 // ── 選手カード（横スクロール用） ───────────────────────────────────────────
-function DiscoveryCard({ playerId, playerName, teamId, teamName, stat, statLabel }) {
+function DiscoveryCard({ playerId, playerName, teamId, teamName, stat, statLabel, similarityPercentage, seedName }) {
   return (
-    <Link to={`/players/${playerId}`} className="discovery-card">
-      <div className="discovery-card-img-wrap">
-        <img
-          src={HEADSHOT_URL(playerId)}
-          alt={playerName}
-          className="discovery-card-img"
-          onError={(e) => { e.currentTarget.style.opacity = "0.3"; }}
-        />
-        {teamId && (
+    <div className="discovery-card-wrap">
+      <Link to={`/players/${playerId}`} className="discovery-card">
+        <div className="discovery-card-img-wrap">
           <img
-            src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
-            alt={teamName}
-            className="discovery-card-team-badge"
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
+            src={HEADSHOT_URL(playerId)}
+            alt={playerName}
+            className="discovery-card-img"
+            onError={(e) => { e.currentTarget.style.opacity = "0.3"; }}
           />
+          {teamId && (
+            <img
+              src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
+              alt={teamName}
+              className="discovery-card-team-badge"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+          )}
+          {similarityPercentage != null && (
+            <span className="discovery-card-sim-badge">{similarityPercentage}%</span>
+          )}
+        </div>
+        <p className="discovery-card-name">{playerName}</p>
+        {stat && (
+          <p className="discovery-card-stat">
+            {stat} <span className="discovery-card-stat-label">{statLabel}</span>
+          </p>
         )}
+        {seedName && (
+          <p className="discovery-card-reason">via {seedName}</p>
+        )}
+      </Link>
+      <Link to={`/scout/${playerId}`} className="discovery-card-scout-link">
+        Scout →
+      </Link>
+    </div>
+  );
+}
+
+// ── Because you like X グループ行 ──────────────────────────────────────────
+function RecommendationGroup({ group }) {
+  const lastName = group.seedPlayer.name.split(" ").slice(-1)[0];
+  return (
+    <div className="home-rec-group">
+      <p className="home-rec-group-label">
+        <img
+          src={HEADSHOT_URL(group.seedPlayer.mlbPlayerId)}
+          alt={group.seedPlayer.name}
+          className="home-rec-seed-img"
+          onError={(e) => { e.currentTarget.style.display = "none"; }}
+        />
+        Because you like <strong>{lastName}</strong>
+      </p>
+      <div className="discovery-scroll">
+        {group.matches.map((m) => (
+          <DiscoveryCard
+            key={m.mlbPlayerId}
+            playerId={m.mlbPlayerId}
+            playerName={m.name}
+            teamName={m.team}
+            similarityPercentage={m.similarityPercentage}
+            seedName={lastName}
+          />
+        ))}
       </div>
-      <p className="discovery-card-name">{playerName}</p>
-      {stat && (
-        <p className="discovery-card-stat">
-          {stat} <span className="discovery-card-stat-label">{statLabel}</span>
-        </p>
-      )}
-    </Link>
+    </div>
   );
 }
 
@@ -72,7 +113,7 @@ function DiscoveryCardSkeleton() {
 // ── ホームページ ───────────────────────────────────────────────────────────
 function HomePage() {
   const [user, setUser]                   = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
+  const [recData, setRecData]             = useState(null);
   const [risingHitters, setRisingHitters] = useState([]);
   const [risingPitchers, setRisingPitchers] = useState([]);
   const [loadingUser, setLoadingUser]     = useState(true);
@@ -88,8 +129,8 @@ function HomePage() {
         const currentUser = await getCurrentUser(token);
         setUser(currentUser);
 
-        const recs = await getRecommendations(token);
-        setRecommendations(recs ?? []);
+        const recs = await getForYouRecommendations(token);
+        setRecData(recs);
       } catch (err) {
         if (isUnauthorizedError(err)) clearAuthData();
       } finally {
@@ -193,29 +234,38 @@ function HomePage() {
       </section>
 
       {/* あなたへのおすすめ */}
-      {(loadingUser || recommendations.length > 0) && (
+      {(loadingUser || (recData?.groups?.length ?? 0) > 0 || (recData?.fallback?.length ?? 0) > 0) && (
         <section className="discovery-section">
           <div className="discovery-section-header">
             <h2 className="discovery-section-title">Recommended For You</h2>
-            <p className="discovery-section-desc">
-              {user?.favoriteTeam?.name
-                ? `Based on your favorite team — ${user.favoriteTeam.name}`
-                : "Based on your profile"}
-            </p>
+            <div className="discovery-section-header-row">
+              <p className="discovery-section-desc">
+                {recData?.groups?.length > 0 ? "Based on your favorites" : "Popular MLB players"}
+              </p>
+              <Link to="/foryou" className="discovery-see-all">See all →</Link>
+            </div>
           </div>
-          <div className="discovery-scroll">
-            {loadingUser
-              ? [...Array(3)].map((_, i) => <DiscoveryCardSkeleton key={i} />)
-              : recommendations.map((p) => (
-                  <DiscoveryCard
-                    key={p.mlbPlayerId}
-                    playerId={p.mlbPlayerId}
-                    playerName={p.name}
-                    teamId={p.teamId}
-                    teamName={p.team}
-                  />
-                ))}
-          </div>
+
+          {loadingUser ? (
+            <div className="discovery-scroll">
+              {[...Array(3)].map((_, i) => <DiscoveryCardSkeleton key={i} />)}
+            </div>
+          ) : recData?.groups?.length > 0 ? (
+            recData.groups.map((group) => (
+              <RecommendationGroup key={group.seedPlayer.mlbPlayerId} group={group} />
+            ))
+          ) : (
+            <div className="discovery-scroll">
+              {(recData?.fallback ?? []).map((p) => (
+                <DiscoveryCard
+                  key={p.mlbPlayerId}
+                  playerId={p.mlbPlayerId}
+                  playerName={p.name}
+                  teamName={p.team}
+                />
+              ))}
+            </div>
+          )}
         </section>
       )}
 

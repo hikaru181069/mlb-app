@@ -35,6 +35,23 @@ export const getQuizRecommendations = async (token, { type, style, age, league, 
   return data.players || [];
 };
 
+export const getForYouRecommendations = async (token) => {
+  if (!token) return { groups: [], fallback: [] };
+
+  const response = await fetch(`${API_URL}/api/recommendations/foryou`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    const error = new Error(data.message || "Failed to load For You recommendations.");
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+};
+
 export const getProspectRecommendations = async (token) => {
   const response = await fetch(`${API_URL}/api/recommendations/prospects`, {
     headers: { Authorization: `Bearer ${token}` },

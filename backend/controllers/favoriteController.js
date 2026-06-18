@@ -1,5 +1,13 @@
 const FavoritePlayer = require("../models/FavoritePlayer");
 
+const LIMITS = { hitter: 15, pitcher: 10 };
+
+const checkLimit = async (userId, playerType) => {
+  const type  = playerType === "pitcher" ? "pitcher" : "hitter";
+  const count = await FavoritePlayer.countDocuments({ user: userId, playerType: type });
+  return { type, count, limit: LIMITS[type], exceeded: count >= LIMITS[type] };
+};
+
 const getFavorites = async (req, res) => {
   try {
     const favorites = await FavoritePlayer.find({ user: req.user._id }).sort({
@@ -15,6 +23,18 @@ const getFavorites = async (req, res) => {
 
 const createFavorite = async (req, res) => {
   try {
+    const { type, count, limit, exceeded } = await checkLimit(req.user._id, req.body.playerType);
+
+    if (exceeded) {
+      return res.status(400).json({
+        message: `You can have up to ${limit} favorite ${type}s.`,
+        limitReached: true,
+        playerType: type,
+        current: count,
+        limit,
+      });
+    }
+
     const favorite = await FavoritePlayer.create({
       ...req.body,
       user: req.user._id,
@@ -44,30 +64,42 @@ const createManyFavorites = async (req, res) => {
       return res.status(400).json({ message: "Players are required" });
     }
 
+    // 既存のお気に入りとタイプ別件数を取得
+    const existing    = await FavoritePlayer.find({ user: req.user._id }).select("mlbPlayerId playerType");
+    const existingIds = new Set(existing.map((f) => Number(f.mlbPlayerId)));
+    const counts      = { hitter: 0, pitcher: 0 };
+    for (const f of existing) counts[f.playerType || "hitter"]++;
+
+    const remaining = {
+      hitter:  Math.max(0, LIMITS.hitter  - counts.hitter),
+      pitcher: Math.max(0, LIMITS.pitcher - counts.pitcher),
+    };
+    const addedNew = { hitter: 0, pitcher: 0 };
+
     const favorites = [];
+    let skipped = 0;
 
     for (const player of players) {
+      const type  = player.playerType === "pitcher" ? "pitcher" : "hitter";
+      const isNew = !existingIds.has(Number(player.mlbPlayerId));
+
+      if (isNew && addedNew[type] >= remaining[type]) {
+        skipped++;
+        continue;
+      }
+
+      if (isNew) addedNew[type]++;
+
       const favorite = await FavoritePlayer.findOneAndUpdate(
-        {
-          user: req.user._id,
-          mlbPlayerId: player.mlbPlayerId,
-        },
-        {
-          ...player,
-          user: req.user._id,
-        },
-        {
-          new: true,
-          runValidators: true,
-          setDefaultsOnInsert: true,
-          upsert: true,
-        },
+        { user: req.user._id, mlbPlayerId: player.mlbPlayerId },
+        { ...player, user: req.user._id },
+        { new: true, runValidators: true, setDefaultsOnInsert: true, upsert: true },
       );
 
       favorites.push(favorite);
     }
 
-    res.status(201).json(favorites);
+    res.status(201).json({ favorites, skipped });
   } catch (error) {
     console.error("Create many favorites error:", error.message);
     res.status(400).json({

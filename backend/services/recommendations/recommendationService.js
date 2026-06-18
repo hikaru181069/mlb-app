@@ -67,7 +67,7 @@ const toPitcherCandidate = (p) => ({
 const getRecommendationsForUser = async (userId) => {
   const favorites = await FavoritePlayer.find({ user: userId })
     .sort({ createdAt: -1 })
-    .limit(3);
+    .limit(5);
 
   const favoriteIds = new Set(favorites.map((f) => Number(f.mlbPlayerId)));
 
@@ -146,48 +146,164 @@ const getRecommendationsForUser = async (userId) => {
 };
 
 // ── getFutureStarsForUser ──────────────────────────────────────────────────────
-
-const pickHitterStats = (favorite) =>
-  favorite.currentSeasonStats?.hitterStats ||
-  favorite.hitterStats ||
-  favorite.careerStats?.hitterStats ||
-  {};
-
-const toFutureStarFavorite = (favorite) => {
-  const hitterStats = pickHitterStats(favorite);
-  return {
-    playerId: Number(favorite.mlbPlayerId),
-    fullName: favorite.fullName,
-    position: favorite.position,
-    stats: {
-      ops:         toNumber(hitterStats.ops),
-      homeRuns:    toNumber(hitterStats.homeRuns),
-      stolenBases: toNumber(hitterStats.stolenBases),
-      avg:         toNumber(hitterStats.battingAverage || hitterStats.avg),
-      rbi:         toNumber(hitterStats.runsBattedIn  || hitterStats.rbi),
-    },
-  };
-};
+// MongoDBの保存スタッツはオンボーディング時に取得されないため0になりやすい。
+// getRecommendationsForUserと同様にライブスタッツを取得してFastAPIに渡す。
 
 const getFutureStarsForUser = async (userId) => {
   const favorites = await FavoritePlayer.find({ user: userId }).sort({ createdAt: -1 });
 
   if (favorites.length === 0) return [];
 
-  const favoritePlayers = favorites.map(toFutureStarFavorite).filter((p) => p.playerId);
+  const favWithStats = await Promise.all(
+    favorites.map(async (fav) => {
+      try {
+        const raw = await fetchExternalPlayerStats({ playerId: fav.mlbPlayerId });
+        const { hitterStats } = formatExternalStats(raw);
+        return { fav, hitterStats };
+      } catch {
+        return { fav, hitterStats: {} };
+      }
+    }),
+  );
+
+  const favoritePlayers = favWithStats
+    .map(({ fav, hitterStats }) => ({
+      playerId: Number(fav.mlbPlayerId),
+      fullName: fav.fullName,
+      position: fav.position || "",
+      stats: {
+        ops:         toNumber(hitterStats.ops),
+        homeRuns:    toNumber(hitterStats.homeRuns),
+        stolenBases: toNumber(hitterStats.stolenBases),
+        avg:         toNumber(hitterStats.battingAverage),
+        rbi:         toNumber(hitterStats.rbis || hitterStats.rbi),
+      },
+    }))
+    .filter((p) => p.playerId);
 
   let candidates = [];
   try {
     candidates = await fetchYoungLeaguePlayers(25);
   } catch (err) {
-    console.warn("Young players fetch failed, using empty candidates:", err.message);
+    console.warn("Young players fetch failed:", err.message);
   }
 
   const futureStars = await fetchFutureStars(favoritePlayers, candidates, 5);
   return futureStars || [];
 };
 
+// ── getGroupedRecommendationsForUser ──────────────────────────────────────────
+// お気に入り選手ごとに「なぜ推薦されたか」をグループ化して返す。
+// 各グループ: { seedPlayer, matches[] }
+// matches には類似選手のキースタッツ（リーグスタッツプールから取得）を含む。
+
+const getGroupedRecommendationsForUser = async (userId) => {
+  const favorites = await FavoritePlayer.find({ user: userId })
+    .sort({ createdAt: -1 })
+    .limit(5);
+
+  const favoriteIds = new Set(favorites.map((f) => Number(f.mlbPlayerId)));
+
+  if (favorites.length === 0) {
+    return {
+      groups: [],
+      fallback: fallbackPlayers.slice(0, 5).map((p) => ({
+        mlbPlayerId: p.playerId,
+        name:        p.fullName,
+        team:        p.team || "",
+      })),
+    };
+  }
+
+  const leagueStats = await fetchLeagueStats();
+
+  // プレイヤーIDからキースタッツを引けるルックアップマップを構築
+  const hitterPoolMap = {};
+  for (const p of leagueStats.hitter.players) {
+    hitterPoolMap[Number(p.playerId)] = {
+      ops:         p.ops,
+      homeRuns:    p.homeRuns,
+      stolenBases: p.stolenBases,
+    };
+  }
+  const pitcherPoolMap = {};
+  for (const p of leagueStats.pitcher.players) {
+    pitcherPoolMap[Number(p.playerId)] = {
+      era:        p.era,
+      strikeouts: p.strikeouts,
+      wins:       p.wins,
+    };
+  }
+
+  const favWithStats = await Promise.all(
+    favorites.map(async (fav) => {
+      try {
+        const raw = await fetchExternalPlayerStats({ playerId: fav.mlbPlayerId });
+        const { hitterStats, pitcherStats } = formatExternalStats(raw);
+        return { fav, hitterStats, pitcherStats };
+      } catch {
+        return { fav, hitterStats: {}, pitcherStats: {} };
+      }
+    }),
+  );
+
+  const groups = [];
+  const recommendedIds = new Set(favoriteIds);
+
+  for (const { fav, hitterStats, pitcherStats } of favWithStats) {
+    const isPitcher    = fav.playerType === "pitcher";
+    const target       = buildTarget(fav, hitterStats, pitcherStats);
+    const pool         = isPitcher ? leagueStats.pitcher.players : leagueStats.hitter.players;
+    const mlbCandidates = pool
+      .filter((p) => !recommendedIds.has(Number(p.playerId)))
+      .map(isPitcher ? toPitcherCandidate : toHitterCandidate);
+
+    const seedKeyStats = isPitcher
+      ? { era: toNumber(pitcherStats?.era), strikeouts: toNumber(pitcherStats?.strikeouts), wins: toNumber(pitcherStats?.wins) }
+      : { ops: toNumber(hitterStats?.ops), homeRuns: toNumber(hitterStats?.homeRuns), stolenBases: toNumber(hitterStats?.stolenBases) };
+
+    let matches = [];
+    try {
+      const result = await fetchDiscoverSimilar(target, mlbCandidates, [], 2);
+      for (const match of result?.mlbSimilar ?? []) {
+        if (!recommendedIds.has(Number(match.playerId))) {
+          matches.push({
+            mlbPlayerId:          match.playerId,
+            name:                 match.name,
+            team:                 match.team,
+            position:             match.position,
+            age:                  match.age,
+            similarityPercentage: match.similarityPercentage,
+            playerType:           isPitcher ? "pitcher" : "hitter",
+            keyStats:             isPitcher
+              ? (pitcherPoolMap[Number(match.playerId)] || {})
+              : (hitterPoolMap[Number(match.playerId)] || {}),
+          });
+          recommendedIds.add(Number(match.playerId));
+        }
+      }
+    } catch (err) {
+      console.warn(`[grouped-rec] discover/similar failed for ${fav.fullName}: ${err.message}`);
+    }
+
+    if (matches.length > 0) {
+      groups.push({
+        seedPlayer: {
+          mlbPlayerId: Number(fav.mlbPlayerId),
+          name:        fav.fullName,
+          playerType:  fav.playerType || "hitter",
+          keyStats:    seedKeyStats,
+        },
+        matches,
+      });
+    }
+  }
+
+  return { groups };
+};
+
 module.exports = {
   getFutureStarsForUser,
   getRecommendationsForUser,
+  getGroupedRecommendationsForUser,
 };
