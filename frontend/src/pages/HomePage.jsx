@@ -115,6 +115,7 @@ function HomePage() {
           <div className="discovery-section-header">
             <div className="discovery-section-title-row">
               <h2 className="discovery-section-title">Browse by Style</h2>
+              <Link to="/positions" className="discovery-see-all">Browse by Position →</Link>
             </div>
             <p className="discovery-section-desc">Explore players by playing style</p>
           </div>
@@ -171,6 +172,7 @@ function HomePage() {
         <div className="discovery-section-header">
           <div className="discovery-section-title-row">
             <h2 className="discovery-section-title">Browse by Style</h2>
+            <Link to="/positions" className="discovery-see-all">Browse by Position →</Link>
           </div>
           <p className="discovery-section-desc">Explore players by playing style</p>
         </div>
