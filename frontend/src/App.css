@@ -1179,6 +1179,61 @@ input {
 }
 .home-start-btn:hover { opacity: 0.85; }
 
+/* 機能タイルグリッド ──────────────────────────────────────────────────────── */
+.home-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 20px 20px 0;
+}
+
+.home-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-left: 3px solid var(--tile-color, var(--ctp-sapphire));
+  border-radius: 16px;
+  text-decoration: none;
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.home-tile:hover {
+  background: color-mix(in srgb, var(--tile-color, var(--ctp-sapphire)) 8%, var(--ctp-surface0));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+.home-tile-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ctp-text);
+  margin: 0;
+}
+
+.home-tile-desc {
+  font-size: 12px;
+  color: var(--ctp-subtext0);
+  line-height: 1.5;
+  flex: 1;
+  margin: 0;
+}
+
+.home-tile-cta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tile-color, var(--ctp-sapphire));
+  margin-top: 10px;
+}
+
+@media (max-width: 480px) {
+  .home-tiles {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* プロスペクトバナー ──────────────────────────────────────────────────────── */
 .home-prospects-banner {
   display: flex;
@@ -8594,6 +8649,211 @@ button:active {
 
 .foryou-stat-val.foryou-stat-col-match { color: var(--ctp-text); }
 .foryou-stat-val.foryou-stat-col-seed  { color: var(--ctp-subtext1); }
+
+/* ── Position Pages ───────────────────────────────────────────────────────── */
+
+/* ハブページ: ポジショングループ */
+.pos-group {
+  margin-bottom: 36px;
+}
+
+.pos-group-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ctp-subtext0);
+  margin: 0 0 14px;
+}
+
+/* ポジションタイルグリッド */
+.pos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.pos-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 12px 16px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-top: 3px solid var(--pos-color, var(--ctp-sapphire));
+  border-radius: 14px;
+  text-decoration: none;
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.pos-tile:hover {
+  background: color-mix(in srgb, var(--pos-color, var(--ctp-sapphire)) 10%, var(--ctp-surface0));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+}
+
+.pos-tile-abbr {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--pos-color, var(--ctp-sapphire));
+}
+
+.pos-tile-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ctp-subtext1);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 個別ポジションページ: ソートバー */
+.pos-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.pos-sort-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ctp-subtext0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+}
+
+.pos-sort-btn {
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ctp-subtext1);
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  cursor: pointer;
+  transition: color 130ms ease, background 130ms ease, border-color 130ms ease;
+}
+
+.pos-sort-btn:hover {
+  color: var(--ctp-text);
+  background: var(--ctp-surface1);
+}
+
+.pos-sort-btn.active {
+  color: var(--ctp-lavender);
+  background: color-mix(in srgb, var(--ctp-lavender) 12%, var(--ctp-mantle));
+  border-color: var(--ctp-lavender);
+}
+
+/* 選手リスト */
+.pos-player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pos-player-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 140ms ease;
+}
+
+.pos-player-row:hover {
+  background: var(--ctp-surface0);
+}
+
+.pos-player-row--skeleton {
+  pointer-events: none;
+}
+
+.pos-player-rank {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ctp-subtext0);
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pos-player-headshot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--ctp-surface0);
+  flex-shrink: 0;
+}
+
+.pos-player-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pos-player-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ctp-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pos-player-meta {
+  font-size: 12px;
+  color: var(--ctp-subtext0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pos-player-stats {
+  display: flex;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.pos-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.pos-stat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ctp-lavender);
+  letter-spacing: -0.01em;
+}
+
+.pos-stat-key {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ctp-subtext0);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 480px) {
+  .pos-player-stats {
+    gap: 10px;
+  }
+  .pos-stat-val {
+    font-size: 13px;
+  }
+}
 
 /* Scout ボタン */
 .foryou-scout-btn {
