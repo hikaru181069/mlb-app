@@ -28,6 +28,8 @@ import ScoutPage from "./pages/ScoutPage";
 import ArchetypePage from "./pages/ArchetypePage";
 import ProspectsPage from "./pages/ProspectsPage";
 import ForYouPage from "./pages/ForYouPage";
+import PositionsPage from "./pages/PositionsPage";
+import PositionPage from "./pages/PositionPage";
 
 // [Phase 4] ページ遷移アニメーション
 // location.key を React の key に渡すことで、ページが変わるたびにコンポーネントが
@@ -64,6 +66,8 @@ function AnimatedRoutes() {
         <Route path="/archetype/:type" element={<ArchetypePage />} />
         <Route path="/prospects" element={<ProspectsPage />} />
         <Route path="/foryou" element={<ForYouPage />} />
+        <Route path="/positions" element={<PositionsPage />} />
+        <Route path="/position/:pos" element={<PositionPage />} />
       </Routes>
     </div>
   );
