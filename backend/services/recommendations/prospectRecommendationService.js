@@ -1,6 +1,6 @@
 const FavoritePlayer = require("../../models/FavoritePlayer");
 const { fetchProspects }           = require("../mlb/prospectService");
-const { fetchFutureStars }         = require("../fastApiService");
+const { fetchFutureStars, fetchDiscoverSimilar } = require("../fastApiService");
 const { fetchExternalPlayerStats } = require("../mlb/playerStatsService");
 const { formatExternalStats }      = require("../mlb/playerFormatter");
 
@@ -93,14 +93,81 @@ const getHitterProspects = async (favorites, allProspects) => {
   });
 };
 
-// ── 投手プロスペクト推薦（ERA 上位を返す） ────────────────────────────────
+// ── 投手プロスペクト推薦（お気に入り投手との類似度順） ─────────────────────
 
-const getPitcherProspects = (allProspects) => {
-  return allProspects.pitchers.slice(0, 6).map((p) => ({
-    ...p,
-    similarityPercentage: null,
-    reason:               p.era > 0 ? `${p.era.toFixed(2)} ERA` : "Top pitcher prospect",
+const getPitcherProspects = async (favorites, allProspects) => {
+  const pitcherFavs = favorites.filter((f) => f.playerType === "pitcher");
+
+  // 投手お気に入りがない場合は ERA 上位をフォールバックとして返す
+  if (pitcherFavs.length === 0) {
+    return allProspects.pitchers.slice(0, 6).map((p) => ({
+      ...p,
+      similarityPercentage: null,
+      reason:               p.era > 0 ? `${p.era.toFixed(2)} ERA` : "Top pitcher prospect",
+    }));
+  }
+
+  // 最も最近登録された投手お気に入りのライブスタッツを取得
+  const topFav = pitcherFavs[0];
+  let pitcherStats = {};
+  try {
+    const raw = await fetchExternalPlayerStats({ playerId: topFav.mlbPlayerId });
+    ({ pitcherStats } = formatExternalStats(raw));
+  } catch { /* stats なしでも処理続行 */ }
+
+  const target = {
+    playerId:   Number(topFav.mlbPlayerId),
+    playerType: "pitcher",
+    position:   topFav.position || "",
+    ops: 0, homeRuns: 0, stolenBases: 0, avg: 0, rbi: 0, oaa: 0,
+    era:        toNumber(pitcherStats?.era),
+    whip:       toNumber(pitcherStats?.whip),
+    strikeouts: toNumber(pitcherStats?.strikeouts),
+    walks:      0,
+    wins:       toNumber(pitcherStats?.wins),
+    innings:    toNumber(pitcherStats?.inningsPitched),
+  };
+
+  const candidates = allProspects.pitchers.map((p) => ({
+    playerId:   p.playerId,
+    name:       p.fullName,
+    team:       p.parentOrg || p.team,
+    position:   p.position,
+    age:        p.age,
+    ops: 0, homeRuns: 0, stolenBases: 0, avg: 0, rbi: 0, oaa: 0,
+    era:        p.era,
+    whip:       p.whip,
+    strikeouts: p.strikeouts,
+    walks:      0,
+    wins:       p.wins,
+    innings:    p.innings,
   }));
+
+  let matches = [];
+  try {
+    const result = await fetchDiscoverSimilar(target, candidates, [], 6);
+    matches = result?.mlbSimilar ?? [];
+  } catch { /* ignore */ }
+
+  if (matches.length === 0) {
+    return allProspects.pitchers.slice(0, 6).map((p) => ({
+      ...p,
+      similarityPercentage: null,
+      reason:               p.era > 0 ? `${p.era.toFixed(2)} ERA` : "Top pitcher prospect",
+    }));
+  }
+
+  const prospectMap = Object.fromEntries(allProspects.pitchers.map((p) => [p.playerId, p]));
+  return matches.map((m) => {
+    const base = prospectMap[m.playerId] || {};
+    return {
+      ...base,
+      playerId:             m.playerId,
+      fullName:             m.name || base.fullName,
+      similarityPercentage: m.similarityPercentage,
+      reason:               `Similar to ${topFav.fullName}`,
+    };
+  });
 };
 
 // ── メイン ────────────────────────────────────────────────────────────────
@@ -113,7 +180,7 @@ const getProspectsForUser = async (userId) => {
 
   const [hitters, pitchers] = await Promise.all([
     getHitterProspects(favorites, allProspects),
-    getPitcherProspects(allProspects),
+    getPitcherProspects(favorites, allProspects),
   ]);
 
   return { hitters, pitchers };
