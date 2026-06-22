@@ -7289,6 +7289,11 @@ button:active {
   padding: 10px 14px;
   border-radius: 10px;
   background: var(--ctp-surface0);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.scout-comparable-item:hover {
+  background: var(--ctp-surface1);
 }
 
 .scout-comparable-name {
@@ -7347,6 +7352,43 @@ button:active {
   font-size: 1rem;
   font-weight: 800;
   color: var(--ctp-text);
+}
+
+/* Scout — Continue Exploring (次のステップ) */
+.scout-next-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.scout-next-link {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.scout-next-link:hover {
+  background: var(--ctp-surface1);
+}
+
+.scout-next-link-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ctp-text);
+}
+
+.scout-next-link-desc {
+  font-size: 0.78rem;
+  color: var(--ctp-subtext0);
+  line-height: 1.3;
 }
 
 /* ─────────────────────────────────────────────────────────────

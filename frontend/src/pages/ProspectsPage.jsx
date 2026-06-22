@@ -172,7 +172,8 @@ function ProspectsPage() {
     );
   }
 
-  const hasHitterFavs = hitters.some((p) => p.similarityPercentage != null);
+  const hasHitterFavs  = hitters.some((p) => p.similarityPercentage != null);
+  const hasPitcherFavs = pitchers.some((p) => p.similarityPercentage != null);
 
   return (
     <div className="home-page px-6 py-10">
@@ -199,7 +200,7 @@ function ProspectsPage() {
           <ProspectSection
             title="Pitchers"
             prospects={pitchers}
-            showSim={false}
+            showSim={hasPitcherFavs}
             loading={loading}
           />
         </div>

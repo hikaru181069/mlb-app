@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Search, Telescope, X } from "lucide-react";
 
 import PageHeader from "../components/PageHeader";
@@ -297,20 +297,41 @@ function ScoutReport({ data }) {
               <h3 className="scout-section-title">Comparable Players</h3>
               <ul className="scout-comparables">
                 {report.comparablePlayers.map((cp) => (
-                  <li key={cp.playerId} className="scout-comparable-item">
-                    <span className="scout-comparable-name">{cp.name}</span>
-                    <span className="scout-comparable-team">{cp.team}</span>
-                    <span
-                      className="scout-comparable-sim"
-                      style={{ color: percentileColor(cp.similarityPercentage) }}
-                    >
-                      {cp.similarityPercentage}% match
-                    </span>
+                  <li key={cp.playerId}>
+                    <Link to={`/scout/${cp.playerId}`} className="scout-comparable-item">
+                      <span className="scout-comparable-name">{cp.name}</span>
+                      <span className="scout-comparable-team">{cp.team}</span>
+                      <span
+                        className="scout-comparable-sim"
+                        style={{ color: percentileColor(cp.similarityPercentage) }}
+                      >
+                        {cp.similarityPercentage}% match
+                      </span>
+                    </Link>
                   </li>
                 ))}
               </ul>
             </section>
           )}
+
+          {/* 次のステップ */}
+          <section className="scout-section">
+            <h3 className="scout-section-title">Continue Exploring</h3>
+            <div className="scout-next-links">
+              <Link to="/foryou" className="scout-next-link">
+                <span className="scout-next-link-title">For You</span>
+                <span className="scout-next-link-desc">Personalized picks from your favorites</span>
+              </Link>
+              <Link to="/stats" className="scout-next-link">
+                <span className="scout-next-link-title">Young Stars</span>
+                <span className="scout-next-link-desc">25 and under turning heads this season</span>
+              </Link>
+              <Link to="/prospects" className="scout-next-link">
+                <span className="scout-next-link-title">Prospects</span>
+                <span className="scout-next-link-desc">Minor league talents on the rise</span>
+              </Link>
+            </div>
+          </section>
         </>
       )}
     </article>

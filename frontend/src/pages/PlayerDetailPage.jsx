@@ -381,6 +381,13 @@ function PlayerDetailPage() {
 
           <Link
             className="home-link secondary"
+            to={`/scout/${player.mlbPlayerId}`}
+          >
+            Scouting Report →
+          </Link>
+
+          <Link
+            className="home-link secondary"
             to={`/compare?p1=${player.mlbPlayerId}`}
           >
             Compare →
