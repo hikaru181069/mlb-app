@@ -86,6 +86,14 @@ const ProspectsIcon = () => (
     <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
   </svg>
 );
+const PositionsIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" />
+    <rect x="14" y="14" width="7" height="7" rx="1" />
+  </svg>
+);
 const LeagueIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0012 0V2z" />
@@ -155,6 +163,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Home", Icon: HomeIcon, end: true },
   { to: "/search", label: "Search", Icon: SearchIcon },
   { to: "/stats", label: "Stats", Icon: StatsIcon },
+  { to: "/positions", label: "Positions", Icon: PositionsIcon },
   { to: "/league", label: "League", Icon: LeagueIcon },
   { to: "/news", label: "News", Icon: NewsIcon },
   { to: "/prospects", label: "Prospects", Icon: ProspectsIcon },
