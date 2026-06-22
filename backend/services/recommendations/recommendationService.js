@@ -263,12 +263,12 @@ const getGroupedRecommendationsForUser = async (userId) => {
       ? { era: toNumber(pitcherStats?.era), strikeouts: toNumber(pitcherStats?.strikeouts), wins: toNumber(pitcherStats?.wins) }
       : { ops: toNumber(hitterStats?.ops), homeRuns: toNumber(hitterStats?.homeRuns), stolenBases: toNumber(hitterStats?.stolenBases) };
 
-    let matches = [];
+    let rawMatches = [];
     try {
       const result = await fetchDiscoverSimilar(target, mlbCandidates, [], 2);
       for (const match of result?.mlbSimilar ?? []) {
         if (!recommendedIds.has(Number(match.playerId))) {
-          matches.push({
+          rawMatches.push({
             mlbPlayerId:          match.playerId,
             name:                 match.name,
             team:                 match.team,
@@ -276,9 +276,6 @@ const getGroupedRecommendationsForUser = async (userId) => {
             age:                  match.age,
             similarityPercentage: match.similarityPercentage,
             playerType:           isPitcher ? "pitcher" : "hitter",
-            keyStats:             isPitcher
-              ? (pitcherPoolMap[Number(match.playerId)] || {})
-              : (hitterPoolMap[Number(match.playerId)] || {}),
           });
           recommendedIds.add(Number(match.playerId));
         }
@@ -286,6 +283,27 @@ const getGroupedRecommendationsForUser = async (userId) => {
     } catch (err) {
       console.warn(`[grouped-rec] discover/similar failed for ${fav.fullName}: ${err.message}`);
     }
+
+    // マッチした選手のライブスタッツを並行取得してスタット比較に使う
+    // プールデータはカテゴリごと上位200名のみなので一部の値がゼロになるため
+    const matches = await Promise.all(
+      rawMatches.map(async (match) => {
+        try {
+          const raw = await fetchExternalPlayerStats({ playerId: match.mlbPlayerId });
+          const { hitterStats, pitcherStats } = formatExternalStats(raw);
+          const liveKeyStats = isPitcher
+            ? { era: toNumber(pitcherStats?.era), strikeouts: toNumber(pitcherStats?.strikeouts), wins: toNumber(pitcherStats?.wins) }
+            : { ops: toNumber(hitterStats?.ops), homeRuns: toNumber(hitterStats?.homeRuns), stolenBases: toNumber(hitterStats?.stolenBases) };
+          return { ...match, keyStats: liveKeyStats };
+        } catch {
+          // ライブ取得失敗時はプールデータにフォールバック
+          const fallback = isPitcher
+            ? (pitcherPoolMap[Number(match.mlbPlayerId)] || {})
+            : (hitterPoolMap[Number(match.mlbPlayerId)] || {});
+          return { ...match, keyStats: fallback };
+        }
+      }),
+    );
 
     if (matches.length > 0) {
       groups.push({
