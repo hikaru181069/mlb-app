@@ -1,8 +1,10 @@
 const { fetchExternalPlayerFullDetails } = require("../services/mlb");
 const { fetchLeagueStats } = require("../services/mlb/leagueStatsService");
 const { fetchScoutingReport } = require("../services/fastApiService");
+const { getSprintSpeedMap, getArmStrengthMap } = require("../services/mlb/baseballSavantService");
 
 const buildHitterPayload = (playerData, leagueStats) => {
+  const id          = Number(playerData.mlbPlayerId);
   const hitterStats = playerData.currentSeasonStats?.hitterStats || {};
   return {
     player: {
@@ -10,7 +12,9 @@ const buildHitterPayload = (playerData, leagueStats) => {
       homeRuns:    parseInt(hitterStats.homeRuns)         || 0,
       stolenBases: parseInt(hitterStats.stolenBases)      || 0,
       avg:         parseFloat(hitterStats.battingAverage) || 0,
-      rbi:         parseInt(hitterStats.rbis)              || 0,
+      rbi:         parseInt(hitterStats.rbis)             || 0,
+      sprintSpeed: getSprintSpeedMap()[id]                ?? 0,
+      armStrength: getArmStrengthMap()[id]                ?? 0,
     },
     leagueStats:       leagueStats.hitter.distributions,
     comparablePlayers: leagueStats.hitter.players,

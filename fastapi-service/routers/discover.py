@@ -32,6 +32,8 @@ class DiscoverTarget(BaseModel):
     avg: float = 0
     rbi: float = 0
     oaa: float = 0
+    sprintSpeed: float = 0
+    armStrength: float = 0
     # 投手スタッツ
     era: float = 0
     whip: float = 0
@@ -54,6 +56,8 @@ class DiscoverCandidate(BaseModel):
     avg: float = 0
     rbi: float = 0
     oaa: float = 0
+    sprintSpeed: float = 0
+    armStrength: float = 0
     # 投手スタッツ
     era: float = 0
     whip: float = 0

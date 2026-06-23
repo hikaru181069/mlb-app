@@ -12,14 +12,16 @@ const { formatExternalPlayer, formatExternalStats } = require("./playerFormatter
 const { fetchLeagueStats, fetchYoungLeaguePlayers, fetchYoungPitchers } = require("./leagueStatsService");
 const { fetchDiscoverSimilar } = require("../fastApiService");
 const { getPlayerArchetype } = require("./archetypeService");
-const { getOaaMap } = require("./baseballSavantService");
+const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("./baseballSavantService");
 
 // 対象選手のスタッツを FastAPI に渡せる形式に変換する
 const toDiscoverTarget = (player, hitterStats, pitcherStats) => ({
   playerId:    Number(player.mlbPlayerId),
   playerType:  player.playerType || "hitter",
   position:    player.position   || "",
-  oaa:         getOaaMap()[Number(player.mlbPlayerId)] ?? 0,
+  oaa:         getOaaMap()[Number(player.mlbPlayerId)]         ?? 0,
+  sprintSpeed: getSprintSpeedMap()[Number(player.mlbPlayerId)] ?? 0,
+  armStrength: getArmStrengthMap()[Number(player.mlbPlayerId)] ?? 0,
   // 野手スタッツ
   ops:         parseFloat(hitterStats?.ops)            || 0,
   homeRuns:    parseInt(hitterStats?.homeRuns)          || 0,
@@ -40,14 +42,16 @@ const toHitterCandidate = (p) => ({
   playerId:    p.playerId,
   name:        p.name,
   team:        p.team,
-  position:    p.position || "",
-  age:         p.age      || 0,
+  position:    p.position    || "",
+  age:         p.age         || 0,
   ops:         p.ops,
   homeRuns:    p.homeRuns,
   stolenBases: p.stolenBases,
   avg:         p.avg,
   rbi:         p.rbi,
-  oaa:         p.oaa      ?? 0,
+  oaa:         p.oaa         ?? 0,
+  sprintSpeed: p.sprintSpeed ?? 0,
+  armStrength: p.armStrength ?? 0,
 });
 
 // リーグ統計の投手プレイヤーを DiscoverCandidate 形式に変換

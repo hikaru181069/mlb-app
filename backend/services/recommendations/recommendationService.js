@@ -3,7 +3,7 @@ const { fetchLeagueStats, fetchYoungLeaguePlayers } = require("../mlb/leagueStat
 const { fetchDiscoverSimilar, fetchFutureStars } = require("../fastApiService");
 const { fetchExternalPlayerStats } = require("../mlb/playerStatsService");
 const { formatExternalStats } = require("../mlb/playerFormatter");
-const { getOaaMap } = require("../mlb/baseballSavantService");
+const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("../mlb/baseballSavantService");
 const { fallbackPlayers } = require("./fallbackPlayers");
 
 const toNumber = (value) => {
@@ -16,9 +16,12 @@ const toNumber = (value) => {
 // 類似選手を計算して返す。お気に入りがない場合は人気選手をフォールバックにする。
 
 const buildTarget = (fav, hitterStats, pitcherStats) => {
-  const oaaMap = getOaaMap();
+  const id             = Number(fav.mlbPlayerId);
+  const oaaMap         = getOaaMap();
+  const sprintSpeedMap = getSprintSpeedMap();
+  const armStrengthMap = getArmStrengthMap();
   return {
-    playerId:    Number(fav.mlbPlayerId),
+    playerId:    id,
     playerType:  fav.playerType || "hitter",
     position:    fav.position   || "",
     ops:         toNumber(hitterStats?.ops),
@@ -26,7 +29,9 @@ const buildTarget = (fav, hitterStats, pitcherStats) => {
     stolenBases: toNumber(hitterStats?.stolenBases),
     avg:         toNumber(hitterStats?.battingAverage),
     rbi:         toNumber(hitterStats?.rbis || hitterStats?.rbi),
-    oaa:         oaaMap[Number(fav.mlbPlayerId)] ?? 0,
+    oaa:         oaaMap[id]         ?? 0,
+    sprintSpeed: sprintSpeedMap[id] ?? 0,
+    armStrength: armStrengthMap[id] ?? 0,
     era:         toNumber(pitcherStats?.era),
     whip:        toNumber(pitcherStats?.whip),
     strikeouts:  toNumber(pitcherStats?.strikeouts),
@@ -48,6 +53,8 @@ const toHitterCandidate = (p) => ({
   avg:         p.avg,
   rbi:         p.rbi,
   oaa:         p.oaa         ?? 0,
+  sprintSpeed: p.sprintSpeed ?? 0,
+  armStrength: p.armStrength ?? 0,
 });
 
 const toPitcherCandidate = (p) => ({

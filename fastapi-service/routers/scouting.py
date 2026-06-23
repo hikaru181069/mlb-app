@@ -25,6 +25,8 @@ class ScoutingStats(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    sprintSpeed: float = 0
+    armStrength: float = 0
 
 
 class LeagueStatsDistribution(BaseModel):
@@ -33,6 +35,8 @@ class LeagueStatsDistribution(BaseModel):
     stolenBases: list[float] = []
     avg: list[float] = []
     rbi: list[float] = []
+    sprintSpeed: list[float] = []
+    armStrength: list[float] = []
 
 
 class LeaguePlayer(BaseModel):
@@ -44,6 +48,8 @@ class LeaguePlayer(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    sprintSpeed: float = 0
+    armStrength: float = 0
 
 
 # ── 投手モデル ──────────────────────────────────────────────────────────────────
@@ -127,6 +133,8 @@ HITTER_STRENGTH_LABELS = {
     "stolenBases": "Exceptional Speed",
     "avg":         "High Batting Average",
     "rbi":         "Run Producer",
+    "sprintSpeed": "Elite Sprinter",
+    "armStrength": "Strong Arm",
 }
 
 HITTER_WEAKNESS_LABELS = {
@@ -135,6 +143,8 @@ HITTER_WEAKNESS_LABELS = {
     "stolenBases": "Below Average Speed",
     "avg":         "Low Batting Average",
     "rbi":         "Low RBI Production",
+    "sprintSpeed": "Below Average Sprint Speed",
+    "armStrength": "Weak Arm",
 }
 
 
@@ -149,6 +159,11 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
         "avg":         calc_percentile(p.avg,         dist.avg),
         "rbi":         calc_percentile(p.rbi,         dist.rbi),
     }
+    # データが存在する選手のみ表示（CSVにない選手は 0 なのでスキップ）
+    if p.sprintSpeed > 0 and dist.sprintSpeed:
+        percentiles["sprintSpeed"] = calc_percentile(p.sprintSpeed, dist.sprintSpeed)
+    if p.armStrength > 0 and dist.armStrength:
+        percentiles["armStrength"] = calc_percentile(p.armStrength, dist.armStrength)
 
     player_type = "Solid Regular"
     for type_name, condition in HITTER_TYPE_THRESHOLDS:

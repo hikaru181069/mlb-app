@@ -7,11 +7,13 @@ import { fetchPlayerSuggestions } from "../services/api/externalPlayerApi";
 import { getScoutingReport } from "../services/api/scoutApi";
 
 const HITTER_STAT_META = [
-  { key: "ops",         label: "OPS",  short: "OPS", fmt: (v) => v?.toFixed(3) },
-  { key: "homeRuns",    label: "HR",   short: "HR",  fmt: (v) => v },
-  { key: "stolenBases", label: "SB",   short: "SB",  fmt: (v) => v },
-  { key: "avg",         label: "AVG",  short: "AVG", fmt: (v) => v?.toFixed(3) },
-  { key: "rbi",         label: "RBI",  short: "RBI", fmt: (v) => v },
+  { key: "ops",         label: "OPS",          short: "OPS", fmt: (v) => v?.toFixed(3) },
+  { key: "homeRuns",    label: "HR",            short: "HR",  fmt: (v) => v },
+  { key: "stolenBases", label: "SB",            short: "SB",  fmt: (v) => v },
+  { key: "avg",         label: "AVG",           short: "AVG", fmt: (v) => v?.toFixed(3) },
+  { key: "rbi",         label: "RBI",           short: "RBI", fmt: (v) => v },
+  { key: "sprintSpeed", label: "Sprint Speed",  short: "SPD", fmt: (v) => v > 0 ? `${v.toFixed(1)} ft/s` : null },
+  { key: "armStrength", label: "Arm Strength",  short: "ARM", fmt: (v) => v > 0 ? `${v.toFixed(1)} mph`  : null },
 ];
 
 const PITCHER_STAT_META = [
@@ -209,6 +211,12 @@ function OverallScore({ percentiles }) {
 function ScoutReport({ data, playerId }) {
   const { player, stats, report } = data;
 
+  const baseStatMeta = player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META;
+  // CSVにないデータ（sprintSpeed/armStrength等）は percentiles に含まれないのでフィルタする
+  const statMeta = report
+    ? baseStatMeta.filter(({ key }) => report.percentiles[key] !== undefined)
+    : baseStatMeta;
+
   return (
     <article className="scout-report">
       {/* 選手ヘッダー */}
@@ -272,14 +280,14 @@ function ScoutReport({ data, playerId }) {
             <div className="scout-profile-grid">
               <ScoutRadarChart
                 percentiles={report.percentiles}
-                statMeta={player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META}
+                statMeta={statMeta}
               />
               <div className="scout-stat-list">
-                {(player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META).map(({ key, label, fmt, lowerIsBetter = false }, i) => (
+                {statMeta.map(({ key, label, fmt, lowerIsBetter = false }, i) => (
                   <PercentileBar
                     key={key}
                     label={label}
-                    percentile={report.percentiles[key] ?? 50}
+                    percentile={report.percentiles[key]}
                     index={i}
                     value={stats[key]}
                     fmt={fmt}

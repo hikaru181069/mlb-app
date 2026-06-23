@@ -1,7 +1,9 @@
 const fs   = require("fs");
 const path = require("path");
 
-const OAA_FILE = path.join(__dirname, "../../data/oaa_2026.csv");
+const OAA_FILE          = path.join(__dirname, "../../data/oaa_2026.csv");
+const SPRINT_SPEED_FILE = path.join(__dirname, "../../data/sprint_speed_2026.csv");
+const ARM_STRENGTH_FILE = path.join(__dirname, "../../data/arm_strength_2006.csv");
 
 // 引用符を考慮したCSV行パーサー
 // "last_name, first_name" のようにカンマを含むフィールドを正しく処理する
@@ -64,4 +66,68 @@ const getOaaMap = () => {
   }
 };
 
-module.exports = { getOaaMap };
+// ── Sprint Speed ─────────────────────────────────────────────────────────────
+
+let sprintSpeedCache = null;
+
+const getSprintSpeedMap = () => {
+  if (sprintSpeedCache) return sprintSpeedCache;
+  try {
+    const text    = fs.readFileSync(SPRINT_SPEED_FILE, "utf-8");
+    const lines   = text.replace(/^﻿/, "").trim().split("\n");
+    const headers = parseCsvRow(lines[0]);
+    const idIdx   = headers.indexOf("player_id");
+    const valIdx  = headers.indexOf("sprint_speed");
+    if (idIdx === -1 || valIdx === -1) {
+      console.warn("[BaseballSavant] Sprint speed CSV: required columns not found");
+      return (sprintSpeedCache = {});
+    }
+    const map = {};
+    for (const line of lines.slice(1)) {
+      if (!line.trim()) continue;
+      const fields = parseCsvRow(line);
+      const id  = Number(fields[idIdx]);
+      const val = parseFloat(fields[valIdx]);
+      if (id && Number.isFinite(val)) map[id] = val;
+    }
+    console.log(`[BaseballSavant] Sprint speed loaded: ${Object.keys(map).length} players`);
+    return (sprintSpeedCache = map);
+  } catch (err) {
+    console.warn(`[BaseballSavant] Failed to load sprint speed CSV: ${err.message}`);
+    return (sprintSpeedCache = {});
+  }
+};
+
+// ── Arm Strength ──────────────────────────────────────────────────────────────
+
+let armStrengthCache = null;
+
+const getArmStrengthMap = () => {
+  if (armStrengthCache) return armStrengthCache;
+  try {
+    const text    = fs.readFileSync(ARM_STRENGTH_FILE, "utf-8");
+    const lines   = text.replace(/^﻿/, "").trim().split("\n");
+    const headers = parseCsvRow(lines[0]);
+    const idIdx   = headers.indexOf("player_id");
+    const valIdx  = headers.indexOf("arm_overall");
+    if (idIdx === -1 || valIdx === -1) {
+      console.warn("[BaseballSavant] Arm strength CSV: required columns not found");
+      return (armStrengthCache = {});
+    }
+    const map = {};
+    for (const line of lines.slice(1)) {
+      if (!line.trim()) continue;
+      const fields = parseCsvRow(line);
+      const id  = Number(fields[idIdx]);
+      const val = parseFloat(fields[valIdx]);
+      if (id && Number.isFinite(val) && val > 0) map[id] = val;
+    }
+    console.log(`[BaseballSavant] Arm strength loaded: ${Object.keys(map).length} players`);
+    return (armStrengthCache = map);
+  } catch (err) {
+    console.warn(`[BaseballSavant] Failed to load arm strength CSV: ${err.message}`);
+    return (armStrengthCache = {});
+  }
+};
+
+module.exports = { getOaaMap, getSprintSpeedMap, getArmStrengthMap };

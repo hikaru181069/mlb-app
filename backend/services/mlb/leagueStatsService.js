@@ -1,5 +1,5 @@
-const { fetchFromMlbApi } = require("./mlbClient");
-const { getOaaMap }       = require("./baseballSavantService");
+const { fetchFromMlbApi }                                 = require("./mlbClient");
+const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("./baseballSavantService");
 
 const MLB_STATS_URL  = "https://statsapi.mlb.com/api/v1/stats";
 const CURRENT_SEASON = new Date().getFullYear().toString();
@@ -31,8 +31,10 @@ async function fetchAllHitterStats() {
     "Failed to fetch all hitter stats",
   );
 
-  const splits = data.stats?.[0]?.splits ?? [];
-  const oaaMap = getOaaMap();
+  const splits         = data.stats?.[0]?.splits ?? [];
+  const oaaMap         = getOaaMap();
+  const sprintSpeedMap = getSprintSpeedMap();
+  const armStrengthMap = getArmStrengthMap();
 
   // 打席数が少なすぎる選手（投手の打席など）をフィルタリング
   const players = splits
@@ -47,6 +49,8 @@ async function fetchAllHitterStats() {
       avg:         parseFloat(s.stat.avg)           || 0,
       rbi:         parseInt(s.stat.rbi)             || 0,
       oaa:         oaaMap[s.player.id]              ?? 0,
+      sprintSpeed: sprintSpeedMap[s.player.id]      ?? 0,
+      armStrength: armStrengthMap[s.player.id]      ?? 0,
     }));
 
   // パーセンタイル計算用の分布配列（ゼロを除外して意味のある値のみ）
@@ -56,6 +60,8 @@ async function fetchAllHitterStats() {
     stolenBases: players.map((p) => p.stolenBases),
     avg:         players.map((p) => p.avg).filter((v) => v > 0),
     rbi:         players.map((p) => p.rbi),
+    sprintSpeed: players.map((p) => p.sprintSpeed).filter((v) => v > 0),
+    armStrength: players.map((p) => p.armStrength).filter((v) => v > 0),
   };
 
   return { players, distributions };
