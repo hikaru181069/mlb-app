@@ -1,5 +1,5 @@
 const { fetchFromMlbApi }                                 = require("./mlbClient");
-const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("./baseballSavantService");
+const { getOaaMap, getOaaPositionMap, getSprintSpeedMap, getArmStrengthMap } = require("./baseballSavantService");
 
 const MLB_STATS_URL  = "https://statsapi.mlb.com/api/v1/stats";
 const CURRENT_SEASON = new Date().getFullYear().toString();
@@ -31,10 +31,11 @@ async function fetchAllHitterStats() {
     "Failed to fetch all hitter stats",
   );
 
-  const splits         = data.stats?.[0]?.splits ?? [];
-  const oaaMap         = getOaaMap();
-  const sprintSpeedMap = getSprintSpeedMap();
-  const armStrengthMap = getArmStrengthMap();
+  const splits          = data.stats?.[0]?.splits ?? [];
+  const oaaMap          = getOaaMap();
+  const oaaPositionMap  = getOaaPositionMap();
+  const sprintSpeedMap  = getSprintSpeedMap();
+  const armStrengthMap  = getArmStrengthMap();
 
   // 打席数が少なすぎる選手（投手の打席など）をフィルタリング
   const players = splits
@@ -54,12 +55,16 @@ async function fetchAllHitterStats() {
       armStrength: armStrengthMap[s.player.id]      ?? 0,
     }));
 
-  // OAA をポジション別に分類（CSVに存在する選手のみ）
+  // OAA をポジション別に分類（CSVの primary_pos_formatted を使用）
+  // Stats API の splits には primaryPosition が含まれないため、OAA CSV のポジションを使う
   const oaaByPosition = {};
   for (const p of players) {
-    if (oaaMap[p.playerId] !== undefined && p.position) {
-      if (!oaaByPosition[p.position]) oaaByPosition[p.position] = [];
-      oaaByPosition[p.position].push(p.oaa);
+    if (oaaMap[p.playerId] !== undefined) {
+      const pos = oaaPositionMap[p.playerId];
+      if (pos) {
+        if (!oaaByPosition[pos]) oaaByPosition[pos] = [];
+        oaaByPosition[pos].push(p.oaa);
+      }
     }
   }
 

@@ -26,11 +26,10 @@ function parseCsvRow(line) {
 }
 
 // 起動時に1回だけ読み込んでメモリに保持する（更新は再起動で反映）
-let oaaCache = null;
+let oaaCache         = null;
+let oaaPositionCache = null; // player_id → position ("SS", "CF" 等)
 
-const getOaaMap = () => {
-  if (oaaCache) return oaaCache;
-
+const _loadOaaCsv = () => {
   try {
     const text    = fs.readFileSync(OAA_FILE, "utf-8");
     const lines   = text.replace(/^﻿/, "").trim().split("\n"); // BOM除去
@@ -38,14 +37,17 @@ const getOaaMap = () => {
 
     const playerIdIdx = headers.indexOf("player_id");
     const oaaIdx      = headers.indexOf("outs_above_average");
+    const posIdx      = headers.indexOf("primary_pos_formatted");
 
     if (playerIdIdx === -1 || oaaIdx === -1) {
       console.warn("[BaseballSavant] OAA CSV: required columns not found");
       oaaCache = {};
-      return oaaCache;
+      oaaPositionCache = {};
+      return;
     }
 
-    const map = {};
+    const map    = {};
+    const posMap = {};
     for (const line of lines.slice(1)) {
       if (!line.trim()) continue;
       const fields = parseCsvRow(line);
@@ -53,17 +55,28 @@ const getOaaMap = () => {
       const oaa    = parseFloat(fields[oaaIdx]);
       if (id && Number.isFinite(oaa)) {
         map[id] = oaa;
+        if (posIdx !== -1 && fields[posIdx]) posMap[id] = fields[posIdx].trim();
       }
     }
 
     console.log(`[BaseballSavant] OAA loaded: ${Object.keys(map).length} players`);
-    oaaCache = map;
-    return map;
+    oaaCache         = map;
+    oaaPositionCache = posMap;
   } catch (err) {
     console.warn(`[BaseballSavant] Failed to load OAA CSV: ${err.message}`);
-    oaaCache = {};
-    return {};
+    oaaCache         = {};
+    oaaPositionCache = {};
   }
+};
+
+const getOaaMap = () => {
+  if (!oaaCache) _loadOaaCsv();
+  return oaaCache;
+};
+
+const getOaaPositionMap = () => {
+  if (!oaaPositionCache) _loadOaaCsv();
+  return oaaPositionCache;
 };
 
 // ── Sprint Speed ─────────────────────────────────────────────────────────────
@@ -130,4 +143,4 @@ const getArmStrengthMap = () => {
   }
 };
 
-module.exports = { getOaaMap, getSprintSpeedMap, getArmStrengthMap };
+module.exports = { getOaaMap, getOaaPositionMap, getSprintSpeedMap, getArmStrengthMap };
