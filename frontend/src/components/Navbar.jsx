@@ -81,6 +81,13 @@ const MatchupIcon = () => (
     <path d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 );
+const ScoutIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="3" />
+    <path d="M11 2a9 9 0 100 18A9 9 0 0011 2z" />
+    <path d="M21 21l-4.35-4.35" />
+  </svg>
+);
 const ProspectsIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
@@ -162,13 +169,14 @@ const LogoutIcon = () => (
 const NAV_ITEMS = [
   { to: "/", label: "Home", Icon: HomeIcon, end: true },
   { to: "/search", label: "Search", Icon: SearchIcon },
-  { to: "/stats", label: "Stats", Icon: StatsIcon },
-  { to: "/positions", label: "Positions", Icon: PositionsIcon },
-  { to: "/league", label: "League", Icon: LeagueIcon },
-  { to: "/news", label: "News", Icon: NewsIcon },
-  { to: "/prospects", label: "Prospects", Icon: ProspectsIcon },
+  { to: "/scout", label: "Scout", Icon: ScoutIcon },
   { to: "/compare", label: "Compare", Icon: CompareIcon },
   { to: "/matchup", label: "Matchup", Icon: MatchupIcon },
+  { to: "/stats", label: "Stats", Icon: StatsIcon },
+  { to: "/league", label: "League", Icon: LeagueIcon },
+  { to: "/news", label: "News", Icon: NewsIcon },
+  { to: "/positions", label: "Positions", Icon: PositionsIcon },
+  { to: "/prospects", label: "Prospects", Icon: ProspectsIcon },
 ];
 
 // NavLink の isActive に応じてクラスを切り替えるヘルパー関数

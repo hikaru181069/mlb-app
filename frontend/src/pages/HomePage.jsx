@@ -25,6 +25,20 @@ const TILES = [
     cta:   "View picks →",
   },
   {
+    to:    "/compare",
+    title: "Compare",
+    desc:  "Head-to-head stats for any two MLB players",
+    color: "var(--ctp-blue)",
+    cta:   "Compare players →",
+  },
+  {
+    to:    "/matchup",
+    title: "Matchup",
+    desc:  "Pitcher vs batter — career stats and AI prediction",
+    color: "var(--ctp-red)",
+    cta:   "Simulate →",
+  },
+  {
     to:    "/prospects",
     title: "Prospects",
     desc:  "AAA & AA players on the verge of breaking through",
