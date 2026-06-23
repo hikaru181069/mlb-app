@@ -1,47 +1,8 @@
 const { fetchFromMlbApi } = require("./mlbClient");
 const { getOaaMap }       = require("./baseballSavantService");
 
-const MLB_LEADERS_URL = "https://statsapi.mlb.com/api/v1/stats/leaders";
+const MLB_STATS_URL  = "https://statsapi.mlb.com/api/v1/stats";
 const CURRENT_SEASON = new Date().getFullYear().toString();
-
-// ── 野手 ──────────────────────────────────────────────────────────────────
-
-// MLB Stats API のリーダーカテゴリとして有効なものだけを使用する
-// baseOnBalls / strikeOuts はリーダーカテゴリとして未対応のため除外
-
-const HITTER_CATEGORIES = [
-  "onBasePlusSlugging",
-  "homeRuns",
-  "stolenBases",
-  "battingAverage",
-  "runsBattedIn",
-];
-
-const HITTER_CATEGORY_TO_KEY = {
-  onBasePlusSlugging: "ops",
-  homeRuns:           "homeRuns",
-  stolenBases:        "stolenBases",
-  battingAverage:     "avg",
-  runsBattedIn:       "rbi",
-};
-
-// ── 投手 ──────────────────────────────────────────────────────────────────
-
-const PITCHER_CATEGORIES = [
-  "earnedRunAverage",
-  "walksAndHitsPerInningPitched",
-  "strikeouts",
-  "wins",
-  "inningsPitched",
-];
-
-const PITCHER_CATEGORY_TO_KEY = {
-  earnedRunAverage:             "era",
-  walksAndHitsPerInningPitched: "whip",
-  strikeouts:                   "strikeouts",
-  wins:                         "wins",
-  inningsPitched:               "innings",
-};
 
 // ── キャッシュ ────────────────────────────────────────────────────────────
 
@@ -49,50 +10,101 @@ const CACHE_TTL = 24 * 60 * 60 * 1000;
 let cache = null;
 let cacheTime = null;
 
-function buildDistributions(keys) {
-  return Object.fromEntries(keys.map((k) => [k, []]));
-}
+// ── 全野手スタッツ取得 ────────────────────────────────────────────────────
+// リーダーボード方式（上位200名のカテゴリ別リスト）から
+// playerPool=All 方式（全選手の全スタット一括取得）に変更。
+// 旧方式の問題：HR上位だがOPS上位でない選手のopsが0になっていた。
 
-async function fetchLeaderGroup({ categories, categoryToKey, statGroup }) {
+async function fetchAllHitterStats() {
   const params = new URLSearchParams({
-    leaderCategories: categories.join(","),
-    season: CURRENT_SEASON,
-    statGroup,
-    limit: "200",
+    stats:      "season",
+    group:      "hitting",
+    sportId:    "1",
+    season:     CURRENT_SEASON,
+    playerPool: "All",
+    gameType:   "R",
+    limit:      "2000",
   });
 
   const data = await fetchFromMlbApi(
-    `${MLB_LEADERS_URL}?${params}`,
-    `Failed to fetch ${statGroup} league stats for scouting`,
+    `${MLB_STATS_URL}?${params}`,
+    "Failed to fetch all hitter stats",
   );
 
-  const distributions = buildDistributions(Object.values(categoryToKey));
-  const playerMap = {};
+  const splits = data.stats?.[0]?.splits ?? [];
+  const oaaMap = getOaaMap();
 
-  for (const cat of data.leagueLeaders || []) {
-    const statKey = categoryToKey[cat.leaderCategory];
-    if (!statKey) continue;
+  // 打席数が少なすぎる選手（投手の打席など）をフィルタリング
+  const players = splits
+    .filter((s) => s.player?.id && (parseInt(s.stat?.atBats) || 0) >= 30)
+    .map((s) => ({
+      playerId:    s.player.id,
+      name:        s.player.fullName || "",
+      team:        s.team?.name     || "",
+      ops:         parseFloat(s.stat.ops)          || 0,
+      homeRuns:    parseInt(s.stat.homeRuns)        || 0,
+      stolenBases: parseInt(s.stat.stolenBases)     || 0,
+      avg:         parseFloat(s.stat.avg)           || 0,
+      rbi:         parseInt(s.stat.rbi)             || 0,
+      oaa:         oaaMap[s.player.id]              ?? 0,
+    }));
 
-    for (const leader of cat.leaders || []) {
-      const id = leader.person?.id;
-      if (!id) continue;
+  // パーセンタイル計算用の分布配列（ゼロを除外して意味のある値のみ）
+  const distributions = {
+    ops:         players.map((p) => p.ops).filter((v) => v > 0),
+    homeRuns:    players.map((p) => p.homeRuns),
+    stolenBases: players.map((p) => p.stolenBases),
+    avg:         players.map((p) => p.avg).filter((v) => v > 0),
+    rbi:         players.map((p) => p.rbi),
+  };
 
-      const value = parseFloat(leader.value) || 0;
-      distributions[statKey].push(value);
+  return { players, distributions };
+}
 
-      if (!playerMap[id]) {
-        playerMap[id] = {
-          playerId: id,
-          name: leader.person?.fullName || "",
-          team: leader.team?.name || "",
-          ...Object.fromEntries(Object.values(categoryToKey).map((k) => [k, 0])),
-        };
-      }
-      playerMap[id][statKey] = value;
-    }
-  }
+// ── 全投手スタッツ取得 ────────────────────────────────────────────────────
 
-  return { distributions, players: Object.values(playerMap) };
+async function fetchAllPitcherStats() {
+  const params = new URLSearchParams({
+    stats:      "season",
+    group:      "pitching",
+    sportId:    "1",
+    season:     CURRENT_SEASON,
+    playerPool: "All",
+    gameType:   "R",
+    limit:      "2000",
+  });
+
+  const data = await fetchFromMlbApi(
+    `${MLB_STATS_URL}?${params}`,
+    "Failed to fetch all pitcher stats",
+  );
+
+  const splits = data.stats?.[0]?.splits ?? [];
+
+  // 投球回数が少ない選手（1試合だけ登板など）をフィルタリング
+  const players = splits
+    .filter((s) => s.player?.id && parseFloat(s.stat?.inningsPitched || 0) >= 10)
+    .map((s) => ({
+      playerId:   s.player.id,
+      name:       s.player.fullName || "",
+      team:       s.team?.name     || "",
+      era:        parseFloat(s.stat.era)            || 0,
+      whip:       parseFloat(s.stat.whip)           || 0,
+      strikeouts: parseInt(s.stat.strikeOuts)       || 0,
+      walks:      parseInt(s.stat.baseOnBalls)      || 0,
+      wins:       parseInt(s.stat.wins)             || 0,
+      innings:    parseFloat(s.stat.inningsPitched) || 0,
+    }));
+
+  const distributions = {
+    era:        players.map((p) => p.era).filter((v) => v > 0),
+    whip:       players.map((p) => p.whip).filter((v) => v > 0),
+    strikeouts: players.map((p) => p.strikeouts),
+    wins:       players.map((p) => p.wins),
+    innings:    players.map((p) => p.innings).filter((v) => v > 0),
+  };
+
+  return { players, distributions };
 }
 
 // ── 年齢・ポジションのバッチ取得（野手・投手共通ヘルパー） ─────────────────
@@ -200,16 +212,8 @@ const fetchLeagueStats = async () => {
   }
 
   const [hitter, pitcher] = await Promise.all([
-    fetchLeaderGroup({
-      categories: HITTER_CATEGORIES,
-      categoryToKey: HITTER_CATEGORY_TO_KEY,
-      statGroup: "hitting",
-    }),
-    fetchLeaderGroup({
-      categories: PITCHER_CATEGORIES,
-      categoryToKey: PITCHER_CATEGORY_TO_KEY,
-      statGroup: "pitching",
-    }),
+    fetchAllHitterStats(),
+    fetchAllPitcherStats(),
   ]);
 
   // OAA（守備指標）をローカル CSV から野手データにマージする
