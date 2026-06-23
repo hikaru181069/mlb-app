@@ -1272,7 +1272,19 @@ input {
   margin-top: 10px;
 }
 
+/* 中型モバイル (≤480px): 2カラムのままでパディングを縮小 */
 @media (max-width: 480px) {
+  .home-tiles {
+    padding: 16px 14px 0;
+    gap: 10px;
+  }
+  .home-tile {
+    padding: 14px;
+    border-radius: 12px;
+  }
+}
+/* 極小画面 (≤320px): 1カラムに切り替え */
+@media (max-width: 320px) {
   .home-tiles {
     grid-template-columns: 1fr;
   }
@@ -4888,6 +4900,26 @@ button:active {
   }
 }
 
+/* Compare/Matchup: stack search row on narrow phones */
+@media (max-width: 480px) {
+  .compare-search-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  /* restore left-align for both slots when stacked */
+  .compare-search-row .compare-search-slot:first-child {
+    align-items: flex-start;
+  }
+  .compare-search-row .compare-search-slot:first-child .compare-slot-label,
+  .compare-search-row .compare-search-slot:first-child .compare-search-input {
+    text-align: left;
+  }
+  .compare-vs {
+    display: none; /* hidden when stacked — VS in battle header is enough */
+  }
+}
+
 /* ── Matchup Page ─────────────────────────────────────────────────────────── */
 /* 選手カードは Compare ページの cbattle-* スタイルを共用 */
 
@@ -7336,6 +7368,13 @@ button:active {
   grid-template-columns: 140px 1fr 44px;
   align-items: center;
   gap: 12px;
+}
+
+@media (max-width: 380px) {
+  .scout-stat-row {
+    grid-template-columns: 100px 1fr 40px;
+    gap: 8px;
+  }
 }
 
 .scout-stat-label {
