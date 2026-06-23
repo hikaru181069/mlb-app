@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { getStandings, getScores, getWildCard } from "../services/api/leagueApi";
 import { getLeaders, getHotPlayers } from "../services/api/statsApi";
 import ScoreCard from "../components/ScoreCard";
+import ErrorCard from "../components/ErrorCard";
 import PageHeader from "../components/PageHeader";
 import { CalendarDays } from "lucide-react";
 import { mlbToday } from "../utils/datetime";
@@ -40,6 +41,7 @@ function StandingsTab({ season }) {
   const [divisions, setDivisions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,10 +63,10 @@ function StandingsTab({ season }) {
       }
     };
     fetchData();
-  }, [season]);
+  }, [season, retryKey]);
 
   if (loading) return <p className="compare-loading">Loading standings…</p>;
-  if (error) return <p className="error-message">{error}</p>;
+  if (error) return <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />;
 
   const divisionsByLeague = LEAGUE_ORDER.map((league) => ({
     league,
@@ -214,6 +216,7 @@ function WildCardTab({ season }) {
   const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -225,10 +228,10 @@ function WildCardTab({ season }) {
       finally { setLoading(false); }
     };
     fetchData();
-  }, [season]);
+  }, [season, retryKey]);
 
   if (loading) return <p className="compare-loading">Loading wild card…</p>;
-  if (error)   return <p className="error-message">{error}</p>;
+  if (error)   return <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />;
 
   return (
     <div className="standings-grid">

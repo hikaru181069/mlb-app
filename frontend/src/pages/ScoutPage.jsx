@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Search, Telescope, X } from "lucide-react";
 
 import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 import { fetchPlayerSuggestions } from "../services/api/externalPlayerApi";
 import { getScoutingReport } from "../services/api/scoutApi";
 
@@ -473,6 +474,7 @@ function ScoutPage() {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     if (!playerId) {
@@ -497,7 +499,7 @@ function ScoutPage() {
 
     fetchReport();
     return () => { active = false; };
-  }, [playerId]);
+  }, [playerId, retryKey]);
 
   const handleSelect = (id) => {
     navigate(`/scout/${id}`);
@@ -551,7 +553,7 @@ function ScoutPage() {
                 </div>
               </div>
             )}
-            {error && <p className="error-message">{error}</p>}
+            {error && <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />}
             {!loading && !error && reportData && (
               <ScoutReport data={reportData} playerId={playerId} />
             )}
