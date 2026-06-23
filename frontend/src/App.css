@@ -7101,11 +7101,31 @@ button:active {
   min-width: 0;
 }
 
+.scout-report-name-link {
+  text-decoration: none;
+}
+.scout-report-name-link:hover .scout-report-name {
+  color: var(--ctp-sapphire);
+}
+
 .scout-report-name {
   margin: 0;
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--ctp-text);
+  transition: color 0.15s;
+}
+
+.scout-profile-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ctp-sapphire);
+  text-decoration: none;
+}
+.scout-profile-link:hover {
+  text-decoration: underline;
 }
 
 .scout-report-meta {
@@ -7216,15 +7236,30 @@ button:active {
   gap: 1px;
 }
 
+.scout-stat-name-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .scout-stat-name {
   font-size: 0.86rem;
   font-weight: 700;
   color: var(--ctp-text);
 }
 
-.scout-stat-desc {
-  font-size: 0.72rem;
+.scout-stat-lower-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
   color: var(--ctp-overlay0);
+  letter-spacing: 0;
+}
+
+.scout-stat-actual {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ctp-subtext0);
+  font-variant-numeric: tabular-nums;
 }
 
 .scout-bar-wrap {

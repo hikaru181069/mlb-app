@@ -10,7 +10,7 @@ const buildHitterPayload = (playerData, leagueStats) => {
       homeRuns:    parseInt(hitterStats.homeRuns)         || 0,
       stolenBases: parseInt(hitterStats.stolenBases)      || 0,
       avg:         parseFloat(hitterStats.battingAverage) || 0,
-      rbi:         parseInt(hitterStats.runsBattedIn)     || 0,
+      rbi:         parseInt(hitterStats.rbis)              || 0,
     },
     leagueStats:       leagueStats.hitter.distributions,
     comparablePlayers: leagueStats.hitter.players,
