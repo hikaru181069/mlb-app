@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Sparkles, Star } from "lucide-react";
 import { getAuthToken } from "../utils/authStorage";
 import { getForYouRecommendations } from "../services/api/recommendationApi";
 
@@ -144,8 +145,12 @@ function ForYouPage() {
     return (
       <div className="foryou-page">
         <div className="foryou-empty">
-          <p>Login to see personalized recommendations.</p>
-          <Link to="/login" className="foryou-login-btn">Login</Link>
+          <Sparkles size={40} strokeWidth={1.5} className="foryou-empty-icon" />
+          <p className="foryou-empty-title">Personalized picks, just for you</p>
+          <p className="foryou-empty-desc">
+            Add players to your Favorites and we&apos;ll find similar players across the league.
+          </p>
+          <Link to="/login" className="foryou-login-btn">Login to get started</Link>
         </div>
       </div>
     );
@@ -202,8 +207,12 @@ function ForYouPage() {
 
       {groups.length === 0 && fallback.length === 0 && (
         <div className="foryou-empty">
-          <p>No recommendations yet.</p>
-          <Link to="/favorites" className="foryou-login-btn">Add Favorites</Link>
+          <Star size={40} strokeWidth={1.5} className="foryou-empty-icon" />
+          <p className="foryou-empty-title">Add players to get recommendations</p>
+          <p className="foryou-empty-desc">
+            Favorite a few MLB players and we&apos;ll find others who match their style.
+          </p>
+          <Link to="/favorites" className="foryou-login-btn">Go to Favorites</Link>
         </div>
       )}
     </div>
