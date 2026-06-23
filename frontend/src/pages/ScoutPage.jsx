@@ -33,8 +33,8 @@ function percentileColor(pct) {
   return "var(--ctp-red)";
 }
 
-// パーセンタイルからMLBランキング順位を計算（上位200名プール基準）
-const percentileToRank = (pct) => Math.max(1, Math.round((1 - pct / 100) * 200));
+// パーセンタイルからMLBランキング順位を計算（母集団サイズを指定可能）
+const percentileToRank = (pct, poolSize = 200) => Math.max(1, Math.round((1 - pct / 100) * poolSize));
 
 // 順位を序数に変換（1 → "1st", 2 → "2nd", 3 → "3rd", 4 → "4th"）
 const ordinal = (n) => {
@@ -43,10 +43,10 @@ const ordinal = (n) => {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
-function PercentileBar({ label, percentile, index = 0, value, fmt, lowerIsBetter = false }) {
+function PercentileBar({ label, percentile, index = 0, value, fmt, lowerIsBetter = false, poolSize }) {
   const [width, setWidth] = useState(0);
   const color = percentileColor(percentile);
-  const rank = percentileToRank(percentile);
+  const rank = percentileToRank(percentile, poolSize);
   const displayValue = value != null && fmt ? fmt(value) : null;
 
   useEffect(() => {
@@ -300,6 +300,7 @@ function ScoutReport({ data, playerId }) {
                     value={stats[key]}
                     fmt={fmt}
                     lowerIsBetter={lowerIsBetter}
+                    poolSize={report.poolSizes?.[key]}
                   />
                 ))}
               </div>

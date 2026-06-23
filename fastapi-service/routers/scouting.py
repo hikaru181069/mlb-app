@@ -115,6 +115,7 @@ class ComparablePlayer(BaseModel):
 
 class ScoutingReportResponse(BaseModel):
     percentiles: dict[str, int]
+    poolSizes: dict[str, int] = {}
     playerType: str
     strengths: list[str]
     weaknesses: list[str]
@@ -160,6 +161,13 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
     p = req.player
     dist = req.leagueStats
 
+    pool_sizes = {
+        "ops":         len(dist.ops),
+        "homeRuns":    len(dist.homeRuns),
+        "stolenBases": len(dist.stolenBases),
+        "avg":         len(dist.avg),
+        "rbi":         len(dist.rbi),
+    }
     percentiles = {
         "ops":         calc_percentile(p.ops,         dist.ops),
         "homeRuns":    calc_percentile(p.homeRuns,    dist.homeRuns),
@@ -173,10 +181,13 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
         oaa_dist = pos_dist if len(pos_dist) >= 10 else dist.oaa
         if oaa_dist:
             percentiles["oaa"] = calc_percentile(p.oaa, oaa_dist)
+            pool_sizes["oaa"]  = len(oaa_dist)
     if p.sprintSpeed > 0 and dist.sprintSpeed:
         percentiles["sprintSpeed"] = calc_percentile(p.sprintSpeed, dist.sprintSpeed)
+        pool_sizes["sprintSpeed"]  = len(dist.sprintSpeed)
     if p.armStrength > 0 and dist.armStrength:
         percentiles["armStrength"] = calc_percentile(p.armStrength, dist.armStrength)
+        pool_sizes["armStrength"]  = len(dist.armStrength)
 
     player_type = "Solid Regular"
     for type_name, condition in HITTER_TYPE_THRESHOLDS:
@@ -197,6 +208,7 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
 
     return ScoutingReportResponse(
         percentiles=percentiles,
+        poolSizes=pool_sizes,
         playerType=player_type,
         strengths=strengths,
         weaknesses=weaknesses,
@@ -244,6 +256,14 @@ def _scouting_report_pitcher(req: ScoutingReportRequest) -> ScoutingReportRespon
     p = req.pitcherPlayer
     dist = req.pitcherLeagueStats
 
+    pool_sizes = {
+        "era":        len(dist.era),
+        "whip":       len(dist.whip),
+        "strikeouts": len(dist.strikeouts),
+        "walks":      len(dist.walks),
+        "wins":       len(dist.wins),
+        "innings":    len(dist.innings),
+    }
     percentiles = {
         "era":        calc_percentile(p.era,        dist.era,        higher_is_better=False),
         "whip":       calc_percentile(p.whip,       dist.whip,       higher_is_better=False),
@@ -272,6 +292,7 @@ def _scouting_report_pitcher(req: ScoutingReportRequest) -> ScoutingReportRespon
 
     return ScoutingReportResponse(
         percentiles=percentiles,
+        poolSizes=pool_sizes,
         playerType=player_type,
         strengths=strengths,
         weaknesses=weaknesses,
