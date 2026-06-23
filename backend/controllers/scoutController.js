@@ -62,7 +62,8 @@ const getScoutingReport = async (req, res) => {
       : buildHitterPayload(playerData, leagueStats);
 
     const report = await fetchScoutingReport({
-      playerType: isPitcher ? "pitcher" : "hitter",
+      playerType:     isPitcher ? "pitcher" : "hitter",
+      playerPosition: playerData.position || "",
       playerIdToExclude: id,
       ...statsPayload,
     });

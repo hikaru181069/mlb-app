@@ -39,6 +39,7 @@ class LeagueStatsDistribution(BaseModel):
     avg: list[float] = []
     rbi: list[float] = []
     oaa: list[float] = []
+    oaaByPosition: dict[str, list[float]] = {}
     sprintSpeed: list[float] = []
     armStrength: list[float] = []
 
@@ -92,6 +93,7 @@ class PitcherLeaguePlayer(BaseModel):
 
 class ScoutingReportRequest(BaseModel):
     playerType: str = "hitter"
+    playerPosition: str = ""
     playerIdToExclude: int = 0
     # 野手フィールド
     player: ScoutingStats = ScoutingStats()
@@ -165,9 +167,12 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
         "avg":         calc_percentile(p.avg,         dist.avg),
         "rbi":         calc_percentile(p.rbi,         dist.rbi),
     }
-    # CSVにある選手のみ条件付きで表示（null = CSV未収録、0 は有効な守備値）
-    if p.oaa is not None and dist.oaa:
-        percentiles["oaa"] = calc_percentile(p.oaa, dist.oaa)
+    # OAA: ポジション別分布を優先。サンプル数 < 10 なら全体分布にフォールバック
+    if p.oaa is not None:
+        pos_dist = dist.oaaByPosition.get(req.playerPosition, [])
+        oaa_dist = pos_dist if len(pos_dist) >= 10 else dist.oaa
+        if oaa_dist:
+            percentiles["oaa"] = calc_percentile(p.oaa, oaa_dist)
     if p.sprintSpeed > 0 and dist.sprintSpeed:
         percentiles["sprintSpeed"] = calc_percentile(p.sprintSpeed, dist.sprintSpeed)
     if p.armStrength > 0 and dist.armStrength:

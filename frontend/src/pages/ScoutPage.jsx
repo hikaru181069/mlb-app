@@ -214,8 +214,15 @@ function ScoutReport({ data, playerId }) {
 
   const baseStatMeta = player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META;
   // CSVにないデータ（sprintSpeed/armStrength等）は percentiles に含まれないのでフィルタする
+  // OAA はポジション別比較なのでラベルにポジションを付与する
   const statMeta = report
-    ? baseStatMeta.filter(({ key }) => report.percentiles[key] !== undefined)
+    ? baseStatMeta
+        .filter(({ key }) => report.percentiles[key] !== undefined)
+        .map((m) =>
+          m.key === "oaa" && player.position
+            ? { ...m, label: `OAA (${player.position})` }
+            : m
+        )
     : baseStatMeta;
 
   return (

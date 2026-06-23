@@ -43,6 +43,7 @@ async function fetchAllHitterStats() {
       playerId:    s.player.id,
       name:        s.player.fullName || "",
       team:        s.team?.name     || "",
+      position:    s.player.primaryPosition?.abbreviation || "",
       ops:         parseFloat(s.stat.ops)          || 0,
       homeRuns:    parseInt(s.stat.homeRuns)        || 0,
       stolenBases: parseInt(s.stat.stolenBases)     || 0,
@@ -53,17 +54,27 @@ async function fetchAllHitterStats() {
       armStrength: armStrengthMap[s.player.id]      ?? 0,
     }));
 
+  // OAA をポジション別に分類（CSVに存在する選手のみ）
+  const oaaByPosition = {};
+  for (const p of players) {
+    if (oaaMap[p.playerId] !== undefined && p.position) {
+      if (!oaaByPosition[p.position]) oaaByPosition[p.position] = [];
+      oaaByPosition[p.position].push(p.oaa);
+    }
+  }
+
   // パーセンタイル計算用の分布配列（ゼロを除外して意味のある値のみ）
   // OAA は負の値も有効なため、CSV に存在する選手のみを対象にする
   const distributions = {
-    ops:         players.map((p) => p.ops).filter((v) => v > 0),
-    homeRuns:    players.map((p) => p.homeRuns),
-    stolenBases: players.map((p) => p.stolenBases),
-    avg:         players.map((p) => p.avg).filter((v) => v > 0),
-    rbi:         players.map((p) => p.rbi),
-    oaa:         players.filter((p) => oaaMap[p.playerId] !== undefined).map((p) => p.oaa),
-    sprintSpeed: players.map((p) => p.sprintSpeed).filter((v) => v > 0),
-    armStrength: players.map((p) => p.armStrength).filter((v) => v > 0),
+    ops:            players.map((p) => p.ops).filter((v) => v > 0),
+    homeRuns:       players.map((p) => p.homeRuns),
+    stolenBases:    players.map((p) => p.stolenBases),
+    avg:            players.map((p) => p.avg).filter((v) => v > 0),
+    rbi:            players.map((p) => p.rbi),
+    oaa:            players.filter((p) => oaaMap[p.playerId] !== undefined).map((p) => p.oaa),
+    oaaByPosition,
+    sprintSpeed:    players.map((p) => p.sprintSpeed).filter((v) => v > 0),
+    armStrength:    players.map((p) => p.armStrength).filter((v) => v > 0),
   };
 
   return { players, distributions };
