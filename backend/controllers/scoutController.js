@@ -61,6 +61,13 @@ const getScoutingReport = async (req, res) => {
       ? buildPitcherPayload(playerData, leagueStats)
       : buildHitterPayload(playerData, leagueStats);
 
+    // 規定打席 / 規定投球回 チェック
+    const hitterStats  = playerData.currentSeasonStats?.hitterStats  || {};
+    const pitcherStats = playerData.currentSeasonStats?.pitcherStats || {};
+    const isQualified  = isPitcher
+      ? parseFloat(pitcherStats.inningsPitched || 0) >= (leagueStats.qualifyingIP || 0)
+      : parseInt(hitterStats.plateAppearances  || 0) >= (leagueStats.qualifyingPA || 0);
+
     const report = await fetchScoutingReport({
       playerType:     isPitcher ? "pitcher" : "hitter",
       playerPosition: playerData.positionAbbr || "",
@@ -83,6 +90,7 @@ const getScoutingReport = async (req, res) => {
         image: playerData.image,
         playerType: isPitcher ? "pitcher" : "hitter",
       },
+      isQualified,
       stats,
       report,
     });

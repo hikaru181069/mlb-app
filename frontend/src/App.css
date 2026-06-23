@@ -7282,6 +7282,14 @@ button:active {
   font-variant-numeric: tabular-nums;
 }
 
+.scout-stat-nq {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ctp-overlay0);
+  text-align: right;
+  letter-spacing: 0.03em;
+}
+
 /* 強み・弱み タグ */
 .scout-tags {
   display: flex;

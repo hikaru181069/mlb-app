@@ -40,6 +40,7 @@ const formatExternalStats = (stats = []) => {
     hitterStats: hittingSplit
       ? {
           gamesPlayed: hittingSplit.stat.gamesPlayed,
+          plateAppearances: hittingSplit.stat.plateAppearances,
           atBats: hittingSplit.stat.atBats,
           runs: hittingSplit.stat.runs,
           hits: hittingSplit.stat.hits,

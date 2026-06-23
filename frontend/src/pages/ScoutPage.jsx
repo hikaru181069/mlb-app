@@ -6,22 +6,23 @@ import PageHeader from "../components/PageHeader";
 import { fetchPlayerSuggestions } from "../services/api/externalPlayerApi";
 import { getScoutingReport } from "../services/api/scoutApi";
 
+// tool: true の指標は規定打席/投球回の制限を受けない（身体ツール・守備指標）
 const HITTER_STAT_META = [
   { key: "ops",         label: "OPS",          short: "OPS", fmt: (v) => v?.toFixed(3) },
   { key: "homeRuns",    label: "HR",            short: "HR",  fmt: (v) => v },
   { key: "stolenBases", label: "SB",            short: "SB",  fmt: (v) => v },
   { key: "avg",         label: "AVG",           short: "AVG", fmt: (v) => v?.toFixed(3) },
   { key: "rbi",         label: "RBI",           short: "RBI", fmt: (v) => v },
-  { key: "oaa",         label: "OAA",           short: "OAA", fmt: (v) => v != null ? (v >= 0 ? `+${v}` : `${v}`) : null },
-  { key: "sprintSpeed", label: "Sprint Speed",  short: "SPD", fmt: (v) => v > 0 ? `${v.toFixed(1)} ft/s` : null },
-  { key: "armStrength", label: "Arm Strength",  short: "ARM", fmt: (v) => v > 0 ? `${v.toFixed(1)} mph`  : null },
+  { key: "oaa",         label: "OAA",           short: "OAA", fmt: (v) => v != null ? (v >= 0 ? `+${v}` : `${v}`) : null, tool: true },
+  { key: "sprintSpeed", label: "Sprint Speed",  short: "SPD", fmt: (v) => v > 0 ? `${v.toFixed(1)} ft/s` : null,          tool: true },
+  { key: "armStrength", label: "Arm Strength",  short: "ARM", fmt: (v) => v > 0 ? `${v.toFixed(1)} mph`  : null,          tool: true },
 ];
 
 const PITCHER_STAT_META = [
   { key: "era",        label: "ERA",  short: "ERA",  fmt: (v) => v?.toFixed(2),  lowerIsBetter: true },
   { key: "whip",       label: "WHIP", short: "WHIP", fmt: (v) => v?.toFixed(3),  lowerIsBetter: true },
   { key: "strikeouts", label: "K",    short: "K",    fmt: (v) => v },
-  { key: "walks",      label: "BB",   short: "BB",   fmt: (v) => v,             lowerIsBetter: true },
+  { key: "walks",      label: "BB",   short: "BB",   fmt: (v) => v,              lowerIsBetter: true },
   { key: "wins",       label: "W",    short: "W",    fmt: (v) => v },
   { key: "innings",    label: "IP",   short: "IP",   fmt: (v) => v?.toFixed(1) },
 ];
@@ -43,11 +44,12 @@ const ordinal = (n) => {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
-function PercentileBar({ label, percentile, index = 0, value, fmt, lowerIsBetter = false, poolSize }) {
+function PercentileBar({ label, percentile, index = 0, value, fmt, lowerIsBetter = false, poolSize, qualified = true, isTool = false }) {
   const [width, setWidth] = useState(0);
   const color = percentileColor(percentile);
   const rank = percentileToRank(percentile, poolSize);
   const displayValue = value != null && fmt ? fmt(value) : null;
+  const showRank = isTool || qualified;
 
   useEffect(() => {
     const timer = setTimeout(() => setWidth(percentile), 80 + index * 80);
@@ -71,9 +73,10 @@ function PercentileBar({ label, percentile, index = 0, value, fmt, lowerIsBetter
           style={{ width: `${width}%`, background: color }}
         />
       </div>
-      <span className="scout-stat-pct" style={{ color }}>
-        {ordinal(rank)}
-      </span>
+      {showRank
+        ? <span className="scout-stat-pct" style={{ color }}>{ordinal(rank)}</span>
+        : <span className="scout-stat-pct scout-stat-nq">N/Q</span>
+      }
     </div>
   );
 }
@@ -210,7 +213,7 @@ function OverallScore({ percentiles }) {
 }
 
 function ScoutReport({ data, playerId }) {
-  const { player, stats, report } = data;
+  const { player, stats, report, isQualified } = data;
 
   const baseStatMeta = player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META;
   // CSVにないデータ（sprintSpeed/armStrength等）は percentiles に含まれないのでフィルタする
@@ -291,7 +294,7 @@ function ScoutReport({ data, playerId }) {
                 statMeta={statMeta}
               />
               <div className="scout-stat-list">
-                {statMeta.map(({ key, label, fmt, lowerIsBetter = false }, i) => (
+                {statMeta.map(({ key, label, fmt, lowerIsBetter = false, tool = false }, i) => (
                   <PercentileBar
                     key={key}
                     label={label}
@@ -301,6 +304,8 @@ function ScoutReport({ data, playerId }) {
                     fmt={fmt}
                     lowerIsBetter={lowerIsBetter}
                     poolSize={report.poolSizes?.[key]}
+                    qualified={isQualified}
+                    isTool={tool}
                   />
                 ))}
               </div>

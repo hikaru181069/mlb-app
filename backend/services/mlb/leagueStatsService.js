@@ -41,56 +41,27 @@ async function fetchAllHitterStats() {
   const players = splits
     .filter((s) => s.player?.id && (parseInt(s.stat?.atBats) || 0) >= 30)
     .map((s) => ({
-      playerId:    s.player.id,
-      name:        s.player.fullName || "",
-      team:        s.team?.name     || "",
-      position:    s.player.primaryPosition?.abbreviation || "",
-      atBats:      parseInt(s.stat.atBats)          || 0,
-      ops:         parseFloat(s.stat.ops)            || 0,
-      homeRuns:    parseInt(s.stat.homeRuns)         || 0,
-      stolenBases: parseInt(s.stat.stolenBases)      || 0,
-      avg:         parseFloat(s.stat.avg)            || 0,
-      rbi:         parseInt(s.stat.rbi)              || 0,
-      oaa:         oaaMap[s.player.id]               ?? 0,
-      sprintSpeed: sprintSpeedMap[s.player.id]       ?? 0,
-      armStrength: armStrengthMap[s.player.id]       ?? 0,
+      playerId:         s.player.id,
+      name:             s.player.fullName || "",
+      team:             s.team?.name     || "",
+      position:         s.player.primaryPosition?.abbreviation || "",
+      atBats:           parseInt(s.stat.atBats)           || 0,
+      plateAppearances: parseInt(s.stat.plateAppearances) || 0,
+      gamesPlayed:      parseInt(s.stat.gamesPlayed)      || 0,
+      ops:              parseFloat(s.stat.ops)             || 0,
+      homeRuns:         parseInt(s.stat.homeRuns)          || 0,
+      stolenBases:      parseInt(s.stat.stolenBases)       || 0,
+      avg:              parseFloat(s.stat.avg)             || 0,
+      rbi:              parseInt(s.stat.rbi)               || 0,
+      oaa:              oaaMap[s.player.id]                ?? 0,
+      sprintSpeed:      sprintSpeedMap[s.player.id]        ?? 0,
+      armStrength:      armStrengthMap[s.player.id]        ?? 0,
     }));
 
-  // 100+ AB: 一定以上出場した選手だけをパーセンタイル計算の母集団とする
-  // 30AB 閾値だとベンチ・コールアップが多く含まれ、平均的な成績が低く見えるため
-  const DIST_AB_MIN = 100;
-  const distPlayers = players.filter((p) => p.atBats >= DIST_AB_MIN);
-  // シーズン序盤で 100AB 到達者が少ない場合は全体にフォールバック
-  const ref = distPlayers.length >= 50 ? distPlayers : players;
+  // チームの最多試合数 ≈ 個人の最大 gamesPlayed から推定
+  const maxGamesPlayed = players.reduce((m, p) => Math.max(m, p.gamesPlayed), 0);
 
-  // OAA をポジション別に分類（CSVの primary_pos_formatted を使用）
-  // Stats API の splits には primaryPosition が含まれないため、OAA CSV のポジションを使う
-  const oaaByPosition = {};
-  for (const p of ref) {
-    if (oaaMap[p.playerId] !== undefined) {
-      const pos = oaaPositionMap[p.playerId];
-      if (pos) {
-        if (!oaaByPosition[pos]) oaaByPosition[pos] = [];
-        oaaByPosition[pos].push(p.oaa);
-      }
-    }
-  }
-
-  // パーセンタイル計算用の分布配列（ゼロを除外して意味のある値のみ）
-  // OAA は負の値も有効なため、CSV に存在する選手のみを対象にする
-  const distributions = {
-    ops:            ref.map((p) => p.ops).filter((v) => v > 0),
-    homeRuns:       ref.map((p) => p.homeRuns),
-    stolenBases:    ref.map((p) => p.stolenBases),
-    avg:            ref.map((p) => p.avg).filter((v) => v > 0),
-    rbi:            ref.map((p) => p.rbi),
-    oaa:            ref.filter((p) => oaaMap[p.playerId] !== undefined).map((p) => p.oaa),
-    oaaByPosition,
-    sprintSpeed:    players.map((p) => p.sprintSpeed).filter((v) => v > 0),
-    armStrength:    players.map((p) => p.armStrength).filter((v) => v > 0),
-  };
-
-  return { players, distributions };
+  return { players, maxGamesPlayed };
 }
 
 // ── 全投手スタッツ取得 ────────────────────────────────────────────────────
@@ -117,26 +88,21 @@ async function fetchAllPitcherStats() {
   const players = splits
     .filter((s) => s.player?.id && parseFloat(s.stat?.inningsPitched || 0) >= 10)
     .map((s) => ({
-      playerId:   s.player.id,
-      name:       s.player.fullName || "",
-      team:       s.team?.name     || "",
-      era:        parseFloat(s.stat.era)            || 0,
-      whip:       parseFloat(s.stat.whip)           || 0,
-      strikeouts: parseInt(s.stat.strikeOuts)       || 0,
-      walks:      parseInt(s.stat.baseOnBalls)      || 0,
-      wins:       parseInt(s.stat.wins)             || 0,
-      innings:    parseFloat(s.stat.inningsPitched) || 0,
+      playerId:    s.player.id,
+      name:        s.player.fullName || "",
+      team:        s.team?.name     || "",
+      gamesPlayed: parseInt(s.stat.gamesPlayed)      || 0,
+      era:         parseFloat(s.stat.era)            || 0,
+      whip:        parseFloat(s.stat.whip)           || 0,
+      strikeouts:  parseInt(s.stat.strikeOuts)       || 0,
+      walks:       parseInt(s.stat.baseOnBalls)      || 0,
+      wins:        parseInt(s.stat.wins)             || 0,
+      innings:     parseFloat(s.stat.inningsPitched) || 0,
     }));
 
-  const distributions = {
-    era:        players.map((p) => p.era).filter((v) => v > 0),
-    whip:       players.map((p) => p.whip).filter((v) => v > 0),
-    strikeouts: players.map((p) => p.strikeouts),
-    wins:       players.map((p) => p.wins),
-    innings:    players.map((p) => p.innings).filter((v) => v > 0),
-  };
+  const maxGamesPlayed = players.reduce((m, p) => Math.max(m, p.gamesPlayed), 0);
 
-  return { players, distributions };
+  return { players, maxGamesPlayed };
 }
 
 // ── 年齢・ポジションのバッチ取得（野手・投手共通ヘルパー） ─────────────────
@@ -248,14 +214,64 @@ const fetchLeagueStats = async () => {
     fetchAllPitcherStats(),
   ]);
 
-  // OAA（守備指標）をローカル CSV から野手データにマージする
-  const oaaMap = getOaaMap();
-  const hitterWithOaa = {
-    ...hitter,
-    players: hitter.players.map((p) => ({ ...p, oaa: oaaMap[p.playerId] ?? 0 })),
+  // 規定打席 = 3.1 × 最多試合数、規定投球回 = 1.0 × 最多試合数
+  const maxGames     = Math.max(hitter.maxGamesPlayed, pitcher.maxGamesPlayed, 1);
+  const qualifyingPA = Math.round(3.1 * maxGames);
+  const qualifyingIP = maxGames;
+
+  // 規定到達野手だけを分布に使う（規定未達はランク比較対象外）
+  const oaaMap         = getOaaMap();
+  const oaaPositionMap = getOaaPositionMap();
+
+  const qualifiedHitters = hitter.players.filter(
+    (p) => p.plateAppearances >= qualifyingPA,
+  );
+  // シーズン序盤で規定到達者が少ない場合は 30+ AB 全体にフォールバック
+  const hitterRef = qualifiedHitters.length >= 30 ? qualifiedHitters : hitter.players;
+
+  const oaaByPosition = {};
+  for (const p of hitterRef) {
+    if (oaaMap[p.playerId] !== undefined) {
+      const pos = oaaPositionMap[p.playerId];
+      if (pos) {
+        if (!oaaByPosition[pos]) oaaByPosition[pos] = [];
+        oaaByPosition[pos].push(p.oaa);
+      }
+    }
+  }
+
+  const hitterDistributions = {
+    ops:            hitterRef.map((p) => p.ops).filter((v) => v > 0),
+    homeRuns:       hitterRef.map((p) => p.homeRuns),
+    stolenBases:    hitterRef.map((p) => p.stolenBases),
+    avg:            hitterRef.map((p) => p.avg).filter((v) => v > 0),
+    rbi:            hitterRef.map((p) => p.rbi),
+    oaa:            hitterRef.filter((p) => oaaMap[p.playerId] !== undefined).map((p) => p.oaa),
+    oaaByPosition,
+    // Sprint/Arm は全選手の CSV 由来なので規定関係なし
+    sprintSpeed:    hitter.players.map((p) => p.sprintSpeed).filter((v) => v > 0),
+    armStrength:    hitter.players.map((p) => p.armStrength).filter((v) => v > 0),
   };
 
-  cache = { hitter: hitterWithOaa, pitcher };
+  // 規定投球回到達投手だけを分布に使う
+  const qualifiedPitchers = pitcher.players.filter((p) => p.innings >= qualifyingIP);
+  const pitcherRef = qualifiedPitchers.length >= 20 ? qualifiedPitchers : pitcher.players;
+
+  const pitcherDistributions = {
+    era:        pitcherRef.map((p) => p.era).filter((v) => v > 0),
+    whip:       pitcherRef.map((p) => p.whip).filter((v) => v > 0),
+    strikeouts: pitcherRef.map((p) => p.strikeouts),
+    walks:      pitcherRef.map((p) => p.walks),
+    wins:       pitcherRef.map((p) => p.wins),
+    innings:    pitcherRef.map((p) => p.innings).filter((v) => v > 0),
+  };
+
+  cache = {
+    hitter:  { players: hitter.players,  distributions: hitterDistributions  },
+    pitcher: { players: pitcher.players, distributions: pitcherDistributions },
+    qualifyingPA,
+    qualifyingIP,
+  };
   cacheTime = Date.now();
 
   return cache;
