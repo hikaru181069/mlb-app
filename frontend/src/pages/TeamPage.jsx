@@ -244,7 +244,11 @@ function ScheduleTab({ teamId }) {
     fetchData();
   }, [teamId]);
 
-  if (loading) return <p className="compare-loading">Loading schedule…</p>;
+  if (loading) return (
+    <div className="scores-grid">
+      {Array.from({ length: 8 }, (_, i) => <SkeletonScheduleCard key={i} />)}
+    </div>
+  );
   if (error) return <p className="error-message">{error}</p>;
 
   if (games.length === 0) {
@@ -263,6 +267,37 @@ function ScheduleTab({ teamId }) {
     <div className="scores-grid">
       {games.map((g) => (
         <ScheduleCard key={g.gamePk} game={g} teamId={teamId} />
+      ))}
+    </div>
+  );
+}
+
+function SkeletonScheduleCard() {
+  return (
+    <div className="score-card">
+      <div className="skeleton-block" style={{ height: 11, width: 70, borderRadius: 3, marginBottom: 10 }} />
+      {[0, 1].map((i) => (
+        <div key={i} className="score-team-row">
+          <div className="skeleton-block" style={{ height: 20, width: 20, borderRadius: "50%" }} />
+          <div className="skeleton-block" style={{ height: 13, flex: 1, borderRadius: 4, marginLeft: 8 }} />
+          <div className="skeleton-block" style={{ height: 18, width: 24, borderRadius: 4 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SkeletonLeaderCard() {
+  return (
+    <div className="leader-card">
+      <div className="skeleton-block" style={{ height: 13, width: 100, borderRadius: 4, marginBottom: 12 }} />
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="leader-row" style={{ pointerEvents: "none" }}>
+          <div className="skeleton-block" style={{ height: 12, width: 16, borderRadius: 3 }} />
+          <div className="skeleton-block" style={{ height: 32, width: 32, borderRadius: "50%", margin: "0 8px" }} />
+          <div className="skeleton-block" style={{ height: 13, flex: 1, borderRadius: 4 }} />
+          <div className="skeleton-block" style={{ height: 13, width: 36, borderRadius: 4 }} />
+        </div>
       ))}
     </div>
   );
@@ -315,7 +350,11 @@ function LeadersTab({ teamId, season }) {
     fetchData();
   }, [teamId, season]);
 
-  if (loading) return <p className="compare-loading">Loading leaders…</p>;
+  if (loading) return (
+    <div className="leader-cards-grid">
+      {Array.from({ length: 4 }, (_, i) => <SkeletonLeaderCard key={i} />)}
+    </div>
+  );
   if (error) return <p className="error-message">{error}</p>;
 
   const hasAny = leaders.some((l) => l.leaders.length > 0);

@@ -5,6 +5,27 @@ import PageHeader from "../components/PageHeader";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getCompareAnalysis } from "../services/api/compareApi";
 
+function SkeletonBattleCard() {
+  return (
+    <div className="cbattle-wrap">
+      <div className="cbattle-header">
+        {["left", "right"].map((side, idx) => (
+          <>
+            {idx === 1 && <div className="cbattle-vs-col"><span className="cbattle-vs">VS</span></div>}
+            <div key={side} className={`cbattle-side cbattle-side--${side}`}>
+              <div className={`cbattle-card cbattle-card--${side}`}>
+                <div className="skeleton-block cbattle-img" style={{ borderRadius: 8 }} />
+                <div className="skeleton-block" style={{ height: 15, width: 110, borderRadius: 4, margin: "8px auto 4px" }} />
+                <div className="skeleton-block" style={{ height: 12, width: 80, borderRadius: 3, margin: "0 auto" }} />
+              </div>
+            </div>
+          </>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Quick-pick pairs for the empty state — links to URL params so existing loader handles them
 const SUGGESTED_PAIRS = [
   { label: "Judge vs Soto",     p1: 592450, p2: 665742 },
@@ -359,7 +380,7 @@ function ComparePage() {
 
       <div className="screen-body px-6 py-6 w-full">
         {loadingInit ? (
-          <p className="compare-loading">Loading players…</p>
+          <SkeletonBattleCard />
         ) : (
           <>
             {/* 検索スロット */}

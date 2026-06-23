@@ -16,6 +16,59 @@ import { formatGameDate, formatGameTime } from "../utils/datetime";
 import { getTeamColor } from "../services/teamColors";
 import PageHeader from "../components/PageHeader";
 
+// ── スケルトン ────────────────────────────────────────────────────────────────
+function SkeletonHighlightCard() {
+  return (
+    <div className="highlight-card" style={{ pointerEvents: "none" }}>
+      <div className="highlight-thumb-wrap skeleton-block" style={{ borderRadius: 6 }} />
+      <div className="skeleton-block" style={{ height: 13, borderRadius: 4, width: "88%", margin: "8px 6px 4px" }} />
+      <div className="skeleton-block" style={{ height: 13, borderRadius: 4, width: "60%", margin: "0 6px 6px" }} />
+    </div>
+  );
+}
+
+function SkeletonPlayRow() {
+  return (
+    <div className="pbp-row">
+      <div className="pbp-inning">
+        <div className="skeleton-block" style={{ height: 12, width: 24, borderRadius: 3 }} />
+      </div>
+      <div className="pbp-detail" style={{ gap: 6, display: "flex", flexDirection: "column" }}>
+        <div className="skeleton-block" style={{ height: 13, borderRadius: 4, width: "80%" }} />
+        <div className="skeleton-block" style={{ height: 13, borderRadius: 4, width: "55%" }} />
+      </div>
+    </div>
+  );
+}
+
+function SkeletonGamePage() {
+  return (
+    <div className="app-screen">
+      <div className="page-header">
+        <div className="skeleton-block" style={{ height: 11, width: 120, borderRadius: 3, marginBottom: 8 }} />
+        <div className="skeleton-block" style={{ height: 22, width: 220, borderRadius: 4, marginBottom: 6 }} />
+        <div className="skeleton-block" style={{ height: 13, width: 140, borderRadius: 3 }} />
+      </div>
+      <div className="screen-body px-6 py-6 w-full">
+        <div className="game-score-line">
+          {[0, 1].map((i) => (
+            <div key={i} className="game-score-team">
+              <div className="skeleton-block" style={{ height: 36, width: 36, borderRadius: "50%" }} />
+              <div className="skeleton-block" style={{ height: 14, width: 100, borderRadius: 4, marginLeft: 10 }} />
+              <div className="skeleton-block" style={{ height: 28, width: 32, borderRadius: 4, marginLeft: "auto" }} />
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 24 }}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="skeleton-block" style={{ height: 14, width: `${85 - i * 10}%`, borderRadius: 4, marginBottom: 10 }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── ハイライト動画 ───────────────────────────────────────────────────────────
 function GameHighlights({ gamePk }) {
   const [highlights, setHighlights] = useState([]);
@@ -31,7 +84,11 @@ function GameHighlights({ gamePk }) {
     return () => { alive = false; };
   }, [gamePk]);
 
-  if (loading) return <p className="compare-loading">Loading highlights…</p>;
+  if (loading) return (
+    <div className="highlight-grid">
+      {Array.from({ length: 6 }, (_, i) => <SkeletonHighlightCard key={i} />)}
+    </div>
+  );
   if (highlights.length === 0) {
     return (
       <div className="home-empty-state">
@@ -91,7 +148,11 @@ function PlayByPlay({ gamePk }) {
     return () => { active = false; };
   }, [gamePk]);
 
-  if (loading) return <p className="compare-loading">Loading plays…</p>;
+  if (loading) return (
+    <div className="pbp-list">
+      {Array.from({ length: 8 }, (_, i) => <SkeletonPlayRow key={i} />)}
+    </div>
+  );
   if (plays.length === 0) {
     return (
       <div className="home-empty-state">
@@ -264,7 +325,7 @@ function GamePage() {
     };
   }, [gamePk]);
 
-  if (loading) return <p className="compare-loading">Loading game…</p>;
+  if (loading) return <SkeletonGamePage />;
   if (error) return <p className="error-message">{error}</p>;
   if (!game) return null;
 

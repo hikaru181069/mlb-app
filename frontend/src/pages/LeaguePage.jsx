@@ -36,6 +36,104 @@ const DIVISION_ORDER = [
 
 const LEAGUE_ORDER = ["American League", "National League"];
 
+// ── Skeleton helpers ─────────────────────────────────────────────────────────
+
+function SkeletonStandingsRow() {
+  return (
+    <div className="standings-row">
+      <div className="standings-team-col">
+        <div className="skeleton-block" style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0 }} />
+        <div className="skeleton-block" style={{ width: 88, height: 13, borderRadius: 3 }} />
+      </div>
+      {[28, 28, 40, 34, 40, 36].map((w, i) => (
+        <div key={i} className="skeleton-block" style={{ height: 11, width: w * 0.55, borderRadius: 3, margin: "0 auto" }} />
+      ))}
+    </div>
+  );
+}
+
+function SkeletonStandingsDivision() {
+  return (
+    <div className="standings-division">
+      <div className="skeleton-block" style={{ height: 14, width: 130, borderRadius: 4, margin: "12px 16px 8px" }} />
+      <div className="standings-table">
+        <div className="standings-row standings-row--head">
+          <span className="standings-team-col">Team</span>
+          <span>W</span><span>L</span><span>PCT</span><span>GB</span>
+          <span className="standings-hide-sm">L10</span>
+          <span className="standings-hide-sm">STRK</span>
+        </div>
+        {Array.from({ length: 5 }, (_, i) => <SkeletonStandingsRow key={i} />)}
+      </div>
+    </div>
+  );
+}
+
+function SkeletonStandingsTab() {
+  return (
+    <div className="standings-grid">
+      {["American League", "National League"].map((league) => (
+        <section key={league} className="standings-league-column">
+          <h2 className="standings-league-title">{league}</h2>
+          {Array.from({ length: 3 }, (_, i) => <SkeletonStandingsDivision key={i} />)}
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function SkeletonLeaderRow() {
+  return (
+    <div className="leaders-list-row" style={{ pointerEvents: "none" }}>
+      <div className="skeleton-block leaders-rank" style={{ width: 18, height: 14, borderRadius: 3 }} />
+      <div className="skeleton-block leaders-list-headshot" />
+      <div className="leaders-list-info" style={{ flex: 1 }}>
+        <div className="skeleton-block" style={{ width: 110, height: 14, borderRadius: 3 }} />
+        <div className="skeleton-block" style={{ width: 80, height: 11, borderRadius: 3, marginTop: 4 }} />
+      </div>
+      <div className="skeleton-block" style={{ width: 38, height: 16, borderRadius: 3 }} />
+    </div>
+  );
+}
+
+function SkeletonLeadersTab() {
+  return (
+    <div className="leaders-tabs-wrap">
+      <div className="leaders-tab-bar">
+        <div className="skeleton-block" style={{ height: 32, width: 80, borderRadius: 8 }} />
+        <div className="skeleton-block" style={{ height: 32, width: 80, borderRadius: 8 }} />
+      </div>
+      <div className="leaders-cat-chips" style={{ marginTop: 12 }}>
+        {Array.from({ length: 5 }, (_, i) => (
+          <div key={i} className="skeleton-block" style={{ height: 28, width: 48, borderRadius: 20 }} />
+        ))}
+      </div>
+      <div className="leaders-list" style={{ marginTop: 12 }}>
+        {Array.from({ length: 5 }, (_, i) => <SkeletonLeaderRow key={i} />)}
+      </div>
+    </div>
+  );
+}
+
+function SkeletonScoreCard() {
+  return (
+    <div className="score-card">
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <div className="skeleton-block" style={{ height: 11, width: 50, borderRadius: 3 }} />
+      </div>
+      {[0, 1].map((i) => (
+        <div key={i} className="score-team-row">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div className="skeleton-block" style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0 }} />
+            <div className="skeleton-block" style={{ width: 100, height: 13, borderRadius: 3 }} />
+          </div>
+          <div className="skeleton-block" style={{ width: 22, height: 18, borderRadius: 3 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Standings タブ ───────────────────────────────────────────────────────────
 function StandingsTab({ season }) {
   const [divisions, setDivisions] = useState([]);
@@ -65,7 +163,7 @@ function StandingsTab({ season }) {
     fetchData();
   }, [season, retryKey]);
 
-  if (loading) return <p className="compare-loading">Loading standings…</p>;
+  if (loading) return <SkeletonStandingsTab />;
   if (error) return <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />;
 
   const divisionsByLeague = LEAGUE_ORDER.map((league) => ({
@@ -189,7 +287,11 @@ function ScoresTab() {
         </button>
       </div>
 
-      {loading && <p className="compare-loading">Loading scores…</p>}
+      {loading && (
+        <div className="scores-grid">
+          {Array.from({ length: 10 }, (_, i) => <SkeletonScoreCard key={i} />)}
+        </div>
+      )}
       {error && <p className="error-message">{error}</p>}
 
       {!loading && !error && games.length === 0 && (
@@ -230,7 +332,7 @@ function WildCardTab({ season }) {
     fetchData();
   }, [season, retryKey]);
 
-  if (loading) return <p className="compare-loading">Loading wild card…</p>;
+  if (loading) return <SkeletonStandingsTab />;
   if (error)   return <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />;
 
   return (
@@ -310,7 +412,7 @@ function LeadersTab() {
 
   const handleTabChange = (next) => { setTab(next); setCatIdx(0); };
 
-  if (loading) return <p className="compare-loading">Loading leaders…</p>;
+  if (loading) return <SkeletonLeadersTab />;
 
   return (
     <div className="leaders-tabs-wrap">
@@ -372,7 +474,7 @@ function HotTab() {
 
   const players = tab === "hitters" ? hitters : pitchers;
 
-  if (loading) return <p className="compare-loading">Loading hot players…</p>;
+  if (loading) return <SkeletonLeadersTab />;
 
   return (
     <div className="leaders-tabs-wrap home-hot-section">

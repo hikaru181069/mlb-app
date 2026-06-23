@@ -46,7 +46,19 @@ function PlayerYearByYear({ playerId, playerType }) {
   const rows = isPitcher ? data.pitching : data.hitting;
   const cols = isPitcher ? PITCHER_COLS : HITTER_COLS;
 
-  if (loading) return <p className="compare-loading">Loading career stats…</p>;
+  if (loading) return (
+    <div className="yby-table-wrap">
+      {Array.from({ length: 5 }, (_, i) => (
+        <div key={i} style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          <div className="skeleton-block" style={{ height: 14, width: 40, borderRadius: 3 }} />
+          <div className="skeleton-block" style={{ height: 14, width: 60, borderRadius: 3 }} />
+          {Array.from({ length: 5 }, (__, j) => (
+            <div key={j} className="skeleton-block" style={{ height: 14, width: 36, borderRadius: 3 }} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
   if (!rows || rows.length === 0) return null;
 
   return (

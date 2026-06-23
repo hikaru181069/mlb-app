@@ -14,6 +14,32 @@ import ErrorCard from "../components/ErrorCard";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getMatchupStats, getMatchupPrediction } from "../services/api/matchupApi";
 
+function SkeletonMatchupStats() {
+  return (
+    <div className="matchup-stats-wrap">
+      <div className="skeleton-block" style={{ height: 16, width: 180, borderRadius: 4, margin: "0 auto 20px" }} />
+      <div className="mstats-summary">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="mstats-pill">
+            <div className="skeleton-block" style={{ height: 24, width: 38, borderRadius: 4 }} />
+            <div className="skeleton-block" style={{ height: 11, width: 22, borderRadius: 3, marginTop: 4 }} />
+          </div>
+        ))}
+      </div>
+      <div className="mstats-bars" style={{ marginTop: 20 }}>
+        <div className="skeleton-block" style={{ height: 13, width: 80, borderRadius: 4, marginBottom: 14 }} />
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="mbar-row">
+            <div className="skeleton-block" style={{ height: 12, width: 36, borderRadius: 3 }} />
+            <div className="skeleton-block" style={{ flex: 1, height: 8, borderRadius: 4 }} />
+            <div className="skeleton-block" style={{ height: 12, width: 40, borderRadius: 3 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const SUGGESTED_MATCHUPS = [
   { label: "Cole vs Judge",    pitcher: 543037, batter: 592450 },
   { label: "Kershaw vs Betts", pitcher: 477132, batter: 605141 },
@@ -324,7 +350,7 @@ function MatchupPage() {
 
       <div className="screen-body px-6 py-6 w-full">
         {loadingInit ? (
-          <p className="compare-loading">Loading players…</p>
+          <SkeletonMatchupStats />
         ) : (
           <>
             {/* 選手選択スロット */}
@@ -369,9 +395,7 @@ function MatchupPage() {
             )}
 
             {/* MLB Stats API 実際の対戦成績 */}
-            {loading && (
-              <p className="compare-loading">Loading matchup stats…</p>
-            )}
+            {loading && <SkeletonMatchupStats />}
 
             {error && <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />}
 
