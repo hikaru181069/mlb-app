@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PlayerSearchSelect from "../components/PlayerSearchSelect";
 import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getMatchupStats, getMatchupPrediction } from "../services/api/matchupApi";
 
@@ -235,6 +236,7 @@ function MatchupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [loadingInit, setLoadingInit] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   // URL params から選手を自動ロード (PlayerDetailPage からの導線)
   useEffect(() => {
@@ -285,7 +287,7 @@ function MatchupPage() {
       }
     };
     fetchAll();
-  }, [pitcher, batter]);
+  }, [pitcher, batter, retryKey]);
 
   // 選手選択時に URL params を更新（ブックマーク・共有対応）
   const handleSetPitcher = (p) => {
@@ -371,7 +373,7 @@ function MatchupPage() {
               <p className="compare-loading">Loading matchup stats…</p>
             )}
 
-            {error && <p className="error-message">{error}</p>}
+            {error && <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />}
 
             {!loading && matchupStats && (
               matchupStats.hasData ? (
