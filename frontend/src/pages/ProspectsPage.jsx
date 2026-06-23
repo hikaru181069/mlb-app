@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { TrendingUp } from "lucide-react";
 
 import { getAuthToken } from "../utils/authStorage";
 import { getProspectRecommendations } from "../services/api/recommendationApi";
@@ -161,6 +162,7 @@ function ProspectsPage() {
     return (
       <div className="home-page px-6 py-16">
         <div className="home-empty-state">
+          <span className="empty-state-icon"><TrendingUp size={36} strokeWidth={1.5} /></span>
           <p className="empty-state-title">Login to see prospects</p>
           <p className="empty-state-desc">We match minor league prospects to your favorite players.</p>
           <div className="home-actions">
