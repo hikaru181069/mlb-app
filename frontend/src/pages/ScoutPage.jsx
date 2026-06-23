@@ -7,20 +7,20 @@ import { fetchPlayerSuggestions } from "../services/api/externalPlayerApi";
 import { getScoutingReport } from "../services/api/scoutApi";
 
 const HITTER_STAT_META = [
-  { key: "ops",         label: "OPS",        short: "OPS", desc: "On-base + Slugging" },
-  { key: "homeRuns",    label: "Power",       short: "HR",  desc: "Home Runs" },
-  { key: "stolenBases", label: "Speed",       short: "SB",  desc: "Stolen Bases" },
-  { key: "avg",         label: "Batting Avg", short: "AVG", desc: "AVG" },
-  { key: "rbi",         label: "RBI",         short: "RBI", desc: "Runs Batted In" },
+  { key: "ops",         label: "OPS",  short: "OPS", fmt: (v) => v?.toFixed(3) },
+  { key: "homeRuns",    label: "HR",   short: "HR",  fmt: (v) => v },
+  { key: "stolenBases", label: "SB",   short: "SB",  fmt: (v) => v },
+  { key: "avg",         label: "AVG",  short: "AVG", fmt: (v) => v?.toFixed(3) },
+  { key: "rbi",         label: "RBI",  short: "RBI", fmt: (v) => v },
 ];
 
 const PITCHER_STAT_META = [
-  { key: "era",        label: "ERA",        short: "ERA",  desc: "Earned Run Avg (lower = better)" },
-  { key: "whip",       label: "WHIP",       short: "WHIP", desc: "Walks + Hits per IP" },
-  { key: "strikeouts", label: "Strikeouts", short: "K",    desc: "Total K this season" },
-  { key: "walks",      label: "Control",    short: "BB",   desc: "BB allowed (fewer = better)" },
-  { key: "wins",       label: "Wins",       short: "W",    desc: "Wins this season" },
-  { key: "innings",    label: "Durability", short: "IP",   desc: "Innings Pitched" },
+  { key: "era",        label: "ERA",  short: "ERA",  fmt: (v) => v?.toFixed(2),  lowerIsBetter: true },
+  { key: "whip",       label: "WHIP", short: "WHIP", fmt: (v) => v?.toFixed(3),  lowerIsBetter: true },
+  { key: "strikeouts", label: "K",    short: "K",    fmt: (v) => v },
+  { key: "walks",      label: "BB",   short: "BB",   fmt: (v) => v,             lowerIsBetter: true },
+  { key: "wins",       label: "W",    short: "W",    fmt: (v) => v },
+  { key: "innings",    label: "IP",   short: "IP",   fmt: (v) => v?.toFixed(1) },
 ];
 
 function percentileColor(pct) {
@@ -30,9 +30,21 @@ function percentileColor(pct) {
   return "var(--ctp-red)";
 }
 
-function PercentileBar({ label, desc, percentile, index = 0 }) {
+// パーセンタイルからMLBランキング順位を計算（上位200名プール基準）
+const percentileToRank = (pct) => Math.max(1, Math.round((1 - pct / 100) * 200));
+
+// 順位を序数に変換（1 → "1st", 2 → "2nd", 3 → "3rd", 4 → "4th"）
+const ordinal = (n) => {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+function PercentileBar({ label, percentile, index = 0, value, fmt, lowerIsBetter = false }) {
   const [width, setWidth] = useState(0);
   const color = percentileColor(percentile);
+  const rank = percentileToRank(percentile);
+  const displayValue = value != null && fmt ? fmt(value) : null;
 
   useEffect(() => {
     const timer = setTimeout(() => setWidth(percentile), 80 + index * 80);
@@ -42,8 +54,13 @@ function PercentileBar({ label, desc, percentile, index = 0 }) {
   return (
     <div className="scout-stat-row">
       <div className="scout-stat-label">
-        <span className="scout-stat-name">{label}</span>
-        <span className="scout-stat-desc">{desc}</span>
+        <span className="scout-stat-name-row">
+          <span className="scout-stat-name">{label}</span>
+          {lowerIsBetter && <span className="scout-stat-lower-badge">↓</span>}
+        </span>
+        {displayValue != null && (
+          <span className="scout-stat-actual">{displayValue}</span>
+        )}
       </div>
       <div className="scout-bar-wrap">
         <div
@@ -52,8 +69,7 @@ function PercentileBar({ label, desc, percentile, index = 0 }) {
         />
       </div>
       <span className="scout-stat-pct" style={{ color }}>
-        {percentile}
-        <sup>th</sup>
+        {ordinal(rank)}
       </span>
     </div>
   );
@@ -190,7 +206,7 @@ function OverallScore({ percentiles }) {
   );
 }
 
-function ScoutReport({ data }) {
+function ScoutReport({ data, playerId }) {
   const { player, stats, report } = data;
 
   return (
@@ -204,11 +220,16 @@ function ScoutReport({ data }) {
           onError={(e) => { e.currentTarget.style.display = "none"; }}
         />
         <div className="scout-report-info">
-          <h2 className="scout-report-name">{player.fullName}</h2>
+          <Link to={`/players/${playerId}`} className="scout-report-name-link">
+            <h2 className="scout-report-name">{player.fullName}</h2>
+          </Link>
           <p className="scout-report-meta">
             {player.currentTeam} · {player.position}
           </p>
           {report?.playerType && <PlayerTypeTag type={report.playerType} />}
+          <Link to={`/players/${playerId}`} className="scout-profile-link">
+            View Full Profile →
+          </Link>
         </div>
         {report?.percentiles && (
           <OverallScore percentiles={report.percentiles} />
@@ -254,13 +275,15 @@ function ScoutReport({ data }) {
                 statMeta={player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META}
               />
               <div className="scout-stat-list">
-                {(player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META).map(({ key, label, desc }, i) => (
+                {(player.playerType === "pitcher" ? PITCHER_STAT_META : HITTER_STAT_META).map(({ key, label, fmt, lowerIsBetter = false }, i) => (
                   <PercentileBar
                     key={key}
                     label={label}
-                    desc={desc}
                     percentile={report.percentiles[key] ?? 50}
                     index={i}
+                    value={stats[key]}
+                    fmt={fmt}
+                    lowerIsBetter={lowerIsBetter}
                   />
                 ))}
               </div>
@@ -508,7 +531,7 @@ function ScoutPage() {
             )}
             {error && <p className="error-message">{error}</p>}
             {!loading && !error && reportData && (
-              <ScoutReport data={reportData} />
+              <ScoutReport data={reportData} playerId={playerId} />
             )}
           </>
         )}
