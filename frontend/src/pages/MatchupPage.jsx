@@ -13,6 +13,12 @@ import PageHeader from "../components/PageHeader";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getMatchupStats, getMatchupPrediction } from "../services/api/matchupApi";
 
+const SUGGESTED_MATCHUPS = [
+  { label: "Cole vs Judge",    pitcher: 543037, batter: 592450 },
+  { label: "Kershaw vs Betts", pitcher: 477132, batter: 605141 },
+  { label: "Cole vs Soto",     pitcher: 543037, batter: 665742 },
+];
+
 // レートスタット: 棒グラフで視覚化（max は現実的な上限値）
 const RATE_STATS = [
   { key: "avg", label: "AVG", desc: "Batting Average", max: 1.0 },
@@ -377,10 +383,35 @@ function MatchupPage() {
               )
             )}
 
+            {/* Compare へのクロスリンク */}
+            {bothSelected && !loading && batter && (
+              <div className="compare-crosslink-row">
+                <Link
+                  to={`/compare?p1=${batter.mlbPlayerId}`}
+                  className="compare-crosslink"
+                >
+                  Compare Batter Stats →
+                </Link>
+              </div>
+            )}
+
             {/* 未選択の案内 */}
             {!bothSelected && !loading && (
-              <div className="tool-placeholder">
-                <p>Select a pitcher and a batter to view head-to-head stats.</p>
+              <div className="compare-empty">
+                <p className="compare-empty-hint">
+                  Select a pitcher and a batter — or try a quick pick:
+                </p>
+                <div className="compare-quick-picks">
+                  {SUGGESTED_MATCHUPS.map(({ label, pitcher, batter: b }) => (
+                    <Link
+                      key={label}
+                      to={`/matchup?pitcher=${pitcher}&batter=${b}`}
+                      className="compare-quick-pick"
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
           </>

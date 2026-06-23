@@ -3536,6 +3536,70 @@ button:disabled,
   padding: 40px 0;
 }
 
+/* ── Compare / Matchup empty state ── */
+
+.compare-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 36px 16px;
+}
+
+.compare-empty-hint {
+  margin: 0;
+  color: var(--ctp-subtext0);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.compare-quick-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.compare-quick-pick {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-overlay0);
+  color: var(--ctp-text);
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.compare-quick-pick:hover {
+  background: var(--ctp-surface1);
+  border-color: var(--ctp-blue);
+  color: var(--ctp-blue);
+}
+
+/* ── Cross-page navigation link ── */
+
+.compare-crosslink-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.compare-crosslink {
+  font-size: 0.85rem;
+  color: var(--ctp-blue);
+  text-decoration: none;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--ctp-blue);
+  transition: background 0.15s;
+}
+
+.compare-crosslink:hover {
+  background: rgba(137, 180, 250, 0.12);
+}
+
 /* ── Battle result (VS animation + bar graphs) ── */
 
 @keyframes cbattle-slide-left {

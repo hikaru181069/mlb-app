@@ -5,6 +5,14 @@ import PageHeader from "../components/PageHeader";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getCompareAnalysis } from "../services/api/compareApi";
 
+// Quick-pick pairs for the empty state — links to URL params so existing loader handles them
+const SUGGESTED_PAIRS = [
+  { label: "Judge vs Soto",     p1: 592450, p2: 665742 },
+  { label: "Betts vs Acuña",    p1: 605141, p2: 660670 },
+  { label: "Freeman vs Trout",  p1: 518692, p2: 545361 },
+  { label: "Cole vs Kershaw",   p1: 543037, p2: 477132 },
+];
+
 // --- stat definitions ---
 const HITTER_STATS = [
   { key: "gamesPlayed",    label: "G",   higherIsBetter: true },
@@ -290,21 +298,21 @@ function ComparePage() {
   const [analysis, setAnalysis] = useState(null);
   const [loadingInit, setLoadingInit] = useState(false);
 
-  // URL params から自動ロード (Favorites 経由)
+  // URL params から自動ロード (Favorites / Matchup クロスリンク経由)
   useEffect(() => {
     const p1 = searchParams.get("p1");
     const p2 = searchParams.get("p2");
-    if (!p1 || !p2) return;
+    if (!p1 && !p2) return;
 
     const load = async () => {
       setLoadingInit(true);
       try {
         const [d1, d2] = await Promise.all([
-          getExternalPlayerDetail(p1),
-          getExternalPlayerDetail(p2),
+          p1 ? getExternalPlayerDetail(p1) : Promise.resolve(null),
+          p2 ? getExternalPlayerDetail(p2) : Promise.resolve(null),
         ]);
-        setPlayer1(d1);
-        setPlayer2(d2);
+        if (d1) setPlayer1(d1);
+        if (d2) setPlayer2(d2);
       } catch {
         // silent fallback
       } finally {
@@ -384,9 +392,43 @@ function ComparePage() {
               />
             )}
 
+            {/* Pitcher vs Batter 対戦ページへのクロスリンク */}
+            {bothLoaded && (() => {
+              const isPitcher1 = player1?.playerType === "pitcher";
+              const isPitcher2 = player2?.playerType === "pitcher";
+              if (isPitcher1 !== isPitcher2) {
+                const pitcherId = isPitcher1 ? player1.mlbPlayerId : player2.mlbPlayerId;
+                const batterId  = isPitcher1 ? player2.mlbPlayerId : player1.mlbPlayerId;
+                return (
+                  <div className="compare-crosslink-row">
+                    <Link
+                      to={`/matchup?pitcher=${pitcherId}&batter=${batterId}`}
+                      className="compare-crosslink"
+                    >
+                      View Head-to-Head Matchup →
+                    </Link>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             {!bothLoaded && (
-              <div className="tool-placeholder">
-                <p>Select two players to compare their season stats.</p>
+              <div className="compare-empty">
+                <p className="compare-empty-hint">
+                  Search for any two players, or try a quick pick:
+                </p>
+                <div className="compare-quick-picks">
+                  {SUGGESTED_PAIRS.map(({ label, p1, p2 }) => (
+                    <Link
+                      key={label}
+                      to={`/compare?p1=${p1}&p2=${p2}`}
+                      className="compare-quick-pick"
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
           </>
