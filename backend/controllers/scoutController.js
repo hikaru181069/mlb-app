@@ -1,8 +1,10 @@
 const { fetchExternalPlayerFullDetails } = require("../services/mlb");
 const { fetchLeagueStats } = require("../services/mlb/leagueStatsService");
 const { fetchScoutingReport } = require("../services/fastApiService");
+const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("../services/mlb/baseballSavantService");
 
 const buildHitterPayload = (playerData, leagueStats) => {
+  const id          = Number(playerData.mlbPlayerId);
   const hitterStats = playerData.currentSeasonStats?.hitterStats || {};
   return {
     player: {
@@ -10,7 +12,10 @@ const buildHitterPayload = (playerData, leagueStats) => {
       homeRuns:    parseInt(hitterStats.homeRuns)         || 0,
       stolenBases: parseInt(hitterStats.stolenBases)      || 0,
       avg:         parseFloat(hitterStats.battingAverage) || 0,
-      rbi:         parseInt(hitterStats.rbis)              || 0,
+      rbi:         parseInt(hitterStats.rbis)             || 0,
+      oaa:         getOaaMap()[id]                        ?? null,
+      sprintSpeed: getSprintSpeedMap()[id]                ?? 0,
+      armStrength: getArmStrengthMap()[id]                ?? 0,
     },
     leagueStats:       leagueStats.hitter.distributions,
     comparablePlayers: leagueStats.hitter.players,
@@ -56,8 +61,16 @@ const getScoutingReport = async (req, res) => {
       ? buildPitcherPayload(playerData, leagueStats)
       : buildHitterPayload(playerData, leagueStats);
 
+    // 規定打席 / 規定投球回 チェック
+    const hitterStats  = playerData.currentSeasonStats?.hitterStats  || {};
+    const pitcherStats = playerData.currentSeasonStats?.pitcherStats || {};
+    const isQualified  = isPitcher
+      ? parseFloat(pitcherStats.inningsPitched || 0) >= (leagueStats.qualifyingIP || 0)
+      : parseInt(hitterStats.plateAppearances  || 0) >= (leagueStats.qualifyingPA || 0);
+
     const report = await fetchScoutingReport({
-      playerType: isPitcher ? "pitcher" : "hitter",
+      playerType:     isPitcher ? "pitcher" : "hitter",
+      playerPosition: playerData.positionAbbr || "",
       playerIdToExclude: id,
       ...statsPayload,
     });
@@ -72,10 +85,12 @@ const getScoutingReport = async (req, res) => {
         id: playerData.mlbPlayerId,
         fullName: playerData.name,
         currentTeam: playerData.team,
-        position: playerData.position,
+        position:     playerData.position,
+        positionAbbr: playerData.positionAbbr,
         image: playerData.image,
         playerType: isPitcher ? "pitcher" : "hitter",
       },
+      isQualified,
       stats,
       report,
     });

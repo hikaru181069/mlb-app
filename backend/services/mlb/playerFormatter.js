@@ -14,7 +14,8 @@ const formatExternalPlayer = (player) => {
     name: player.fullName,
     team: player.currentTeam?.name || "Unknown",
     teamId: player.currentTeam?.id || null,
-    position: player.primaryPosition?.name || "Unknown",
+    position:     player.primaryPosition?.name         || "Unknown",
+    positionAbbr: player.primaryPosition?.abbreviation || "",
     playerType:
       player.primaryPosition?.name === "Pitcher" ? "pitcher" : "hitter",
     image: buildPlayerHeadshotUrl(player.id),
@@ -39,6 +40,7 @@ const formatExternalStats = (stats = []) => {
     hitterStats: hittingSplit
       ? {
           gamesPlayed: hittingSplit.stat.gamesPlayed,
+          plateAppearances: hittingSplit.stat.plateAppearances,
           atBats: hittingSplit.stat.atBats,
           runs: hittingSplit.stat.runs,
           hits: hittingSplit.stat.hits,

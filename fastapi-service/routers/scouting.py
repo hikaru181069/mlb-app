@@ -4,6 +4,8 @@
 Express からリーグ分布データを受け取るため、FastAPI 側は MLB API を叩かない。
 """
 
+from typing import Optional
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -25,6 +27,9 @@ class ScoutingStats(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    oaa: Optional[float] = None
+    sprintSpeed: float = 0
+    armStrength: float = 0
 
 
 class LeagueStatsDistribution(BaseModel):
@@ -33,6 +38,10 @@ class LeagueStatsDistribution(BaseModel):
     stolenBases: list[float] = []
     avg: list[float] = []
     rbi: list[float] = []
+    oaa: list[float] = []
+    oaaByPosition: dict[str, list[float]] = {}
+    sprintSpeed: list[float] = []
+    armStrength: list[float] = []
 
 
 class LeaguePlayer(BaseModel):
@@ -44,6 +53,8 @@ class LeaguePlayer(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    sprintSpeed: float = 0
+    armStrength: float = 0
 
 
 # ── 投手モデル ──────────────────────────────────────────────────────────────────
@@ -82,6 +93,7 @@ class PitcherLeaguePlayer(BaseModel):
 
 class ScoutingReportRequest(BaseModel):
     playerType: str = "hitter"
+    playerPosition: str = ""
     playerIdToExclude: int = 0
     # 野手フィールド
     player: ScoutingStats = ScoutingStats()
@@ -103,6 +115,7 @@ class ComparablePlayer(BaseModel):
 
 class ScoutingReportResponse(BaseModel):
     percentiles: dict[str, int]
+    poolSizes: dict[str, int] = {}
     playerType: str
     strengths: list[str]
     weaknesses: list[str]
@@ -127,6 +140,9 @@ HITTER_STRENGTH_LABELS = {
     "stolenBases": "Exceptional Speed",
     "avg":         "High Batting Average",
     "rbi":         "Run Producer",
+    "oaa":         "Elite Defender",
+    "sprintSpeed": "Elite Sprinter",
+    "armStrength": "Strong Arm",
 }
 
 HITTER_WEAKNESS_LABELS = {
@@ -135,6 +151,9 @@ HITTER_WEAKNESS_LABELS = {
     "stolenBases": "Below Average Speed",
     "avg":         "Low Batting Average",
     "rbi":         "Low RBI Production",
+    "oaa":         "Below Average Defense",
+    "sprintSpeed": "Below Average Sprint Speed",
+    "armStrength": "Weak Arm",
 }
 
 
@@ -142,6 +161,13 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
     p = req.player
     dist = req.leagueStats
 
+    pool_sizes = {
+        "ops":         len(dist.ops),
+        "homeRuns":    len(dist.homeRuns),
+        "stolenBases": len(dist.stolenBases),
+        "avg":         len(dist.avg),
+        "rbi":         len(dist.rbi),
+    }
     percentiles = {
         "ops":         calc_percentile(p.ops,         dist.ops),
         "homeRuns":    calc_percentile(p.homeRuns,    dist.homeRuns),
@@ -149,6 +175,19 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
         "avg":         calc_percentile(p.avg,         dist.avg),
         "rbi":         calc_percentile(p.rbi,         dist.rbi),
     }
+    # OAA: ポジション別分布を優先。サンプル数 < 10 なら全体分布にフォールバック
+    if p.oaa is not None:
+        pos_dist = dist.oaaByPosition.get(req.playerPosition, [])
+        oaa_dist = pos_dist if len(pos_dist) >= 10 else dist.oaa
+        if oaa_dist:
+            percentiles["oaa"] = calc_percentile(p.oaa, oaa_dist)
+            pool_sizes["oaa"]  = len(oaa_dist)
+    if p.sprintSpeed > 0 and dist.sprintSpeed:
+        percentiles["sprintSpeed"] = calc_percentile(p.sprintSpeed, dist.sprintSpeed)
+        pool_sizes["sprintSpeed"]  = len(dist.sprintSpeed)
+    if p.armStrength > 0 and dist.armStrength:
+        percentiles["armStrength"] = calc_percentile(p.armStrength, dist.armStrength)
+        pool_sizes["armStrength"]  = len(dist.armStrength)
 
     player_type = "Solid Regular"
     for type_name, condition in HITTER_TYPE_THRESHOLDS:
@@ -169,6 +208,7 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
 
     return ScoutingReportResponse(
         percentiles=percentiles,
+        poolSizes=pool_sizes,
         playerType=player_type,
         strengths=strengths,
         weaknesses=weaknesses,
@@ -216,6 +256,14 @@ def _scouting_report_pitcher(req: ScoutingReportRequest) -> ScoutingReportRespon
     p = req.pitcherPlayer
     dist = req.pitcherLeagueStats
 
+    pool_sizes = {
+        "era":        len(dist.era),
+        "whip":       len(dist.whip),
+        "strikeouts": len(dist.strikeouts),
+        "walks":      len(dist.walks),
+        "wins":       len(dist.wins),
+        "innings":    len(dist.innings),
+    }
     percentiles = {
         "era":        calc_percentile(p.era,        dist.era,        higher_is_better=False),
         "whip":       calc_percentile(p.whip,       dist.whip,       higher_is_better=False),
@@ -244,6 +292,7 @@ def _scouting_report_pitcher(req: ScoutingReportRequest) -> ScoutingReportRespon
 
     return ScoutingReportResponse(
         percentiles=percentiles,
+        poolSizes=pool_sizes,
         playerType=player_type,
         strengths=strengths,
         weaknesses=weaknesses,
