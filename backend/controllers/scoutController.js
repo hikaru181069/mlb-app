@@ -63,7 +63,7 @@ const getScoutingReport = async (req, res) => {
 
     const report = await fetchScoutingReport({
       playerType:     isPitcher ? "pitcher" : "hitter",
-      playerPosition: playerData.position || "",
+      playerPosition: playerData.positionAbbr || "",
       playerIdToExclude: id,
       ...statsPayload,
     });
@@ -78,7 +78,8 @@ const getScoutingReport = async (req, res) => {
         id: playerData.mlbPlayerId,
         fullName: playerData.name,
         currentTeam: playerData.team,
-        position: playerData.position,
+        position:     playerData.position,
+        positionAbbr: playerData.positionAbbr,
         image: playerData.image,
         playerType: isPitcher ? "pitcher" : "hitter",
       },

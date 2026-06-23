@@ -219,8 +219,8 @@ function ScoutReport({ data, playerId }) {
     ? baseStatMeta
         .filter(({ key }) => report.percentiles[key] !== undefined)
         .map((m) =>
-          m.key === "oaa" && player.position
-            ? { ...m, label: `OAA (${player.position})` }
+          m.key === "oaa" && player.positionAbbr
+            ? { ...m, label: `OAA (${player.positionAbbr})` }
             : m
         )
     : baseStatMeta;
