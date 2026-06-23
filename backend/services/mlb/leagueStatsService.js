@@ -37,7 +37,7 @@ async function fetchAllHitterStats() {
   const sprintSpeedMap  = getSprintSpeedMap();
   const armStrengthMap  = getArmStrengthMap();
 
-  // 打席数が少なすぎる選手（投手の打席など）をフィルタリング
+  // 30+ AB: 投手打席・極端な限定出場を除外。類似選手プール用
   const players = splits
     .filter((s) => s.player?.id && (parseInt(s.stat?.atBats) || 0) >= 30)
     .map((s) => ({
@@ -45,20 +45,28 @@ async function fetchAllHitterStats() {
       name:        s.player.fullName || "",
       team:        s.team?.name     || "",
       position:    s.player.primaryPosition?.abbreviation || "",
-      ops:         parseFloat(s.stat.ops)          || 0,
-      homeRuns:    parseInt(s.stat.homeRuns)        || 0,
-      stolenBases: parseInt(s.stat.stolenBases)     || 0,
-      avg:         parseFloat(s.stat.avg)           || 0,
-      rbi:         parseInt(s.stat.rbi)             || 0,
-      oaa:         oaaMap[s.player.id]              ?? 0,
-      sprintSpeed: sprintSpeedMap[s.player.id]      ?? 0,
-      armStrength: armStrengthMap[s.player.id]      ?? 0,
+      atBats:      parseInt(s.stat.atBats)          || 0,
+      ops:         parseFloat(s.stat.ops)            || 0,
+      homeRuns:    parseInt(s.stat.homeRuns)         || 0,
+      stolenBases: parseInt(s.stat.stolenBases)      || 0,
+      avg:         parseFloat(s.stat.avg)            || 0,
+      rbi:         parseInt(s.stat.rbi)              || 0,
+      oaa:         oaaMap[s.player.id]               ?? 0,
+      sprintSpeed: sprintSpeedMap[s.player.id]       ?? 0,
+      armStrength: armStrengthMap[s.player.id]       ?? 0,
     }));
+
+  // 100+ AB: 一定以上出場した選手だけをパーセンタイル計算の母集団とする
+  // 30AB 閾値だとベンチ・コールアップが多く含まれ、平均的な成績が低く見えるため
+  const DIST_AB_MIN = 100;
+  const distPlayers = players.filter((p) => p.atBats >= DIST_AB_MIN);
+  // シーズン序盤で 100AB 到達者が少ない場合は全体にフォールバック
+  const ref = distPlayers.length >= 50 ? distPlayers : players;
 
   // OAA をポジション別に分類（CSVの primary_pos_formatted を使用）
   // Stats API の splits には primaryPosition が含まれないため、OAA CSV のポジションを使う
   const oaaByPosition = {};
-  for (const p of players) {
+  for (const p of ref) {
     if (oaaMap[p.playerId] !== undefined) {
       const pos = oaaPositionMap[p.playerId];
       if (pos) {
@@ -71,12 +79,12 @@ async function fetchAllHitterStats() {
   // パーセンタイル計算用の分布配列（ゼロを除外して意味のある値のみ）
   // OAA は負の値も有効なため、CSV に存在する選手のみを対象にする
   const distributions = {
-    ops:            players.map((p) => p.ops).filter((v) => v > 0),
-    homeRuns:       players.map((p) => p.homeRuns),
-    stolenBases:    players.map((p) => p.stolenBases),
-    avg:            players.map((p) => p.avg).filter((v) => v > 0),
-    rbi:            players.map((p) => p.rbi),
-    oaa:            players.filter((p) => oaaMap[p.playerId] !== undefined).map((p) => p.oaa),
+    ops:            ref.map((p) => p.ops).filter((v) => v > 0),
+    homeRuns:       ref.map((p) => p.homeRuns),
+    stolenBases:    ref.map((p) => p.stolenBases),
+    avg:            ref.map((p) => p.avg).filter((v) => v > 0),
+    rbi:            ref.map((p) => p.rbi),
+    oaa:            ref.filter((p) => oaaMap[p.playerId] !== undefined).map((p) => p.oaa),
     oaaByPosition,
     sprintSpeed:    players.map((p) => p.sprintSpeed).filter((v) => v > 0),
     armStrength:    players.map((p) => p.armStrength).filter((v) => v > 0),
