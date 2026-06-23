@@ -4,6 +4,8 @@
 Express からリーグ分布データを受け取るため、FastAPI 側は MLB API を叩かない。
 """
 
+from typing import Optional
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -25,6 +27,7 @@ class ScoutingStats(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    oaa: Optional[float] = None
     sprintSpeed: float = 0
     armStrength: float = 0
 
@@ -35,6 +38,7 @@ class LeagueStatsDistribution(BaseModel):
     stolenBases: list[float] = []
     avg: list[float] = []
     rbi: list[float] = []
+    oaa: list[float] = []
     sprintSpeed: list[float] = []
     armStrength: list[float] = []
 
@@ -133,6 +137,7 @@ HITTER_STRENGTH_LABELS = {
     "stolenBases": "Exceptional Speed",
     "avg":         "High Batting Average",
     "rbi":         "Run Producer",
+    "oaa":         "Elite Defender",
     "sprintSpeed": "Elite Sprinter",
     "armStrength": "Strong Arm",
 }
@@ -143,6 +148,7 @@ HITTER_WEAKNESS_LABELS = {
     "stolenBases": "Below Average Speed",
     "avg":         "Low Batting Average",
     "rbi":         "Low RBI Production",
+    "oaa":         "Below Average Defense",
     "sprintSpeed": "Below Average Sprint Speed",
     "armStrength": "Weak Arm",
 }
@@ -159,7 +165,9 @@ def _scouting_report_hitter(req: ScoutingReportRequest) -> ScoutingReportRespons
         "avg":         calc_percentile(p.avg,         dist.avg),
         "rbi":         calc_percentile(p.rbi,         dist.rbi),
     }
-    # データが存在する選手のみ表示（CSVにない選手は 0 なのでスキップ）
+    # CSVにある選手のみ条件付きで表示（null = CSV未収録、0 は有効な守備値）
+    if p.oaa is not None and dist.oaa:
+        percentiles["oaa"] = calc_percentile(p.oaa, dist.oaa)
     if p.sprintSpeed > 0 and dist.sprintSpeed:
         percentiles["sprintSpeed"] = calc_percentile(p.sprintSpeed, dist.sprintSpeed)
     if p.armStrength > 0 and dist.armStrength:

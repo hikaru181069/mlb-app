@@ -1,7 +1,7 @@
 const { fetchExternalPlayerFullDetails } = require("../services/mlb");
 const { fetchLeagueStats } = require("../services/mlb/leagueStatsService");
 const { fetchScoutingReport } = require("../services/fastApiService");
-const { getSprintSpeedMap, getArmStrengthMap } = require("../services/mlb/baseballSavantService");
+const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("../services/mlb/baseballSavantService");
 
 const buildHitterPayload = (playerData, leagueStats) => {
   const id          = Number(playerData.mlbPlayerId);
@@ -13,6 +13,7 @@ const buildHitterPayload = (playerData, leagueStats) => {
       stolenBases: parseInt(hitterStats.stolenBases)      || 0,
       avg:         parseFloat(hitterStats.battingAverage) || 0,
       rbi:         parseInt(hitterStats.rbis)             || 0,
+      oaa:         getOaaMap()[id]                        ?? null,
       sprintSpeed: getSprintSpeedMap()[id]                ?? 0,
       armStrength: getArmStrengthMap()[id]                ?? 0,
     },

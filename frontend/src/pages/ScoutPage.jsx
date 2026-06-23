@@ -12,6 +12,7 @@ const HITTER_STAT_META = [
   { key: "stolenBases", label: "SB",            short: "SB",  fmt: (v) => v },
   { key: "avg",         label: "AVG",           short: "AVG", fmt: (v) => v?.toFixed(3) },
   { key: "rbi",         label: "RBI",           short: "RBI", fmt: (v) => v },
+  { key: "oaa",         label: "OAA",           short: "OAA", fmt: (v) => v != null ? (v >= 0 ? `+${v}` : `${v}`) : null },
   { key: "sprintSpeed", label: "Sprint Speed",  short: "SPD", fmt: (v) => v > 0 ? `${v.toFixed(1)} ft/s` : null },
   { key: "armStrength", label: "Arm Strength",  short: "ARM", fmt: (v) => v > 0 ? `${v.toFixed(1)} mph`  : null },
 ];

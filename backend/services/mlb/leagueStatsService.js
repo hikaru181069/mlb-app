@@ -54,12 +54,14 @@ async function fetchAllHitterStats() {
     }));
 
   // パーセンタイル計算用の分布配列（ゼロを除外して意味のある値のみ）
+  // OAA は負の値も有効なため、CSV に存在する選手のみを対象にする
   const distributions = {
     ops:         players.map((p) => p.ops).filter((v) => v > 0),
     homeRuns:    players.map((p) => p.homeRuns),
     stolenBases: players.map((p) => p.stolenBases),
     avg:         players.map((p) => p.avg).filter((v) => v > 0),
     rbi:         players.map((p) => p.rbi),
+    oaa:         players.filter((p) => oaaMap[p.playerId] !== undefined).map((p) => p.oaa),
     sprintSpeed: players.map((p) => p.sprintSpeed).filter((v) => v > 0),
     armStrength: players.map((p) => p.armStrength).filter((v) => v > 0),
   };
