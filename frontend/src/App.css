@@ -9299,8 +9299,8 @@ button:active {
 
 .pcard-img-wrap {
   position: relative;
-  width: 56px;
-  height: 72px;
+  width: 68px;
+  height: 88px;
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
@@ -9493,12 +9493,12 @@ button:active {
     gap: 11px;
   }
   .pcard-img-wrap {
-    width: 46px;
-    height: 58px;
+    width: 56px;
+    height: 72px;
   }
   .pcard-img {
-    width: 46px;
-    height: 58px;
+    width: 56px;
+    height: 72px;
   }
   .pcard-action {
     padding: 5px 10px;
