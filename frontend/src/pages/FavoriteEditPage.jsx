@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 import { getAuthToken } from "../utils/authStorage";
 import {
   deleteFavorite,
@@ -9,6 +11,9 @@ import {
 } from "../services/api/favoriteApi";
 import { mlbTeams } from "../services/mlbTeams";
 import { useToast } from "../contexts/ToastContext";
+
+const HEADSHOT = (id) =>
+  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_160,q_auto:best/v1/people/${id}/headshot/67/current`;
 
 function FavoriteEditPage() {
   const { favoriteId } = useParams();
@@ -20,6 +25,8 @@ function FavoriteEditPage() {
   const [formData, setFormData] = useState({ note: "", favoriteReason: "", tags: "" });
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchFavorite = async () => {
@@ -71,14 +78,16 @@ function FavoriteEditPage() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this favorite?")) return;
     try {
+      setDeleting(true);
       await deleteFavorite(favoriteId, token);
       addToast(`${favorite.fullName} removed from favorites.`, "success");
       navigate("/favorites");
     } catch (error) {
       console.error("Delete favorite error:", error);
       addToast(error.message || "Failed to delete.", "error");
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   };
 
@@ -88,11 +97,11 @@ function FavoriteEditPage() {
         <div className="player-detail mx-auto w-full max-w-3xl">
           <div className="skeleton-block" style={{ height: 20, width: 112, borderRadius: 4, marginBottom: 32 }} />
           <div style={{ display: "flex", gap: 24 }}>
-            <div className="skeleton-block" style={{ width: "min(260px, 100%)", height: 347, borderRadius: "10%", flexShrink: 0 }} />
+            <div className="skeleton-block" style={{ width: 80, height: 104, borderRadius: 12, flexShrink: 0 }} />
             <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1 }}>
-              <div className="skeleton-block" style={{ height: 32, width: "66%", borderRadius: 6 }} />
-              <div className="skeleton-block" style={{ height: 16, width: "50%", borderRadius: 4 }} />
-              <div className="skeleton-block" style={{ height: 16, width: "33%", borderRadius: 4 }} />
+              <div className="skeleton-block" style={{ height: 28, width: "66%", borderRadius: 6 }} />
+              <div className="skeleton-block" style={{ height: 14, width: "50%", borderRadius: 4 }} />
+              <div className="skeleton-block" style={{ height: 14, width: "40%", borderRadius: 4 }} />
             </div>
           </div>
         </div>
@@ -102,74 +111,100 @@ function FavoriteEditPage() {
 
   if (errorMessage && !favorite) {
     return (
-      <div className="home-page px-6 py-12">
-        <p className="error-message">{errorMessage}</p>
-        <div className="home-actions">
-          <Link className="home-link secondary" to="/favorites">← Back to Favorites</Link>
+      <div className="app-screen">
+        <div className="screen-body px-6 py-12">
+          <ErrorCard message={errorMessage} />
+          <div className="home-actions" style={{ marginTop: 16 }}>
+            <Link className="home-link secondary" to="/favorites">← Back to Favorites</Link>
+          </div>
         </div>
       </div>
     );
   }
 
   const teamEntry = mlbTeams.find(
-    (t) => t.name.toLowerCase() === (favorite.teamName || "").toLowerCase()
+    (t) => t.name.toLowerCase() === (favorite.teamName || "").toLowerCase(),
   );
+  const h = favorite.hitterStats;
+  const p = favorite.pitcherStats;
+  const isHitter = favorite.playerType !== "pitcher";
 
   return (
-    <div className="home-page px-6 py-12">
-      <div className="detail-actions">
-        <Link className="detail-nav-link" to="/favorites">
-          ← Back to Favorites
-        </Link>
-      </div>
+    <div className="app-screen">
+      <PageHeader
+        backTo="/favorites"
+        backLabel="Favorites"
+        kicker="My Favorites"
+        title={favorite.fullName}
+        subtitle={[favorite.position, favorite.teamName].filter(Boolean).join(" · ")}
+      />
 
-      <div className="player-detail mx-auto w-full max-w-3xl">
-        {/* Hero */}
-        <div className="favorite-edit-hero">
-          {favorite.imageUrl && (
-            <div className="player-image-wrapper favorite-edit-image flex-shrink-0">
-              <img className="player-image" src={favorite.imageUrl} alt={favorite.fullName} />
-            </div>
-          )}
+      <div className="screen-body px-6 py-6 w-full">
 
-          <div className="favorite-edit-info">
-            <h1>{favorite.fullName}</h1>
-            <div className="favorite-edit-meta">
-              <span className="player-card-team">
-                {teamEntry && (
-                  <img
-                    src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
-                    alt={favorite.teamName}
-                    className="player-card-team-logo"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
-                  />
-                )}
-                <span>{favorite.teamName || "Unknown"}</span>
-              </span>
-              <span> · {favorite.position || "Unknown"}</span>
+        {/* 選手情報カード: ヘッドショット + 統計 + タグ + View Detail */}
+        <div className="fedit-player-card">
+          <div className="pcard-img-wrap" style={{ width: 68, height: 88, borderRadius: 10 }}>
+            <img
+              src={HEADSHOT(favorite.mlbPlayerId)}
+              alt={favorite.fullName}
+              className="pcard-img"
+              onError={(e) => { e.currentTarget.classList.add("pcard-img--faded"); }}
+            />
+            {teamEntry && (
+              <img
+                src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
+                alt={favorite.teamName}
+                className="pcard-team-badge"
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            )}
+          </div>
+
+          <div className="fedit-player-card-body">
+            <div className="pcard-stats">
+              {isHitter && h ? (
+                <>
+                  <span className="pcard-stat">
+                    <span className="pcard-stat-val">{h.battingAverage ?? "—"}</span>
+                    <span className="pcard-stat-lbl">AVG</span>
+                  </span>
+                  <span className="pcard-stat">
+                    <span className="pcard-stat-val">{h.homeRuns ?? "—"}</span>
+                    <span className="pcard-stat-lbl">HR</span>
+                  </span>
+                  <span className="pcard-stat">
+                    <span className="pcard-stat-val">{h.rbis ?? "—"}</span>
+                    <span className="pcard-stat-lbl">RBI</span>
+                  </span>
+                </>
+              ) : p ? (
+                <>
+                  <span className="pcard-stat">
+                    <span className="pcard-stat-val">{p.era ?? "—"}</span>
+                    <span className="pcard-stat-lbl">ERA</span>
+                  </span>
+                  <span className="pcard-stat">
+                    <span className="pcard-stat-val">{p.strikeouts ?? "—"}</span>
+                    <span className="pcard-stat-lbl">K</span>
+                  </span>
+                  <span className="pcard-stat">
+                    <span className="pcard-stat-val">{p.inningsPitched ?? "—"}</span>
+                    <span className="pcard-stat-lbl">IP</span>
+                  </span>
+                </>
+              ) : null}
             </div>
 
             {favorite.tags?.length > 0 && (
-              <div className="tag-list" style={{ justifyContent: "center" }}>
+              <div className="pcard-tags">
                 {favorite.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
+                  <span key={tag} className="pcard-tag">{tag}</span>
                 ))}
               </div>
             )}
 
-            {favorite.playerType === "hitter" && favorite.hitterStats && (
-              <div className="stats">
-                <p>AVG: {favorite.hitterStats.battingAverage} | HR: {favorite.hitterStats.homeRuns} | RBI: {favorite.hitterStats.rbis}</p>
-              </div>
-            )}
-            {favorite.playerType === "pitcher" && favorite.pitcherStats && (
-              <div className="stats">
-                <p>ERA: {favorite.pitcherStats.era} | SO: {favorite.pitcherStats.strikeouts} | IP: {favorite.pitcherStats.inningsPitched}</p>
-              </div>
-            )}
-
             <Link
-              className="home-link secondary"
+              className="fedit-detail-link"
               to={`/players/${favorite.mlbPlayerId}`}
               state={{ from: `/favorites/${favoriteId}`, fromLabel: "Back to Edit" }}
             >
@@ -178,7 +213,7 @@ function FavoriteEditPage() {
           </div>
         </div>
 
-        {/* Edit form */}
+        {/* メモ編集フォーム */}
         <section className="detail-section">
           <h2>My Memo</h2>
           <form className="favorite-edit-form" onSubmit={handleSubmit}>
@@ -221,12 +256,43 @@ function FavoriteEditPage() {
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {/* Bottom actions */}
-        <div className="favorite-edit-bottom-actions">
-          <button className="home-link danger" type="button" onClick={handleDelete}>
-            Delete this favorite
-          </button>
+        {/* 削除セクション */}
+        <div className="fedit-delete-section">
+          {!confirmDelete ? (
+            <button
+              className="fedit-delete-btn"
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete this favorite
+            </button>
+          ) : (
+            <div className="fedit-delete-confirm">
+              <p className="fedit-delete-message">
+                Remove <strong>{favorite.fullName}</strong> from your favorites?
+              </p>
+              <div className="fedit-delete-actions">
+                <button
+                  className="home-link danger"
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? "Deleting…" : "Yes, Delete"}
+                </button>
+                <button
+                  className="home-link secondary"
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+
       </div>
     </div>
   );

@@ -2946,44 +2946,81 @@ button:disabled,
   box-shadow: 0 18px 38px rgba(166, 227, 161, 0.16);
 }
 
-.favorite-edit-hero {
+.fedit-player-card {
   display: flex;
-  gap: 24px;
-  align-items: start;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 14px;
+  margin-bottom: 20px;
 }
 
-.favorite-edit-info {
-  display: grid;
-  gap: 12px;
-  align-content: start;
-  flex: 1;
-  text-align: center;
+.fedit-player-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.favorite-edit-info h1 {
-  text-align: center;
-  padding: 0;
-  margin: 0;
-  background: linear-gradient(
-    135deg,
-    var(--ctp-rosewater),
-    var(--ctp-flamingo),
-    var(--ctp-pink),
-    var(--ctp-mauve),
-    var(--ctp-rosewater)
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradient-shift 1s ease infinite;
-}
-
-.favorite-edit-meta {
-  color: var(--ctp-subtext0);
-  font-size: 15px;
+.fedit-detail-link {
+  font-size: 13px;
   font-weight: 600;
+  color: var(--ctp-blue);
+  text-decoration: none;
+}
+.fedit-detail-link:hover {
+  text-decoration: underline;
+}
+
+.fedit-delete-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ctp-surface1);
+  display: flex;
+  justify-content: center;
+}
+
+.fedit-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ctp-subtext0);
+  padding: 8px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 160ms ease;
+}
+.fedit-delete-btn:hover {
+  color: var(--ctp-red);
+}
+
+.fedit-delete-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: rgba(243, 139, 168, 0.07);
+  border: 1px solid rgba(243, 139, 168, 0.2);
+  width: 100%;
+  max-width: 400px;
+}
+
+.fedit-delete-message {
+  font-size: 14px;
+  color: var(--ctp-subtext1);
   margin: 0;
+  text-align: center;
+}
+
+.fedit-delete-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
   justify-content: center;
 }
 
@@ -2996,27 +3033,8 @@ button:disabled,
 }
 
 @media (max-width: 600px) {
-  .favorite-edit-hero {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .favorite-edit-hero .player-image-wrapper {
-    margin-bottom: 12px;
-  }
-
-  .favorite-edit-info {
-    text-align: center;
-    width: 100%;
-  }
-
-  .favorite-edit-info h1 {
-    text-align: center;
-  }
-
-  .favorite-edit-meta {
-    text-align: center;
-    justify-content: center;
+  .fedit-player-card {
+    gap: 12px;
   }
 
   .favorite-edit-bottom-actions {
@@ -4914,21 +4932,12 @@ button:active {
   height: 480px;
 }
 
-.favorite-edit-image {
-  width: min(260px, 100%);
-  height: 347px;
-}
-
 /* ── Mobile improvements ── */
 @media (max-width: 640px) {
-  /* Player detail / favorite edit image: shorter on mobile */
+  /* Player detail image: shorter on mobile */
   .detail-hero-image {
     width: min(100%, 240px);
     height: 320px;
-  }
-  .favorite-edit-image {
-    width: min(100%, 200px);
-    height: 267px;
   }
 
   /* Stats table: tighter padding */
