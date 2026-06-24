@@ -9196,17 +9196,17 @@ button:active {
 
 .pcard-img-wrap {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
 }
 
 .pcard-img {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  object-position: top center;
+  object-position: center 20%;
   background: var(--ctp-surface1);
   display: block;
 }
@@ -9385,12 +9385,12 @@ button:active {
     gap: 11px;
   }
   .pcard-img-wrap {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
   }
   .pcard-img {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
   }
   .pcard-action {
     padding: 5px 10px;

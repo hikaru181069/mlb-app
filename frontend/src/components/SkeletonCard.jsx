@@ -1,7 +1,7 @@
 function SkeletonCard() {
   return (
     <div className="pcard-skeleton">
-      <div className="skeleton-block" style={{ width: 56, height: 56, borderRadius: "50%", flexShrink: 0 }} />
+      <div className="skeleton-block" style={{ width: 64, height: 64, borderRadius: "50%", flexShrink: 0 }} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
         <div className="skeleton-block" style={{ height: 15, width: "55%", borderRadius: 4 }} />
         <div className="skeleton-block" style={{ height: 12, width: "38%", borderRadius: 3 }} />
