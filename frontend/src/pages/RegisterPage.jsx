@@ -8,6 +8,7 @@ function RegisterPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -17,6 +18,7 @@ function RegisterPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      setSubmitting(true);
       setErrorMessage("");
       const data = await registerUser(formData);
       saveAuthData(data);
@@ -24,15 +26,17 @@ function RegisterPage() {
     } catch (error) {
       console.error("Register error:", error);
       setErrorMessage(error.message || "Failed to register. Please check your input.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="home-page px-6 py-16">
-      <section className="home-hero w-full max-w-md px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">Get Started</p>
-        <h1 className="text-4xl font-black tracking-tight">Register</h1>
-        <p className="home-description mt-3 text-base">
+    <div className="auth-page">
+      <section className="auth-card">
+        <p className="auth-card-kicker">Get Started</p>
+        <h1>Register</h1>
+        <p className="auth-card-desc">
           Create an account to save players and get personalized recommendations.
         </p>
 
@@ -75,7 +79,9 @@ function RegisterPage() {
 
           {errorMessage && <p className="error-message" style={{ margin: 0 }}>{errorMessage}</p>}
 
-          <button className="home-link" type="submit">Create Account</button>
+          <button className="home-link" type="submit" disabled={submitting}>
+            {submitting ? "Creating account…" : "Create Account"}
+          </button>
         </form>
 
         <p className="auth-switch">

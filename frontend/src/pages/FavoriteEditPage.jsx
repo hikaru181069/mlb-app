@@ -74,6 +74,7 @@ function FavoriteEditPage() {
     if (!window.confirm("Delete this favorite?")) return;
     try {
       await deleteFavorite(favoriteId, token);
+      addToast(`${favorite.fullName} removed from favorites.`, "success");
       navigate("/favorites");
     } catch (error) {
       console.error("Delete favorite error:", error);
@@ -84,14 +85,14 @@ function FavoriteEditPage() {
   if (loading) {
     return (
       <div className="home-page px-6 py-12">
-        <div className="player-detail mx-auto w-full max-w-3xl animate-pulse">
-          <div className="h-5 w-28 rounded bg-ctp-surface1 mb-8" />
-          <div className="flex gap-6">
-            <div className="rounded-[10%] bg-ctp-surface1 flex-shrink-0" style={{ width: "min(260px, 100%)", height: "347px" }} />
-            <div className="flex flex-col gap-3 flex-1">
-              <div className="h-8 w-2/3 rounded bg-ctp-surface1" />
-              <div className="h-4 w-1/2 rounded bg-ctp-surface1" />
-              <div className="h-4 w-1/3 rounded bg-ctp-surface1" />
+        <div className="player-detail mx-auto w-full max-w-3xl">
+          <div className="skeleton-block" style={{ height: 20, width: 112, borderRadius: 4, marginBottom: 32 }} />
+          <div style={{ display: "flex", gap: 24 }}>
+            <div className="skeleton-block" style={{ width: "min(260px, 100%)", height: 347, borderRadius: "10%", flexShrink: 0 }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1 }}>
+              <div className="skeleton-block" style={{ height: 32, width: "66%", borderRadius: 6 }} />
+              <div className="skeleton-block" style={{ height: 16, width: "50%", borderRadius: 4 }} />
+              <div className="skeleton-block" style={{ height: 16, width: "33%", borderRadius: 4 }} />
             </div>
           </div>
         </div>

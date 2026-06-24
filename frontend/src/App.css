@@ -2621,6 +2621,49 @@ input {
   color: var(--ctp-lavender);
 }
 
+.auth-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 36px;
+  border-radius: 20px;
+  background: var(--ctp-mantle);
+  border: 1px solid rgba(137, 180, 250, 0.12);
+  box-shadow: 0 8px 32px rgba(17, 17, 27, 0.35);
+  text-align: center;
+}
+
+.auth-card h1 {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--ctp-text);
+  margin: 0;
+}
+
+.auth-card-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ctp-sapphire);
+  margin-bottom: 8px;
+}
+
+.auth-card-desc {
+  font-size: 14px;
+  color: var(--ctp-subtext0);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
 /* Search form wrapper — sits outside home-hero so dropdown is not clipped */
 .search-form-wrapper {
   width: 100%;
@@ -9245,6 +9288,19 @@ button:active {
 }
 .foryou-login-btn:hover {
   opacity: 0.85;
+}
+.foryou-empty-hint {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ctp-subtext0);
+}
+.foryou-empty-quiz-link {
+  color: var(--ctp-lavender);
+  text-decoration: none;
+  font-weight: 600;
+}
+.foryou-empty-quiz-link:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 600px) {

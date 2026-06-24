@@ -13,6 +13,7 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const token = getAuthToken();
@@ -26,6 +27,8 @@ function LoginPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      setSubmitting(true);
+      setErrorMessage("");
       const data = await loginUser({ email, password });
       saveAuthData(data);
       navigate(data.hasCompletedOnboarding ? "/" : "/onboarding/favorites");
@@ -34,6 +37,8 @@ function LoginPage() {
       setErrorMessage(
         error.message || "Failed to login. Please check your email and password.",
       );
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -55,11 +60,11 @@ function LoginPage() {
   }
 
   return (
-    <div className="home-page px-6 py-16">
-      <section className="home-hero w-full max-w-md px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">Welcome Back</p>
-        <h1 className="text-4xl font-black tracking-tight">Login</h1>
-        <p className="home-description mt-3 text-base">
+    <div className="auth-page">
+      <section className="auth-card">
+        <p className="auth-card-kicker">Welcome Back</p>
+        <h1>Login</h1>
+        <p className="auth-card-desc">
           Sign in to access your favorites and recommendations.
         </p>
 
@@ -90,7 +95,9 @@ function LoginPage() {
 
           {errorMessage && <p className="error-message" style={{ margin: 0 }}>{errorMessage}</p>}
 
-          <button className="home-link" type="submit">Login</button>
+          <button className="home-link" type="submit" disabled={submitting}>
+            {submitting ? "Logging in…" : "Login"}
+          </button>
         </form>
 
         <p className="auth-switch">

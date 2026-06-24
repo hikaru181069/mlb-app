@@ -125,44 +125,38 @@ function PlayerDetailPage() {
   if (loading) {
     return (
       <div className="home-page px-6 py-12">
-        <div className="player-detail mx-auto w-full max-w-4xl animate-pulse">
-          {/* Hero: 縦中央揃えのレイアウトに合わせる */}
+        <div className="player-detail mx-auto w-full max-w-4xl">
           <div className="detail-hero">
-            <div
-              className="rounded-[10%] bg-ctp-surface1"
-              style={{ width: "min(100%, 360px)", height: "480px" }}
-            />
+            <div className="skeleton-block" style={{ width: "min(100%, 360px)", height: 480, borderRadius: "10%", flexShrink: 0 }} />
             <div className="detail-hero-copy">
-              <div className="mx-auto h-9 w-2/3 rounded-md bg-ctp-surface1" />
-              <div className="mx-auto flex gap-6">
+              <div className="skeleton-block" style={{ height: 36, width: "66%", borderRadius: 6, alignSelf: "center" }} />
+              <div style={{ display: "flex", gap: 24, justifyContent: "center" }}>
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="flex flex-col items-center gap-1">
-                    <div className="h-3 w-14 rounded bg-ctp-surface1" />
-                    <div className="h-5 w-20 rounded bg-ctp-surface1" />
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <div className="skeleton-block" style={{ height: 12, width: 56, borderRadius: 4 }} />
+                    <div className="skeleton-block" style={{ height: 20, width: 80, borderRadius: 4 }} />
                   </div>
                 ))}
               </div>
-              <div className="mx-auto h-11 w-44 rounded-full bg-ctp-surface1" />
+              <div className="skeleton-block" style={{ height: 44, width: 176, borderRadius: 999, alignSelf: "center" }} />
             </div>
           </div>
 
-          {/* Stats: 2列グリッド */}
           <div className="detail-stats-grid">
             {[0, 1].map((i) => (
-              <div key={i} className="detail-section flex flex-col gap-3">
-                <div className="h-5 w-40 rounded bg-ctp-surface1" />
+              <div key={i} className="detail-section" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div className="skeleton-block" style={{ height: 20, width: 160, borderRadius: 4 }} />
                 {[0, 1, 2].map((j) => (
-                  <div key={j} className="h-4 w-full rounded bg-ctp-surface1" />
+                  <div key={j} className="skeleton-block" style={{ height: 16, width: "100%", borderRadius: 4 }} />
                 ))}
               </div>
             ))}
           </div>
 
-          {/* Last 5 Games */}
-          <div className="detail-section flex flex-col gap-3">
-            <div className="h-5 w-32 rounded bg-ctp-surface1" />
+          <div className="detail-section" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="skeleton-block" style={{ height: 20, width: 128, borderRadius: 4 }} />
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-4 w-full rounded bg-ctp-surface1" />
+              <div key={i} className="skeleton-block" style={{ height: 16, width: "100%", borderRadius: 4 }} />
             ))}
           </div>
         </div>

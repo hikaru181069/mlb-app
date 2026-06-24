@@ -142,7 +142,33 @@ function ProfilePage() {
     } catch (err) { setDeleteError(getApiErrorMessage(err)); setDeleting(false); }
   };
 
-  if (loading) return <div className="app-screen"><header className="page-header"><div className="page-header-main"><p className="page-header-subtitle">Loading profile…</p></div></header></div>;
+  if (loading) return (
+    <div className="app-screen">
+      <header className="page-header">
+        <div className="page-header-top">
+          <span />
+          <span className="page-header-kicker">Your Account</span>
+        </div>
+        <div className="page-header-main">
+          <div className="skeleton-block" style={{ width: 72, height: 72, borderRadius: "50%", flexShrink: 0 }} />
+          <div className="page-header-info">
+            <div className="skeleton-block" style={{ height: 28, width: 160, borderRadius: 6 }} />
+            <div className="skeleton-block" style={{ height: 14, width: 200, borderRadius: 4, marginTop: 6 }} />
+          </div>
+        </div>
+      </header>
+      <div className="screen-body px-6 py-6 w-full">
+        <div className="profile-grid">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="profile-card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div className="skeleton-block" style={{ height: 13, width: 100, borderRadius: 4 }} />
+              <div className="skeleton-block" style={{ height: 48, width: "100%", borderRadius: 8 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
   if (error)   return <div className="app-screen"><header className="page-header"><div className="page-header-main"><p className="page-header-subtitle" style={{color:"var(--ctp-red)"}}>{error}</p></div></header></div>;
   if (!user)   return null;
 

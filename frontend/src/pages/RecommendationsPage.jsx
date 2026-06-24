@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, RotateCcw } from "lucide-react";
+import { ChevronLeft, RotateCcw, TrendingUp, Zap } from "lucide-react";
 
 import { getAuthToken } from "../utils/authStorage";
 import { getQuizRecommendations } from "../services/api/recommendationApi";
@@ -186,12 +186,12 @@ function RecommendationsPage() {
           </div>
           <div className="quiz-type-cards">
             <button className="quiz-type-card" onClick={() => handleTypeSelect("hitter")}>
-              <span className="quiz-type-icon">🪄</span>
+              <span className="quiz-type-icon"><TrendingUp size={28} strokeWidth={1.75} /></span>
               <span className="quiz-type-label">Hitters</span>
               <span className="quiz-type-desc">Batting average, home runs, stolen bases</span>
             </button>
             <button className="quiz-type-card" onClick={() => handleTypeSelect("pitcher")}>
-              <span className="quiz-type-icon">⚡</span>
+              <span className="quiz-type-icon"><Zap size={28} strokeWidth={1.75} /></span>
               <span className="quiz-type-label">Pitchers</span>
               <span className="quiz-type-desc">ERA, strikeouts, WHIP, innings pitched</span>
             </button>

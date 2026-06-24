@@ -213,6 +213,10 @@ function ForYouPage() {
             Favorite a few MLB players and we&apos;ll find others who match their style.
           </p>
           <Link to="/favorites" className="foryou-login-btn">Go to Favorites</Link>
+          <p className="foryou-empty-hint">
+            Not sure who to add?{" "}
+            <Link to="/recommendations" className="foryou-empty-quiz-link">Try the Discovery Quiz →</Link>
+          </p>
         </div>
       )}
     </div>

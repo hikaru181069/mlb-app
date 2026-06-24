@@ -25,6 +25,13 @@ const TILES = [
     cta:   "View picks →",
   },
   {
+    to:    "/recommendations",
+    title: "Discovery Quiz",
+    desc:  "Answer 3 questions to find your next favorite player",
+    color: "var(--ctp-lavender)",
+    cta:   "Start quiz →",
+  },
+  {
     to:    "/compare",
     title: "Compare",
     desc:  "Head-to-head stats for any two MLB players",
@@ -47,10 +54,10 @@ const TILES = [
   },
   {
     to:    "/stats",
-    title: "Young Stars",
-    desc:  "25 and under, turning heads this season",
+    title: "MLB Stats",
+    desc:  "League leaders in hitting and pitching this season",
     color: "var(--ctp-peach)",
-    cta:   "Discover →",
+    cta:   "View Leaders →",
   },
   {
     to:    "/search",
@@ -64,7 +71,7 @@ const TILES = [
 const JOURNEY_STEPS = [
   { num: "1", label: "Add Favorites"   },
   { num: "2", label: "Get Matched"     },
-  { num: "3", label: "Young Stars"     },
+  { num: "3", label: "MLB Stats"        },
   { num: "4", label: "Prospects"       },
 ];
 
