@@ -114,7 +114,7 @@ const getRecommendationsForUser = async (userId) => {
       .map(isPitcher ? toPitcherCandidate : toHitterCandidate);
 
     try {
-      const result = await fetchDiscoverSimilar(target, mlbCandidates, [], 2);
+      const result = await fetchDiscoverSimilar(target, mlbCandidates, [], 5);
       for (const match of result?.mlbSimilar ?? []) {
         if (!recommendedIds.has(Number(match.playerId))) {
           recommendations.push({
@@ -267,7 +267,7 @@ const getGroupedRecommendationsForUser = async (userId) => {
 
       let rawMatches = [];
       try {
-        const result = await fetchDiscoverSimilar(target, mlbCandidates, [], 2);
+        const result = await fetchDiscoverSimilar(target, mlbCandidates, [], 5);
         rawMatches = result?.mlbSimilar ?? [];
       } catch (err) {
         console.warn(`[grouped-rec] discover/similar failed for ${fav.fullName}: ${err.message}`);

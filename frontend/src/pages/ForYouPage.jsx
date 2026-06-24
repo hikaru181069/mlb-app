@@ -1,23 +1,41 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Sparkles, Star } from "lucide-react";
+import { Sparkles, Star, Plus, Check } from "lucide-react";
 import { getAuthToken } from "../utils/authStorage";
 import { getForYouRecommendations } from "../services/api/recommendationApi";
+import { createFavorite, getFavorites } from "../services/api/favoriteApi";
+import { useToast } from "../contexts/ToastContext";
 
 const HEADSHOT_URL = (id) =>
   `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
 
 const HITTER_STATS = [
-  { key: "ops",         label: "OPS",  fmt: (v) => v?.toFixed(3) ?? "-" },
-  { key: "homeRuns",    label: "HR",   fmt: (v) => v ?? "-" },
-  { key: "stolenBases", label: "SB",   fmt: (v) => v ?? "-" },
+  { key: "ops",         label: "OPS",  fmt: (v) => v?.toFixed(3) ?? "—" },
+  { key: "homeRuns",    label: "HR",   fmt: (v) => v ?? "—" },
+  { key: "stolenBases", label: "SB",   fmt: (v) => v ?? "—" },
 ];
 
 const PITCHER_STATS = [
-  { key: "era",        label: "ERA", fmt: (v) => v?.toFixed(2) ?? "-" },
-  { key: "strikeouts", label: "K",   fmt: (v) => v ?? "-" },
-  { key: "wins",       label: "W",   fmt: (v) => v ?? "-" },
+  { key: "era",        label: "ERA", fmt: (v) => v?.toFixed(2) ?? "—" },
+  { key: "strikeouts", label: "K",   fmt: (v) => v ?? "—" },
+  { key: "wins",       label: "W",   fmt: (v) => v ?? "—" },
 ];
+
+// ── 類似度スコア (B) ──────────────────────────────────────────────────────────
+function SimScore({ pct }) {
+  const color =
+    pct >= 90 ? "var(--ctp-green)"
+    : pct >= 75 ? "var(--ctp-sapphire)"
+    : "var(--ctp-peach)";
+  return (
+    <div className="foryou-sim-score">
+      <span className="foryou-sim-pct" style={{ color }}>{pct}%</span>
+      <div className="foryou-sim-bar-bg">
+        <div className="foryou-sim-bar" style={{ width: `${pct}%`, background: color }} />
+      </div>
+    </div>
+  );
+}
 
 // ── スタット比較テーブル ────────────────────────────────────────────────────
 function StatComparison({ seedName, seedStats, matchStats, playerType }) {
@@ -42,8 +60,8 @@ function StatComparison({ seedName, seedStats, matchStats, playerType }) {
   );
 }
 
-// ── 推薦カード ─────────────────────────────────────────────────────────────
-function ForYouCard({ match, seedPlayer }) {
+// ── 推薦カード (A: 保存ボタン追加 / B: SimScore) ────────────────────────────
+function ForYouCard({ match, seedPlayer, isSaved, onSave, saving }) {
   return (
     <div className="foryou-card">
       <div className="foryou-card-top">
@@ -62,8 +80,20 @@ function ForYouCard({ match, seedPlayer }) {
             </p>
           </div>
         </Link>
-        <span className="foryou-sim-badge">{match.similarityPercentage}%</span>
+
+        {/* A: お気に入り追加ボタン */}
+        <button
+          className={`foryou-save-btn${isSaved ? " foryou-save-btn--saved" : ""}`}
+          onClick={() => !isSaved && onSave(match)}
+          disabled={isSaved || saving === match.mlbPlayerId}
+          title={isSaved ? "Already in favorites" : "Add to favorites"}
+        >
+          {isSaved ? <Check size={14} strokeWidth={2.5} /> : <Plus size={14} strokeWidth={2.5} />}
+        </button>
       </div>
+
+      {/* B: 類似度スコアバー */}
+      <SimScore pct={match.similarityPercentage} />
 
       <StatComparison
         seedName={seedPlayer.name}
@@ -79,26 +109,48 @@ function ForYouCard({ match, seedPlayer }) {
   );
 }
 
-// ── お気に入り起点グループ ───────────────────────────────────────────────────
-function SeedGroup({ group }) {
+// ── シード選手グループヘッダー (C) ───────────────────────────────────────────
+function SeedGroup({ group, savedIds, onSave, saving }) {
+  const { seedPlayer, matches } = group;
+  const isPitcher = seedPlayer.playerType === "pitcher";
+  const statsRows = isPitcher ? PITCHER_STATS : HITTER_STATS;
+
   return (
     <section className="foryou-group">
-      <div className="foryou-group-header">
-        <img
-          src={HEADSHOT_URL(group.seedPlayer.mlbPlayerId)}
-          alt={group.seedPlayer.name}
-          className="foryou-seed-img"
-          onError={(e) => { e.currentTarget.style.opacity = "0.4"; }}
-        />
-        <div>
+      {/* C: pcardスタイルのシード選手カード */}
+      <div className="foryou-seed-card">
+        <div className="foryou-seed-img-wrap">
+          <img
+            src={HEADSHOT_URL(seedPlayer.mlbPlayerId)}
+            alt={seedPlayer.name}
+            className="foryou-seed-portrait"
+            onError={(e) => { e.currentTarget.style.opacity = "0.4"; }}
+          />
+        </div>
+        <div className="foryou-seed-body">
           <p className="foryou-group-because">Because you like</p>
-          <p className="foryou-group-name">{group.seedPlayer.name}</p>
+          <p className="foryou-group-name">{seedPlayer.name}</p>
+          <div className="foryou-seed-stats">
+            {statsRows.map(({ key, label, fmt }) => (
+              <span key={key} className="foryou-seed-stat">
+                <span className="foryou-seed-stat-val">{fmt(seedPlayer.keyStats?.[key])}</span>
+                <span className="foryou-seed-stat-lbl">{label}</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="foryou-cards">
-        {group.matches.map((match) => (
-          <ForYouCard key={match.mlbPlayerId} match={match} seedPlayer={group.seedPlayer} />
+        {matches.map((match) => (
+          <ForYouCard
+            key={match.mlbPlayerId}
+            match={match}
+            seedPlayer={seedPlayer}
+            isSaved={savedIds.has(Number(match.mlbPlayerId))}
+            onSave={onSave}
+            saving={saving}
+          />
         ))}
       </div>
     </section>
@@ -117,8 +169,8 @@ function Skeleton() {
         <div key={i} className="foryou-group">
           <div className="skeleton-block" style={{ width: 200, height: 40, borderRadius: 8, marginBottom: 16 }} />
           <div className="foryou-cards">
-            {[0, 1].map((j) => (
-              <div key={j} className="skeleton-block" style={{ flex: 1, minWidth: 260, height: 180, borderRadius: 12 }} />
+            {[0, 1, 2].map((j) => (
+              <div key={j} className="skeleton-block" style={{ flex: 1, minWidth: 260, height: 200, borderRadius: 18 }} />
             ))}
           </div>
         </div>
@@ -130,16 +182,40 @@ function Skeleton() {
 // ── For You ページ ──────────────────────────────────────────────────────────
 function ForYouPage() {
   const token = getAuthToken();
-  const [data, setData]     = useState(null);
+  const { addToast } = useToast();
+
+  const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
+  const [savedIds, setSavedIds] = useState(new Set());
+  const [saving, setSaving]   = useState(null);
 
   useEffect(() => {
     if (!token) { setLoading(false); return; }
-    getForYouRecommendations(token)
-      .then(setData)
-      .catch(() => setData({ groups: [], fallback: [] }))
-      .finally(() => setLoading(false));
+
+    Promise.all([
+      getForYouRecommendations(token),
+      getFavorites(token).catch(() => []),
+    ]).then(([rec, favs]) => {
+      setData(rec ?? { groups: [], fallback: [] });
+      setSavedIds(new Set(favs.map((f) => Number(f.mlbPlayerId))));
+    }).catch(() => {
+      setData({ groups: [], fallback: [] });
+    }).finally(() => setLoading(false));
   }, [token]);
+
+  const handleSave = async (match) => {
+    if (!token) return;
+    setSaving(match.mlbPlayerId);
+    try {
+      await createFavorite(match, token);
+      setSavedIds((prev) => new Set([...prev, Number(match.mlbPlayerId)]));
+      addToast(`${match.name} added to favorites!`, "success");
+    } catch (err) {
+      addToast(err.message || "Failed to add favorite.", "error");
+    } finally {
+      setSaving(null);
+    }
+  };
 
   if (!token) {
     return (
@@ -173,7 +249,13 @@ function ForYouPage() {
       </header>
 
       {groups.map((group) => (
-        <SeedGroup key={group.seedPlayer.mlbPlayerId} group={group} />
+        <SeedGroup
+          key={group.seedPlayer.mlbPlayerId}
+          group={group}
+          savedIds={savedIds}
+          onSave={handleSave}
+          saving={saving}
+        />
       ))}
 
       {groups.length === 0 && fallback.length > 0 && (

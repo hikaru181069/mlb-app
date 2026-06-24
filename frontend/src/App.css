@@ -8839,6 +8839,69 @@ button:active {
   margin-bottom: 36px;
 }
 
+/* C: シード選手カード */
+.foryou-seed-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--ctp-mantle);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.foryou-seed-img-wrap {
+  width: 60px;
+  height: 78px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--ctp-surface1);
+}
+
+.foryou-seed-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.foryou-seed-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.foryou-seed-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.foryou-seed-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.foryou-seed-stat-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ctp-text);
+  line-height: 1;
+}
+
+.foryou-seed-stat-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ctp-subtext0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .foryou-group-header {
   display: flex;
   align-items: center;
@@ -8852,25 +8915,17 @@ button:active {
   border: none;
 }
 
-.foryou-seed-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--ctp-surface1);
-}
-
 .foryou-group-because {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   color: var(--ctp-subtext0);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 2px;
+  letter-spacing: 0.06em;
+  margin: 0;
 }
 
 .foryou-group-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--ctp-text);
   margin: 0;
@@ -8922,11 +8977,12 @@ button:active {
 }
 
 .foryou-card-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  width: 60px;
+  height: 78px;
+  border-radius: 8px;
   object-fit: cover;
-  border: 2px solid var(--ctp-surface1);
+  object-position: top center;
+  background: var(--ctp-surface1);
   flex-shrink: 0;
 }
 
@@ -8953,16 +9009,57 @@ button:active {
   text-overflow: ellipsis;
 }
 
-/* 類似度バッジ */
-.foryou-sim-badge {
+/* A: お気に入り保存ボタン */
+.foryou-save-btn {
   flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ctp-surface2);
+  background: var(--ctp-surface1);
+  color: var(--ctp-subtext0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+.foryou-save-btn:hover:not(:disabled) {
+  border-color: var(--ctp-sapphire);
+  color: var(--ctp-sapphire);
+  background: rgba(137, 180, 250, 0.1);
+}
+.foryou-save-btn--saved {
+  border-color: var(--ctp-green);
+  color: var(--ctp-green);
+  background: rgba(166, 227, 161, 0.12);
+  cursor: default;
+}
+
+/* B: 類似度スコアバー */
+.foryou-sim-score {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.foryou-sim-pct {
   font-size: 13px;
   font-weight: 800;
-  color: var(--ctp-base);
-  background: var(--ctp-green);
+  flex-shrink: 0;
+  width: 36px;
+  text-align: right;
+}
+.foryou-sim-bar-bg {
+  flex: 1;
+  height: 4px;
   border-radius: 999px;
-  padding: 4px 12px;
-  line-height: 1.4;
+  background: var(--ctp-surface1);
+  overflow: hidden;
+}
+.foryou-sim-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 400ms ease;
 }
 
 /* スタット比較テーブル */
