@@ -223,13 +223,13 @@ function SearchPage() {
 
         {/* Skeleton or results grid */}
         {loading ? (
-          <div className="player-list">
+          <div className="pcard-list">
             {Array.from({ length: 4 }, (_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : (
-          <div className="player-list">
+          <div className="pcard-list">
             {players.map((player) => (
               <ExternalPlayerCard
                 key={player.mlbPlayerId}

@@ -9153,3 +9153,247 @@ button:active {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Player Card (pcard) ── 水平レイアウトの選手カード ────────────────────── */
+
+.pcard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pcard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--ctp-text);
+  animation: card-in 420ms var(--ease-out) both;
+  transition:
+    transform 220ms var(--ease-spring),
+    border-color 180ms ease,
+    box-shadow 220ms ease;
+}
+
+.pcard:hover {
+  border-color: rgba(137, 180, 250, 0.4);
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgba(137, 180, 250, 0.12),
+    0 6px 20px rgba(137, 180, 250, 0.08),
+    0 16px 36px rgba(17, 17, 27, 0.36);
+}
+
+.pcard--selected {
+  border-color: var(--ctp-blue);
+  background: linear-gradient(135deg, rgba(137, 180, 250, 0.12), var(--ctp-surface0));
+}
+
+.pcard-img-wrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.pcard-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  background: var(--ctp-surface1);
+  display: block;
+}
+
+.pcard-img--faded {
+  opacity: 0.4;
+}
+
+.pcard-team-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+}
+
+.pcard-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.pcard-name {
+  font-size: 0.93rem;
+  font-weight: 700;
+  color: var(--ctp-blue);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  margin-bottom: 3px;
+}
+
+.pcard-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pcard-pos {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(137, 180, 250, 0.14);
+  color: var(--ctp-blue);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.pcard-team {
+  font-size: 0.78rem;
+  color: var(--ctp-subtext0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pcard-stats {
+  display: flex;
+  gap: 10px;
+  margin-top: 7px;
+  flex-wrap: wrap;
+}
+
+.pcard-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.pcard-stat-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ctp-text);
+}
+
+.pcard-stat-lbl {
+  font-size: 0.67rem;
+  color: var(--ctp-subtext0);
+  font-weight: 600;
+}
+
+.pcard-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.pcard-tag {
+  font-size: 0.67rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--ctp-surface2);
+  color: var(--ctp-subtext1);
+}
+
+.pcard-note {
+  font-size: 0.73rem;
+  color: var(--ctp-yellow);
+  margin-top: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pcard-action {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ctp-sapphire);
+  padding: 6px 12px;
+  border: 1px solid rgba(116, 199, 236, 0.5);
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 150ms ease, border-color 150ms ease;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--app-font);
+}
+
+.pcard-action:hover {
+  background: rgba(116, 199, 236, 0.1);
+  border-color: var(--ctp-sapphire);
+}
+
+.pcard-action--saved {
+  color: var(--ctp-green);
+  border-color: rgba(166, 227, 161, 0.4);
+}
+
+.pcard-action--saved:hover {
+  background: rgba(166, 227, 161, 0.08);
+  border-color: var(--ctp-green);
+}
+
+.pcard-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--ctp-surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ctp-base);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.pcard-check--active {
+  background: var(--ctp-blue);
+  border-color: var(--ctp-blue);
+}
+
+/* skeleton */
+.pcard-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 14px;
+}
+
+@media (max-width: 480px) {
+  .pcard {
+    padding: 11px 13px;
+    gap: 11px;
+  }
+  .pcard-img-wrap {
+    width: 48px;
+    height: 48px;
+  }
+  .pcard-img {
+    width: 48px;
+    height: 48px;
+  }
+  .pcard-action {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+}

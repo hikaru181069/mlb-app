@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
 import { mlbTeams } from "../services/mlbTeams";
 
+const HEADSHOT = (id) =>
+  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_120,q_auto:best/v1/people/${id}/headshot/67/current`;
+
 function FavoritePlayerCard({ favorite, selectable = false, selected = false, onToggle }) {
   const h = favorite.hitterStats;
   const p = favorite.pitcherStats;
-  const editPath = `/favorites/${favorite._id}`;
+  const editPath  = `/favorites/${favorite._id}`;
+  const isHitter  = favorite.playerType !== "pitcher";
   const teamEntry = mlbTeams.find(
     (t) => t.name.toLowerCase() === (favorite.teamName || "").toLowerCase()
   );
@@ -18,67 +22,83 @@ function FavoritePlayerCard({ favorite, selectable = false, selected = false, on
 
   return (
     <article
-      className={`player-card ${selectable ? "player-card--selectable" : ""} ${selected ? "player-card--selected" : ""}`}
+      className={`pcard${selected ? " pcard--selected" : ""}`}
       onClick={handleClick}
+      style={selectable ? { cursor: "pointer" } : undefined}
     >
+      {/* コンペアモード: チェックボックス */}
       {selectable && (
-        <div className="player-card-checkbox">
-          <span className={`compare-checkbox ${selected ? "compare-checkbox--checked" : ""}`}>
-            {selected ? "✓" : ""}
-          </span>
+        <div className={`pcard-check${selected ? " pcard-check--active" : ""}`}>
+          {selected && "✓"}
         </div>
       )}
-      <Link className="player-card-link" to={selectable ? "#" : editPath} tabIndex={selectable ? -1 : 0}>
-        {favorite.imageUrl && (
-          <div className="player-image-wrapper">
-            <img
-              className="player-image"
-              src={favorite.imageUrl}
-              alt={favorite.fullName}
-            />
-          </div>
-        )}
 
-        <h2>{favorite.fullName}</h2>
-        <div className="player-card-team">
-          {teamEntry && (
-            <img
-              src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
-              alt={favorite.teamName}
-              className="player-card-team-logo"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-          )}
-          <span>{favorite.teamName}</span>
+      {/* ヘッドショット + チームロゴバッジ */}
+      <div className="pcard-img-wrap">
+        <img
+          src={HEADSHOT(favorite.mlbPlayerId)}
+          alt={favorite.fullName}
+          className="pcard-img"
+          onError={(e) => { e.currentTarget.classList.add("pcard-img--faded"); }}
+        />
+        {teamEntry && (
+          <img
+            src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
+            alt={favorite.teamName}
+            className="pcard-team-badge"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+        )}
+      </div>
+
+      {/* 選手情報 */}
+      <div className="pcard-body">
+        <Link
+          to={selectable ? "#" : editPath}
+          className="pcard-name"
+          tabIndex={selectable ? -1 : 0}
+          onClick={(e) => selectable && e.preventDefault()}
+        >
+          {favorite.fullName}
+        </Link>
+
+        <div className="pcard-meta">
+          {favorite.position && <span className="pcard-pos">{favorite.position}</span>}
+          {favorite.teamName && <span className="pcard-team">{favorite.teamName}</span>}
         </div>
-        <p>Position: {favorite.position}</p>
+
+        <div className="pcard-stats">
+          {isHitter && h ? (
+            <>
+              <span className="pcard-stat"><span className="pcard-stat-val">{h.battingAverage ?? "—"}</span><span className="pcard-stat-lbl">AVG</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{h.homeRuns ?? "—"}</span><span className="pcard-stat-lbl">HR</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{h.rbis ?? "—"}</span><span className="pcard-stat-lbl">RBI</span></span>
+            </>
+          ) : p ? (
+            <>
+              <span className="pcard-stat"><span className="pcard-stat-val">{p.era ?? "—"}</span><span className="pcard-stat-lbl">ERA</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{p.strikeouts ?? "—"}</span><span className="pcard-stat-lbl">K</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{p.inningsPitched ?? "—"}</span><span className="pcard-stat-lbl">IP</span></span>
+            </>
+          ) : null}
+        </div>
 
         {favorite.tags?.length > 0 && (
-          <div className="tag-list">
+          <div className="pcard-tags">
             {favorite.tags.map((tag) => (
-              <span key={tag}>{tag}</span>
+              <span key={tag} className="pcard-tag">{tag}</span>
             ))}
           </div>
         )}
 
-        {favorite.playerType === "hitter" && h && (
-          <div className="stats">
-            <p>AVG: {h.battingAverage} | HR: {h.homeRuns} | RBI: {h.rbis}</p>
-          </div>
-        )}
-        {favorite.playerType === "pitcher" && p && (
-          <div className="stats">
-            <p>ERA: {p.era} | SO: {p.strikeouts} | IP: {p.inningsPitched}</p>
-          </div>
-        )}
-      </Link>
+        {favorite.note && <p className="pcard-note">{favorite.note}</p>}
+      </div>
 
+      {/* アクションボタン（コンペアモード以外） */}
       {!selectable && (
-        <div className="mt-4 text-center">
-          <Link className="home-link secondary" to={editPath}>
-            Edit →
-          </Link>
-        </div>
+        <Link to={editPath} className="pcard-action">
+          Edit →
+        </Link>
       )}
     </article>
   );

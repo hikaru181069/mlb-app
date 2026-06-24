@@ -130,7 +130,7 @@ function FavoritesPage() {
         )}
 
         {loading && (
-          <div className="favorite-list">
+          <div className="pcard-list">
             {Array.from({ length: 3 }, (_, i) => <SkeletonCard key={i} />)}
           </div>
         )}
@@ -147,7 +147,7 @@ function FavoritesPage() {
         )}
 
         {!loading && favorites.length > 0 && (
-          <div className="player-list">
+          <div className="pcard-list">
             {favorites.map((favorite) => (
               <FavoritePlayerCard
                 key={favorite._id}

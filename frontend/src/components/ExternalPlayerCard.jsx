@@ -1,61 +1,67 @@
 import { Link } from "react-router-dom";
 
+const HEADSHOT = (id) =>
+  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_120,q_auto:best/v1/people/${id}/headshot/67/current`;
+
 function ExternalPlayerCard({ player, alreadySaved, detailState }) {
   const detailPath = `/players/${player.mlbPlayerId}`;
   const h = player.hitterStats;
   const p = player.pitcherStats;
+  const isHitter = player.playerType !== "pitcher";
+  const reason   = player.recommendationReasons?.[0];
 
   return (
-    <article className="player-card">
-      <Link className="player-card-link" to={detailPath} state={detailState}>
-        {player.image && (
-          <div className="player-image-wrapper">
-            <img className="player-image" src={player.image} alt={player.name} />
-          </div>
+    <article className="pcard">
+      <div className="pcard-img-wrap">
+        <img
+          src={HEADSHOT(player.mlbPlayerId)}
+          alt={player.name}
+          className="pcard-img"
+          onError={(e) => { e.currentTarget.classList.add("pcard-img--faded"); }}
+        />
+        {player.teamId && (
+          <img
+            src={`https://www.mlbstatic.com/team-logos/${player.teamId}.svg`}
+            alt={player.team}
+            className="pcard-team-badge"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
         )}
-
-        <h2>{player.name}</h2>
-
-        <div className="player-card-team">
-          {player.teamId && (
-            <img
-              src={`https://www.mlbstatic.com/team-logos/${player.teamId}.svg`}
-              alt={player.team}
-              className="player-card-team-logo"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-          )}
-          <span>{player.team}</span>
-        </div>
-        <p>Position: {player.position}</p>
-
-        {player.recommendationReasons?.length > 0 && (
-          <p className="external-note">
-            {player.recommendationReasons.slice(0, 2).join(" / ")}
-          </p>
-        )}
-
-        {player.playerType === "hitter" && h && (
-          <div className="stats">
-            <p>AVG: {h.battingAverage} | HR: {h.homeRuns} | RBI: {h.rbis}</p>
-          </div>
-        )}
-        {player.playerType === "pitcher" && p && (
-          <div className="stats">
-            <p>ERA: {p.era} | SO: {p.strikeouts} | IP: {p.inningsPitched}</p>
-          </div>
-        )}
-      </Link>
-
-      <div className="mt-4 text-center">
-        <Link
-          className={`home-link${alreadySaved ? "" : " secondary"}`}
-          to={detailPath}
-          state={detailState}
-        >
-          {alreadySaved ? "Already Saved" : "View Detail →"}
-        </Link>
       </div>
+
+      <div className="pcard-body">
+        <Link to={detailPath} state={detailState} className="pcard-name">
+          {player.name}
+        </Link>
+        <div className="pcard-meta">
+          {player.position && <span className="pcard-pos">{player.position}</span>}
+          {player.team && <span className="pcard-team">{player.team}</span>}
+        </div>
+        <div className="pcard-stats">
+          {isHitter && h ? (
+            <>
+              <span className="pcard-stat"><span className="pcard-stat-val">{h.battingAverage ?? "—"}</span><span className="pcard-stat-lbl">AVG</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{h.homeRuns ?? "—"}</span><span className="pcard-stat-lbl">HR</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{h.rbis ?? "—"}</span><span className="pcard-stat-lbl">RBI</span></span>
+            </>
+          ) : p ? (
+            <>
+              <span className="pcard-stat"><span className="pcard-stat-val">{p.era ?? "—"}</span><span className="pcard-stat-lbl">ERA</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{p.strikeouts ?? "—"}</span><span className="pcard-stat-lbl">K</span></span>
+              <span className="pcard-stat"><span className="pcard-stat-val">{p.inningsPitched ?? "—"}</span><span className="pcard-stat-lbl">IP</span></span>
+            </>
+          ) : null}
+        </div>
+        {reason && <p className="pcard-note">{reason}</p>}
+      </div>
+
+      <Link
+        to={detailPath}
+        state={detailState}
+        className={`pcard-action${alreadySaved ? " pcard-action--saved" : ""}`}
+      >
+        {alreadySaved ? "Saved ✓" : "View →"}
+      </Link>
     </article>
   );
 }
