@@ -8931,11 +8931,28 @@ button:active {
   margin: 0;
 }
 
-/* カード群 */
+/* カード群: 横スクロール */
 .foryou-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  /* スクロールバーを細く・控えめに */
+  scrollbar-width: thin;
+  scrollbar-color: var(--ctp-surface2) transparent;
+  /* スクロールがグループ端で止まるよう左右に余白 */
+  scroll-padding-inline: 4px;
+}
+.foryou-cards::-webkit-scrollbar {
+  height: 4px;
+}
+.foryou-cards::-webkit-scrollbar-track {
+  background: transparent;
+}
+.foryou-cards::-webkit-scrollbar-thumb {
+  background: var(--ctp-surface2);
+  border-radius: 999px;
 }
 
 /* 推薦カード */
@@ -8947,6 +8964,10 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  /* 横スクロール時に縮まないよう幅を固定 */
+  min-width: 300px;
+  width: 300px;
+  flex-shrink: 0;
   transition:
     border-color 150ms ease,
     transform 150ms ease;
