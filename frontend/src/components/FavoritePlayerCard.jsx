@@ -2,15 +2,20 @@ import { Link } from "react-router-dom";
 import { mlbTeams } from "../services/mlbTeams";
 
 const HEADSHOT = (id) =>
-  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_120,q_auto:best/v1/people/${id}/headshot/67/current`;
+  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_160,h_160,c_fill,g_face,q_auto:best/v1/people/${id}/headshot/67/current`;
 
-function FavoritePlayerCard({ favorite, selectable = false, selected = false, onToggle }) {
+function FavoritePlayerCard({
+  favorite,
+  selectable = false,
+  selected = false,
+  onToggle,
+}) {
   const h = favorite.hitterStats;
   const p = favorite.pitcherStats;
-  const editPath  = `/favorites/${favorite._id}`;
-  const isHitter  = favorite.playerType !== "pitcher";
+  const editPath = `/favorites/${favorite._id}`;
+  const isHitter = favorite.playerType !== "pitcher";
   const teamEntry = mlbTeams.find(
-    (t) => t.name.toLowerCase() === (favorite.teamName || "").toLowerCase()
+    (t) => t.name.toLowerCase() === (favorite.teamName || "").toLowerCase(),
   );
 
   const handleClick = (e) => {
@@ -39,14 +44,18 @@ function FavoritePlayerCard({ favorite, selectable = false, selected = false, on
           src={HEADSHOT(favorite.mlbPlayerId)}
           alt={favorite.fullName}
           className="pcard-img"
-          onError={(e) => { e.currentTarget.classList.add("pcard-img--faded"); }}
+          onError={(e) => {
+            e.currentTarget.classList.add("pcard-img--faded");
+          }}
         />
         {teamEntry && (
           <img
             src={`https://www.mlbstatic.com/team-logos/${teamEntry.id}.svg`}
             alt={favorite.teamName}
             className="pcard-team-badge"
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
           />
         )}
       </div>
@@ -63,22 +72,48 @@ function FavoritePlayerCard({ favorite, selectable = false, selected = false, on
         </Link>
 
         <div className="pcard-meta">
-          {favorite.position && <span className="pcard-pos">{favorite.position}</span>}
-          {favorite.teamName && <span className="pcard-team">{favorite.teamName}</span>}
+          {favorite.position && (
+            <span className="pcard-pos">{favorite.position}</span>
+          )}
+          {favorite.teamName && (
+            <span className="pcard-team">{favorite.teamName}</span>
+          )}
         </div>
 
         <div className="pcard-stats">
           {isHitter && h ? (
             <>
-              <span className="pcard-stat"><span className="pcard-stat-val">{h.battingAverage ?? "—"}</span><span className="pcard-stat-lbl">AVG</span></span>
-              <span className="pcard-stat"><span className="pcard-stat-val">{h.homeRuns ?? "—"}</span><span className="pcard-stat-lbl">HR</span></span>
-              <span className="pcard-stat"><span className="pcard-stat-val">{h.rbis ?? "—"}</span><span className="pcard-stat-lbl">RBI</span></span>
+              <span className="pcard-stat">
+                <span className="pcard-stat-val">
+                  {h.battingAverage ?? "—"}
+                </span>
+                <span className="pcard-stat-lbl">AVG</span>
+              </span>
+              <span className="pcard-stat">
+                <span className="pcard-stat-val">{h.homeRuns ?? "—"}</span>
+                <span className="pcard-stat-lbl">HR</span>
+              </span>
+              <span className="pcard-stat">
+                <span className="pcard-stat-val">{h.rbis ?? "—"}</span>
+                <span className="pcard-stat-lbl">RBI</span>
+              </span>
             </>
           ) : p ? (
             <>
-              <span className="pcard-stat"><span className="pcard-stat-val">{p.era ?? "—"}</span><span className="pcard-stat-lbl">ERA</span></span>
-              <span className="pcard-stat"><span className="pcard-stat-val">{p.strikeouts ?? "—"}</span><span className="pcard-stat-lbl">K</span></span>
-              <span className="pcard-stat"><span className="pcard-stat-val">{p.inningsPitched ?? "—"}</span><span className="pcard-stat-lbl">IP</span></span>
+              <span className="pcard-stat">
+                <span className="pcard-stat-val">{p.era ?? "—"}</span>
+                <span className="pcard-stat-lbl">ERA</span>
+              </span>
+              <span className="pcard-stat">
+                <span className="pcard-stat-val">{p.strikeouts ?? "—"}</span>
+                <span className="pcard-stat-lbl">K</span>
+              </span>
+              <span className="pcard-stat">
+                <span className="pcard-stat-val">
+                  {p.inningsPitched ?? "—"}
+                </span>
+                <span className="pcard-stat-lbl">IP</span>
+              </span>
             </>
           ) : null}
         </div>
@@ -86,7 +121,9 @@ function FavoritePlayerCard({ favorite, selectable = false, selected = false, on
         {favorite.tags?.length > 0 && (
           <div className="pcard-tags">
             {favorite.tags.map((tag) => (
-              <span key={tag} className="pcard-tag">{tag}</span>
+              <span key={tag} className="pcard-tag">
+                {tag}
+              </span>
             ))}
           </div>
         )}

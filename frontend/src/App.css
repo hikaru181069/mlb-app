@@ -9309,7 +9309,6 @@ button:active {
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  object-position: center 40%;
   background: var(--ctp-surface1);
   display: block;
 }
