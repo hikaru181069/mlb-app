@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
 import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 import { Search as SearchIcon } from "lucide-react";
 import SkeletonCard from "../components/SkeletonCard";
 import { getAuthToken } from "../utils/authStorage";
@@ -199,7 +200,7 @@ function SearchPage() {
         {/* Results */}
         {/* Status messages */}
         {!loading && errorMessage && (
-          <p className="error-message">{errorMessage}</p>
+          <ErrorCard message={errorMessage} />
         )}
 
         {!loading && !errorMessage && players.length > 0 && (

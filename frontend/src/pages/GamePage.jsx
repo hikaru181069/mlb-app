@@ -15,6 +15,7 @@ import { getGame, getGamePlays, getGameHighlights } from "../services/api/gameAp
 import { formatGameDate, formatGameTime } from "../utils/datetime";
 import { getTeamColor } from "../services/teamColors";
 import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 
 // ── スケルトン ────────────────────────────────────────────────────────────────
 function SkeletonHighlightCard() {
@@ -304,6 +305,7 @@ function GamePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTeam, setActiveTeam] = useState("away");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -323,10 +325,10 @@ function GamePage() {
     return () => {
       active = false;
     };
-  }, [gamePk]);
+  }, [gamePk, retryKey]);
 
   if (loading) return <SkeletonGamePage />;
-  if (error) return <p className="error-message">{error}</p>;
+  if (error) return <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />;
   if (!game) return null;
 
   const isLive = game.abstractState === "Live";

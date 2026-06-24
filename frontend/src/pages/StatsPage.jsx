@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getLeaders } from "../services/api/statsApi";
 import { getApiErrorMessage } from "../services/api/apiError";
 import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 
 const TABS = [
   { key: "hitting", label: "Position Players" },
@@ -110,7 +111,7 @@ function StatsPage() {
       />
 
       <div className="screen-body px-6 py-6 w-full">
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {errorMessage && <ErrorCard message={errorMessage} />}
 
         <div className="stats-grid">
           {loading || !categories

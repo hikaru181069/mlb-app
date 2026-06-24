@@ -4,6 +4,7 @@ import { ChevronLeft, RotateCcw } from "lucide-react";
 
 import { getAuthToken } from "../utils/authStorage";
 import { getQuizRecommendations } from "../services/api/recommendationApi";
+import ErrorCard from "../components/ErrorCard";
 
 const HEADSHOT_URL = (id) =>
   `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
@@ -236,7 +237,7 @@ function RecommendationsPage() {
             ))}
           </div>
 
-          {error && <p className="error-message">{error}</p>}
+          {error && <ErrorCard message={error} />}
 
           <button
             className="quiz-submit-btn"

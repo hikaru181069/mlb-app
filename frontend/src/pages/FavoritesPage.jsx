@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import FavoritePlayerCard from "../components/FavoritePlayerCard";
 import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 import { Lock, Star as StarIcon } from "lucide-react";
 import SkeletonCard from "../components/SkeletonCard";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
@@ -126,7 +127,7 @@ function FavoritesPage() {
         )}
 
         {!loading && errorMessage && (
-          <p className="error-message">{errorMessage}</p>
+          <ErrorCard message={errorMessage} />
         )}
 
         {loading && (

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import PlayerStats from "../components/PlayerStats";
 import PlayerCard from "../components/PlayerCard";
 import PlayerYearByYear from "../components/PlayerYearByYear";
+import ErrorCard from "../components/ErrorCard";
 import { getAuthToken } from "../utils/authStorage";
 import {
   createFavorite,
@@ -28,6 +29,7 @@ function PlayerDetailPage() {
   const [targetArchetypes, setTargetArchetypes] = useState([]);
   const [targetStyleScores, setTargetStyleScores] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [statsRef, statsVisible] = useReveal();
   const [gamesRef, gamesVisible] = useReveal();
@@ -97,7 +99,7 @@ function PlayerDetailPage() {
       }
     };
     fetchPlayer();
-  }, [playerId]);
+  }, [playerId, retryKey]);
 
   const handleAddToFavorites = async () => {
     if (!token) {
@@ -171,8 +173,11 @@ function PlayerDetailPage() {
   if (errorMessage) {
     return (
       <div className="home-page px-6 py-12">
-        <p className="error-message">{errorMessage}</p>
-        <div className="home-actions">
+        <ErrorCard
+          message={errorMessage}
+          onRetry={() => setRetryKey((k) => k + 1)}
+        />
+        <div className="home-actions" style={{ marginTop: 16 }}>
           <Link className="home-link secondary" to="/">
             ← Back to Home
           </Link>

@@ -292,7 +292,7 @@ function ScoresTab() {
           {Array.from({ length: 10 }, (_, i) => <SkeletonScoreCard key={i} />)}
         </div>
       )}
-      {error && <p className="error-message">{error}</p>}
+      {error && <ErrorCard message={error} onRetry={() => setRetryKey((k) => k + 1)} />}
 
       {!loading && !error && games.length === 0 && (
         <div className="home-empty-state">

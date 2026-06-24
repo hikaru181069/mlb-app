@@ -20,6 +20,7 @@ import { CalendarDays, BarChart2 } from "lucide-react";
 
 import PlayerCard from "../components/PlayerCard";
 import PageHeader from "../components/PageHeader";
+import ErrorCard from "../components/ErrorCard";
 import SkeletonCard from "../components/SkeletonCard";
 import { getExternalPlayersByTeam } from "../services/api/externalPlayerApi";
 import { getTeam, getTeamSchedule, getTeamLeaders, getTeamInjuries } from "../services/api/teamApi";
@@ -125,7 +126,7 @@ function RosterTab({ teamId }) {
 
   return (
     <div>
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      {errorMessage && <ErrorCard message={errorMessage} />}
 
       {!loading && !errorMessage && players.length === 0 && (
         <div className="home-empty-state">
@@ -249,7 +250,7 @@ function ScheduleTab({ teamId }) {
       {Array.from({ length: 8 }, (_, i) => <SkeletonScheduleCard key={i} />)}
     </div>
   );
-  if (error) return <p className="error-message">{error}</p>;
+  if (error) return <ErrorCard message={error} />;
 
   if (games.length === 0) {
     return (
@@ -355,7 +356,7 @@ function LeadersTab({ teamId, season }) {
       {Array.from({ length: 4 }, (_, i) => <SkeletonLeaderCard key={i} />)}
     </div>
   );
-  if (error) return <p className="error-message">{error}</p>;
+  if (error) return <ErrorCard message={error} />;
 
   const hasAny = leaders.some((l) => l.leaders.length > 0);
   if (!hasAny) {
