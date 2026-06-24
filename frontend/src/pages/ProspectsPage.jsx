@@ -5,10 +5,34 @@ import { TrendingUp } from "lucide-react";
 import { getAuthToken } from "../utils/authStorage";
 import { getProspectRecommendations } from "../services/api/recommendationApi";
 import ErrorCard from "../components/ErrorCard";
+import PageHeader from "../components/PageHeader";
 
 const HEADSHOT_URL = (id) =>
   `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
 
+const TABS = [
+  { key: "hitters",  label: "Hitters" },
+  { key: "pitchers", label: "Pitchers" },
+];
+
+// ── 類似度スコアバー ──────────────────────────────────────────────────────────
+function SimScore({ pct }) {
+  const color =
+    pct >= 90 ? "var(--ctp-green)"
+    : pct >= 75 ? "var(--ctp-sapphire)"
+    : "var(--ctp-peach)";
+  return (
+    <div className="prospect-sim-score">
+      <span className="prospect-sim-pct" style={{ color }}>{pct}%</span>
+      <div className="prospect-sim-bar-bg">
+        <div className="prospect-sim-bar" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="prospect-sim-label">match</span>
+    </div>
+  );
+}
+
+// ── プロスペクトカード ─────────────────────────────────────────────────────────
 function ProspectCard({ prospect, showSim }) {
   const {
     playerId, fullName, level, team, parentOrg, parentOrgId,
@@ -45,8 +69,7 @@ function ProspectCard({ prospect, showSim }) {
         </div>
 
         <p className="prospect-card-name">{fullName}</p>
-        <p className="prospect-card-team">{team}</p>
-        {parentOrg && <p className="prospect-card-org">{parentOrg} prospect</p>}
+        <p className="prospect-card-team">{parentOrg ? `${team} · ${parentOrg}` : team}</p>
 
         <div className="prospect-card-stats">
           {isPitcher ? (
@@ -98,19 +121,17 @@ function ProspectCard({ prospect, showSim }) {
       </div>
 
       {showSim && similarityPercentage != null && (
-        <div className="prospect-card-sim">
-          <span className="prospect-sim-pct">{similarityPercentage}%</span>
-          <span className="prospect-sim-label">match</span>
-        </div>
+        <SimScore pct={similarityPercentage} />
       )}
     </Link>
   );
 }
 
+// ── スケルトン ────────────────────────────────────────────────────────────────
 function SkeletonProspectCard() {
   return (
     <div className="prospect-card prospect-card--skeleton">
-      <div className="prospect-card-headshot skeleton-block" style={{ borderRadius: "50%", width: 64, height: 64, flexShrink: 0 }} />
+      <div className="skeleton-block" style={{ width: 56, height: 72, borderRadius: 8, flexShrink: 0 }} />
       <div className="prospect-card-body">
         <div className="skeleton-block" style={{ width: 60, height: 14, borderRadius: 4, marginBottom: 6 }} />
         <div className="skeleton-block" style={{ width: 130, height: 18, borderRadius: 4, marginBottom: 4 }} />
@@ -120,33 +141,14 @@ function SkeletonProspectCard() {
   );
 }
 
-function ProspectSection({ title, prospects, showSim, loading }) {
-  return (
-    <div className="prospect-section">
-      <h2 className="prospect-section-title">{title}</h2>
-      {loading ? (
-        <div className="prospect-list">
-          {Array.from({ length: 4 }, (_, i) => <SkeletonProspectCard key={i} />)}
-        </div>
-      ) : prospects.length === 0 ? (
-        <p className="prospect-section-empty">No prospects available.</p>
-      ) : (
-        <div className="prospect-list">
-          {prospects.map((p) => (
-            <ProspectCard key={p.playerId} prospect={p} showSim={showSim} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
+// ── ProspectsPage ─────────────────────────────────────────────────────────────
 function ProspectsPage() {
   const token = getAuthToken();
-  const [hitters, setHitters]   = useState([]);
-  const [pitchers, setPitchers] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState("");
+  const [hitters, setHitters]     = useState([]);
+  const [pitchers, setPitchers]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState("");
+  const [activeTab, setActiveTab] = useState("hitters");
 
   useEffect(() => {
     if (!token) { setLoading(false); return; }
@@ -161,52 +163,53 @@ function ProspectsPage() {
 
   if (!token) {
     return (
-      <div className="home-page px-6 py-16">
-        <div className="home-empty-state">
-          <span className="empty-state-icon"><TrendingUp size={36} strokeWidth={1.5} /></span>
-          <p className="empty-state-title">Login to see prospects</p>
-          <p className="empty-state-desc">We match minor league prospects to your favorite players.</p>
-          <div className="home-actions">
-            <Link className="home-link" to="/login">Login</Link>
-            <Link className="home-link secondary" to="/register">Register</Link>
+      <div className="app-screen">
+        <PageHeader kicker="Minor Leagues" title="Prospects to Watch" />
+        <div className="screen-body px-6 py-16">
+          <div className="home-empty-state">
+            <span className="empty-state-icon"><TrendingUp size={36} strokeWidth={1.5} /></span>
+            <p className="empty-state-title">Login to see prospects</p>
+            <p className="empty-state-desc">We match minor league prospects to your favorite players.</p>
+            <div className="home-actions">
+              <Link className="home-link" to="/login">Login</Link>
+              <Link className="home-link secondary" to="/register">Register</Link>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  const hasHitterFavs  = hitters.some((p) => p.similarityPercentage != null);
-  const hasPitcherFavs = pitchers.some((p) => p.similarityPercentage != null);
+  const prospects = activeTab === "hitters" ? hitters : pitchers;
+  const showSim   = prospects.some((p) => p.similarityPercentage != null);
 
   return (
-    <div className="home-page px-6 py-10">
-      <section className="home-hero w-full max-w-2xl px-8 py-10 md:px-12 md:py-12">
-        <p className="home-kicker text-sm">Minor Leagues</p>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-          Prospects to Watch
-        </h1>
-        <p className="home-description mt-4 text-base">
-          AAA and AA players to keep an eye on this season.
-        </p>
-      </section>
+    <div className="app-screen">
+      <PageHeader
+        kicker="Minor Leagues"
+        title="Prospects to Watch"
+        subtitle="AAA · AA players matched to your favorites"
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-      <div className="home-content mt-2 w-full">
+      <div className="screen-body px-5 py-4 w-full">
         {error && <ErrorCard message={error} />}
 
-        <div className="prospects-columns">
-          <ProspectSection
-            title="Hitters"
-            prospects={hitters}
-            showSim={hasHitterFavs}
-            loading={loading}
-          />
-          <ProspectSection
-            title="Pitchers"
-            prospects={pitchers}
-            showSim={hasPitcherFavs}
-            loading={loading}
-          />
-        </div>
+        {loading ? (
+          <div className="prospect-list">
+            {Array.from({ length: 5 }, (_, i) => <SkeletonProspectCard key={i} />)}
+          </div>
+        ) : prospects.length === 0 ? (
+          <p className="prospect-section-empty">No prospects available.</p>
+        ) : (
+          <div className="prospect-list">
+            {prospects.map((p) => (
+              <ProspectCard key={p.playerId} prospect={p} showSim={showSim} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

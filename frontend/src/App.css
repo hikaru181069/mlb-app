@@ -8604,7 +8604,7 @@ button:active {
 .prospect-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   max-width: 640px;
 }
@@ -8613,7 +8613,7 @@ button:active {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   border: 1px solid var(--ctp-surface1);
   border-radius: 16px;
   background: var(--ctp-mantle);
@@ -8622,7 +8622,6 @@ button:active {
     border-color 150ms ease,
     background 150ms ease,
     transform 150ms ease;
-  position: relative;
 }
 
 .prospect-card:hover {
@@ -8635,16 +8634,18 @@ button:active {
   pointer-events: none;
 }
 
+/* C: 長方形ポートレートヘッドショット */
 .prospect-card-headshot {
   position: relative;
   flex-shrink: 0;
 }
 
 .prospect-card-img {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
+  width: 56px;
+  height: 72px;
+  border-radius: 8px;
   object-fit: cover;
+  object-position: top;
   background: var(--ctp-surface1);
 }
 
@@ -8652,8 +8653,8 @@ button:active {
   position: absolute;
   bottom: -4px;
   right: -4px;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--ctp-crust);
   border: 2px solid var(--ctp-mantle);
@@ -8702,18 +8703,13 @@ button:active {
 .prospect-card-team {
   font-size: 12px;
   color: var(--ctp-subtext1);
-  margin: 0 0 2px;
-}
-
-.prospect-card-org {
-  font-size: 11px;
-  color: var(--ctp-subtext0);
   margin: 0 0 6px;
 }
 
 .prospect-card-stats {
   display: flex;
   gap: 12px;
+  margin-bottom: 4px;
 }
 
 .prospect-stat {
@@ -8737,25 +8733,45 @@ button:active {
   color: var(--ctp-subtext0);
 }
 
+/* E: reason ラベル */
 .prospect-card-reason {
   font-size: 11px;
   color: var(--ctp-lavender);
-  margin: 4px 0 0;
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.prospect-card-sim {
+/* D: 類似度スコアバー（カード右端） */
+.prospect-sim-score {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   flex-shrink: 0;
+  width: 52px;
   padding-left: 8px;
 }
 
 .prospect-sim-pct {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
-  color: var(--ctp-lavender);
+  line-height: 1;
+}
+
+.prospect-sim-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: var(--ctp-surface1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.prospect-sim-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 400ms ease;
 }
 
 .prospect-sim-label {
@@ -8766,35 +8782,9 @@ button:active {
   color: var(--ctp-subtext0);
 }
 
-.prospect-section {
-  margin-bottom: 40px;
-}
-
-.prospect-section-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--ctp-text);
-  margin: 0 0 14px;
-  letter-spacing: -0.02em;
-}
-
 .prospect-section-empty {
   font-size: 13px;
   color: var(--ctp-subtext0);
-}
-
-.prospects-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  align-items: start;
-  width: 100%;
-}
-
-@media (max-width: 700px) {
-  .prospects-columns {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
