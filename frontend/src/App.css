@@ -8811,32 +8811,9 @@ button:active {
    For You Page
 ═══════════════════════════════════════════════════════════════════ */
 
-.foryou-page {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 24px 20px 48px;
-}
-
-.foryou-header {
-  margin-bottom: 28px;
-}
-
-.foryou-title {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--ctp-text);
-  margin: 0 0 6px;
-}
-
-.foryou-subtitle {
-  font-size: 13px;
-  color: var(--ctp-subtext0);
-  margin: 0;
-}
-
 /* グループ */
 .foryou-group {
-  margin-bottom: 36px;
+  margin-bottom: 20px;
 }
 
 /* C: シード選手カード */
@@ -8844,11 +8821,11 @@ button:active {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: var(--ctp-mantle);
   border: 1px solid var(--ctp-surface1);
   border-radius: 14px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .foryou-seed-img-wrap {
@@ -8960,10 +8937,10 @@ button:active {
   background: var(--ctp-surface0);
   border: 1px solid var(--ctp-surface1);
   border-radius: 18px;
-  padding: 22px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   /* 横スクロール時に縮まないよう幅を固定 */
   min-width: 300px;
   width: 300px;
@@ -9428,12 +9405,6 @@ button:active {
 }
 .foryou-empty-quiz-link:hover {
   text-decoration: underline;
-}
-
-@media (max-width: 600px) {
-  .foryou-cards {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ── Player Card (pcard) ── 水平レイアウトの選手カード ────────────────────── */

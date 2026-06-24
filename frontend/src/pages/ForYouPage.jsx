@@ -5,6 +5,7 @@ import { getAuthToken } from "../utils/authStorage";
 import { getForYouRecommendations } from "../services/api/recommendationApi";
 import { createFavorite, getFavorites } from "../services/api/favoriteApi";
 import { useToast } from "../contexts/ToastContext";
+import PageHeader from "../components/PageHeader";
 
 const HEADSHOT_URL = (id) =>
   `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
@@ -21,7 +22,7 @@ const PITCHER_STATS = [
   { key: "wins",       label: "W",   fmt: (v) => v ?? "—" },
 ];
 
-// ── 類似度スコア (B) ──────────────────────────────────────────────────────────
+// ── 類似度スコアバー ──────────────────────────────────────────────────────────
 function SimScore({ pct }) {
   const color =
     pct >= 90 ? "var(--ctp-green)"
@@ -37,11 +38,10 @@ function SimScore({ pct }) {
   );
 }
 
-// ── スタット比較テーブル ────────────────────────────────────────────────────
+// ── スタット比較テーブル ───────────────────────────────────────────────────────
 function StatComparison({ seedName, seedStats, matchStats, playerType }) {
   const rows = playerType === "pitcher" ? PITCHER_STATS : HITTER_STATS;
   const seedLabel = seedName.split(" ").slice(-1)[0];
-
   return (
     <div className="foryou-stat-comparison">
       <div className="foryou-stat-header">
@@ -60,7 +60,7 @@ function StatComparison({ seedName, seedStats, matchStats, playerType }) {
   );
 }
 
-// ── 推薦カード (A: 保存ボタン追加 / B: SimScore) ────────────────────────────
+// ── 推薦カード ────────────────────────────────────────────────────────────────
 function ForYouCard({ match, seedPlayer, isSaved, onSave, saving }) {
   return (
     <div className="foryou-card">
@@ -80,8 +80,6 @@ function ForYouCard({ match, seedPlayer, isSaved, onSave, saving }) {
             </p>
           </div>
         </Link>
-
-        {/* A: お気に入り追加ボタン */}
         <button
           className={`foryou-save-btn${isSaved ? " foryou-save-btn--saved" : ""}`}
           onClick={() => !isSaved && onSave(match)}
@@ -92,7 +90,6 @@ function ForYouCard({ match, seedPlayer, isSaved, onSave, saving }) {
         </button>
       </div>
 
-      {/* B: 類似度スコアバー */}
       <SimScore pct={match.similarityPercentage} />
 
       <StatComparison
@@ -109,7 +106,7 @@ function ForYouCard({ match, seedPlayer, isSaved, onSave, saving }) {
   );
 }
 
-// ── シード選手グループヘッダー (C) ───────────────────────────────────────────
+// ── シード選手グループ ─────────────────────────────────────────────────────────
 function SeedGroup({ group, savedIds, onSave, saving }) {
   const { seedPlayer, matches } = group;
   const isPitcher = seedPlayer.playerType === "pitcher";
@@ -117,7 +114,6 @@ function SeedGroup({ group, savedIds, onSave, saving }) {
 
   return (
     <section className="foryou-group">
-      {/* C: pcardスタイルのシード選手カード */}
       <div className="foryou-seed-card">
         <div className="foryou-seed-img-wrap">
           <img
@@ -157,41 +153,36 @@ function SeedGroup({ group, savedIds, onSave, saving }) {
   );
 }
 
-// ── スケルトン ──────────────────────────────────────────────────────────────
+// ── スケルトン ────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
-    <div className="foryou-page">
-      <header className="foryou-header">
-        <div className="skeleton-block" style={{ width: 120, height: 28, borderRadius: 6 }} />
-        <div className="skeleton-block" style={{ width: 220, height: 16, borderRadius: 4, marginTop: 8 }} />
-      </header>
+    <>
       {[0, 1].map((i) => (
         <div key={i} className="foryou-group">
-          <div className="skeleton-block" style={{ width: 200, height: 40, borderRadius: 8, marginBottom: 16 }} />
-          <div className="foryou-cards">
+          <div className="skeleton-block" style={{ height: 78, borderRadius: 14, marginBottom: 10 }} />
+          <div style={{ display: "flex", gap: 16, overflow: "hidden" }}>
             {[0, 1, 2].map((j) => (
-              <div key={j} className="skeleton-block" style={{ flex: 1, minWidth: 260, height: 200, borderRadius: 18 }} />
+              <div key={j} className="skeleton-block" style={{ minWidth: 300, width: 300, height: 200, borderRadius: 18, flexShrink: 0 }} />
             ))}
           </div>
         </div>
       ))}
-    </div>
+    </>
   );
 }
 
-// ── For You ページ ──────────────────────────────────────────────────────────
+// ── For You ページ ────────────────────────────────────────────────────────────
 function ForYouPage() {
   const token = getAuthToken();
   const { addToast } = useToast();
 
-  const [data, setData]       = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData]         = useState(null);
+  const [loading, setLoading]   = useState(true);
   const [savedIds, setSavedIds] = useState(new Set());
-  const [saving, setSaving]   = useState(null);
+  const [saving, setSaving]     = useState(null);
 
   useEffect(() => {
     if (!token) { setLoading(false); return; }
-
     Promise.all([
       getForYouRecommendations(token),
       getFavorites(token).catch(() => []),
@@ -217,90 +208,92 @@ function ForYouPage() {
     }
   };
 
-  if (!token) {
-    return (
-      <div className="foryou-page">
-        <div className="foryou-empty">
-          <Sparkles size={40} strokeWidth={1.5} className="foryou-empty-icon" />
-          <p className="foryou-empty-title">Personalized picks, just for you</p>
-          <p className="foryou-empty-desc">
-            Add players to your Favorites and we&apos;ll find similar players across the league.
-          </p>
-          <Link to="/login" className="foryou-login-btn">Login to get started</Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) return <Skeleton />;
-
   const groups   = data?.groups   ?? [];
   const fallback = data?.fallback ?? [];
 
   return (
-    <div className="foryou-page">
-      <header className="foryou-header">
-        <h1 className="foryou-title">For You</h1>
-        <p className="foryou-subtitle">
-          {groups.length > 0
-            ? "Players who play like your favorites — ranked by similarity"
-            : "Add favorites to get personalized picks"}
-        </p>
-      </header>
+    <div className="app-screen">
+      <PageHeader
+        kicker="Personalized"
+        title="For You"
+        subtitle="Players matched to your favorites by playstyle"
+      />
 
-      {groups.map((group) => (
-        <SeedGroup
-          key={group.seedPlayer.mlbPlayerId}
-          group={group}
-          savedIds={savedIds}
-          onSave={handleSave}
-          saving={saving}
-        />
-      ))}
+      <div className="screen-body px-5 py-4 w-full">
 
-      {groups.length === 0 && fallback.length > 0 && (
-        <section className="foryou-group">
-          <div className="foryou-group-header foryou-group-header--fallback">
-            <p className="foryou-group-name">Popular Players</p>
+        {/* 未ログイン */}
+        {!token && (
+          <div className="foryou-empty">
+            <Sparkles size={40} strokeWidth={1.5} className="foryou-empty-icon" />
+            <p className="foryou-empty-title">Personalized picks, just for you</p>
+            <p className="foryou-empty-desc">
+              Add players to your Favorites and we&apos;ll find similar players across the league.
+            </p>
+            <Link to="/login" className="foryou-login-btn">Login to get started</Link>
           </div>
-          <div className="foryou-cards">
-            {fallback.map((p) => (
-              <div key={p.mlbPlayerId} className="foryou-card foryou-card--simple">
-                <Link to={`/players/${p.mlbPlayerId}`} className="foryou-card-player-link">
-                  <img
-                    src={HEADSHOT_URL(p.mlbPlayerId)}
-                    alt={p.name}
-                    className="foryou-card-img"
-                    onError={(e) => { e.currentTarget.style.opacity = "0.4"; }}
-                  />
-                  <div className="foryou-card-info">
-                    <p className="foryou-card-name">{p.name}</p>
-                    <p className="foryou-card-meta">{p.team}</p>
-                  </div>
-                </Link>
-                <Link to={`/scout/${p.mlbPlayerId}`} className="foryou-scout-btn">
-                  Scouting Report →
-                </Link>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+        )}
 
-      {groups.length === 0 && fallback.length === 0 && (
-        <div className="foryou-empty">
-          <Star size={40} strokeWidth={1.5} className="foryou-empty-icon" />
-          <p className="foryou-empty-title">Add players to get recommendations</p>
-          <p className="foryou-empty-desc">
-            Favorite a few MLB players and we&apos;ll find others who match their style.
-          </p>
-          <Link to="/favorites" className="foryou-login-btn">Go to Favorites</Link>
-          <p className="foryou-empty-hint">
-            Not sure who to add?{" "}
-            <Link to="/recommendations" className="foryou-empty-quiz-link">Try the Discovery Quiz →</Link>
-          </p>
-        </div>
-      )}
+        {/* ローディング */}
+        {token && loading && <Skeleton />}
+
+        {/* グループ一覧 */}
+        {token && !loading && groups.map((group) => (
+          <SeedGroup
+            key={group.seedPlayer.mlbPlayerId}
+            group={group}
+            savedIds={savedIds}
+            onSave={handleSave}
+            saving={saving}
+          />
+        ))}
+
+        {/* フォールバック: お気に入りなし → 人気選手 */}
+        {token && !loading && groups.length === 0 && fallback.length > 0 && (
+          <section className="foryou-group">
+            <div className="foryou-group-header foryou-group-header--fallback">
+              <p className="foryou-group-name">Popular Players</p>
+            </div>
+            <div className="foryou-cards">
+              {fallback.map((p) => (
+                <div key={p.mlbPlayerId} className="foryou-card foryou-card--simple">
+                  <Link to={`/players/${p.mlbPlayerId}`} className="foryou-card-player-link">
+                    <img
+                      src={HEADSHOT_URL(p.mlbPlayerId)}
+                      alt={p.name}
+                      className="foryou-card-img"
+                      onError={(e) => { e.currentTarget.style.opacity = "0.4"; }}
+                    />
+                    <div className="foryou-card-info">
+                      <p className="foryou-card-name">{p.name}</p>
+                      <p className="foryou-card-meta">{p.team}</p>
+                    </div>
+                  </Link>
+                  <Link to={`/scout/${p.mlbPlayerId}`} className="foryou-scout-btn">
+                    Scouting Report →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 完全な空状態 */}
+        {token && !loading && groups.length === 0 && fallback.length === 0 && (
+          <div className="foryou-empty">
+            <Star size={40} strokeWidth={1.5} className="foryou-empty-icon" />
+            <p className="foryou-empty-title">Add players to get recommendations</p>
+            <p className="foryou-empty-desc">
+              Favorite a few MLB players and we&apos;ll find others who match their style.
+            </p>
+            <Link to="/favorites" className="foryou-login-btn">Go to Favorites</Link>
+            <p className="foryou-empty-hint">
+              Not sure who to add?{" "}
+              <Link to="/recommendations" className="foryou-empty-quiz-link">Try the Discovery Quiz →</Link>
+            </p>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
