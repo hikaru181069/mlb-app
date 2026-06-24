@@ -1167,7 +1167,9 @@ input {
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  transition: opacity 150ms ease, transform 100ms ease;
+  transition:
+    opacity 150ms ease,
+    transform 100ms ease;
   background: var(--ctp-mauve);
   color: var(--ctp-crust);
 }
@@ -1221,7 +1223,9 @@ input {
   text-decoration: none;
   transition: opacity 150ms ease;
 }
-.home-start-btn:hover { opacity: 0.85; }
+.home-start-btn:hover {
+  opacity: 0.85;
+}
 
 /* 機能タイルグリッド ──────────────────────────────────────────────────────── */
 .home-tiles {
@@ -1241,11 +1245,18 @@ input {
   border-left: 3px solid var(--tile-color, var(--ctp-sapphire));
   border-radius: 16px;
   text-decoration: none;
-  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  transition:
+    background 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .home-tile:hover {
-  background: color-mix(in srgb, var(--tile-color, var(--ctp-sapphire)) 8%, var(--ctp-surface0));
+  background: color-mix(
+    in srgb,
+    var(--tile-color, var(--ctp-sapphire)) 8%,
+    var(--ctp-surface0)
+  );
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
 }
@@ -1300,7 +1311,9 @@ input {
   border: 1px solid var(--ctp-surface1);
   background: var(--ctp-surface0);
   text-decoration: none;
-  transition: border-color 150ms ease, background 150ms ease;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease;
 }
 .home-prospects-banner:hover {
   border-color: var(--ctp-sapphire);
@@ -1419,10 +1432,14 @@ input {
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   cursor: pointer;
-  transition: color 150ms ease, border-color 150ms ease;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
 }
 
-.discovery-tab:hover  { color: var(--ctp-text); }
+.discovery-tab:hover {
+  color: var(--ctp-text);
+}
 
 .discovery-tab.active {
   color: var(--ctp-lavender);
@@ -1439,7 +1456,9 @@ input {
   -webkit-overflow-scrolling: touch;
 }
 
-.discovery-scroll::-webkit-scrollbar { display: none; }
+.discovery-scroll::-webkit-scrollbar {
+  display: none;
+}
 
 /* 選手カード */
 .discovery-card {
@@ -1453,7 +1472,9 @@ input {
   transition: transform 150ms ease;
 }
 
-.discovery-card:hover { transform: translateY(-3px); }
+.discovery-card:hover {
+  transform: translateY(-3px);
+}
 
 .discovery-card-img-wrap {
   position: relative;
@@ -1542,7 +1563,9 @@ input {
   text-decoration: none;
   letter-spacing: 0.02em;
 }
-.discovery-card-scout-link:hover { text-decoration: underline; }
+.discovery-card-scout-link:hover {
+  text-decoration: underline;
+}
 
 /* ホーム推薦グループ */
 /* 後方互換: 旧クラス（使用箇所を title-row に統一済み） */
@@ -1560,7 +1583,9 @@ input {
   text-decoration: none;
   white-space: nowrap;
 }
-.discovery-see-all:hover { text-decoration: underline; }
+.discovery-see-all:hover {
+  text-decoration: underline;
+}
 
 .home-rec-group {
   margin-bottom: 20px;
@@ -1596,9 +1621,19 @@ input {
   gap: 8px;
 }
 
-.discovery-skeleton-img  { width: 76px; height: 76px; border-radius: 50%; }
-.discovery-skeleton-name { width: 80px; height: 13px; }
-.discovery-skeleton-stat { width: 48px; height: 13px; }
+.discovery-skeleton-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+}
+.discovery-skeleton-name {
+  width: 80px;
+  height: 13px;
+}
+.discovery-skeleton-stat {
+  width: 48px;
+  height: 13px;
+}
 
 /* アーキタイプチップ */
 .discovery-archetypes {
@@ -1614,13 +1649,24 @@ input {
   font-weight: 700;
   text-decoration: none;
   color: var(--chip-color, var(--ctp-text));
-  background: color-mix(in srgb, var(--chip-color, var(--ctp-surface1)) 12%, var(--ctp-mantle));
-  border: 1px solid color-mix(in srgb, var(--chip-color, var(--ctp-surface1)) 35%, transparent);
-  transition: background 150ms ease, transform 100ms ease;
+  background: color-mix(
+    in srgb,
+    var(--chip-color, var(--ctp-surface1)) 12%,
+    var(--ctp-mantle)
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--chip-color, var(--ctp-surface1)) 35%, transparent);
+  transition:
+    background 150ms ease,
+    transform 100ms ease;
 }
 
 .discovery-archetype-chip:hover {
-  background: color-mix(in srgb, var(--chip-color, var(--ctp-surface1)) 22%, var(--ctp-mantle));
+  background: color-mix(
+    in srgb,
+    var(--chip-color, var(--ctp-surface1)) 22%,
+    var(--ctp-mantle)
+  );
   transform: translateY(-1px);
 }
 
@@ -1678,7 +1724,9 @@ input {
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   cursor: pointer;
-  transition: color 150ms ease, border-color 150ms ease;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
 }
 
 .leaders-tab:hover {
@@ -1863,7 +1911,11 @@ input {
 
 .home-nav-card:hover {
   border-color: var(--card-color, var(--ctp-lavender));
-  background: color-mix(in srgb, var(--card-color, var(--ctp-lavender)) 7%, var(--ctp-mantle));
+  background: color-mix(
+    in srgb,
+    var(--card-color, var(--ctp-lavender)) 7%,
+    var(--ctp-mantle)
+  );
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
 }
@@ -1876,12 +1928,20 @@ input {
   width: 72px;
   height: 72px;
   border-radius: 16px;
-  background: color-mix(in srgb, var(--card-color, var(--ctp-lavender)) 14%, var(--ctp-mantle));
+  background: color-mix(
+    in srgb,
+    var(--card-color, var(--ctp-lavender)) 14%,
+    var(--ctp-mantle)
+  );
   transition: background 180ms ease;
 }
 
 .home-nav-card:hover .home-nav-card-visual {
-  background: color-mix(in srgb, var(--card-color, var(--ctp-lavender)) 22%, var(--ctp-mantle));
+  background: color-mix(
+    in srgb,
+    var(--card-color, var(--ctp-lavender)) 22%,
+    var(--ctp-mantle)
+  );
 }
 
 .home-nav-card-img {
@@ -3624,7 +3684,9 @@ button:disabled,
   color: var(--ctp-text);
   font-size: 0.82rem;
   text-decoration: none;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
   white-space: nowrap;
 }
 
@@ -8337,7 +8399,9 @@ button:active {
   font-size: 15px;
   font-weight: 800;
   cursor: pointer;
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
 }
 
 .quiz-submit-btn:hover:not(:disabled) {
@@ -8474,7 +8538,9 @@ button:active {
   font-weight: 700;
   cursor: pointer;
   align-self: center;
-  transition: border-color 150ms ease, color 150ms ease;
+  transition:
+    border-color 150ms ease,
+    color 150ms ease;
 }
 
 .quiz-reset-btn:hover {
@@ -8510,7 +8576,10 @@ button:active {
   border-radius: 16px;
   background: var(--ctp-mantle);
   text-decoration: none;
-  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
   position: relative;
 }
 
@@ -8727,7 +8796,9 @@ button:active {
   border-bottom: 1px solid var(--ctp-surface0);
 }
 
-.foryou-group-header--fallback { border: none; }
+.foryou-group-header--fallback {
+  border: none;
+}
 
 .foryou-seed-img {
   width: 44px;
@@ -8769,14 +8840,18 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  transition: border-color 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease;
 }
 .foryou-card:hover {
   border-color: var(--ctp-sapphire);
   transform: translateY(-2px);
 }
 
-.foryou-card--simple { gap: 14px; }
+.foryou-card--simple {
+  gap: 14px;
+}
 
 .foryou-card-top {
   display: flex;
@@ -8803,7 +8878,9 @@ button:active {
   flex-shrink: 0;
 }
 
-.foryou-card-info { min-width: 0; }
+.foryou-card-info {
+  min-width: 0;
+}
 
 .foryou-card-name {
   font-size: 18px;
@@ -8862,8 +8939,12 @@ button:active {
   text-align: right;
 }
 
-.foryou-stat-col-match { color: var(--ctp-lavender); }
-.foryou-stat-col-seed  { color: var(--ctp-subtext0); }
+.foryou-stat-col-match {
+  color: var(--ctp-lavender);
+}
+.foryou-stat-col-seed {
+  color: var(--ctp-subtext0);
+}
 
 .foryou-stat-key {
   font-size: 11px;
@@ -8879,8 +8960,12 @@ button:active {
   text-align: right;
 }
 
-.foryou-stat-val.foryou-stat-col-match { color: var(--ctp-text); }
-.foryou-stat-val.foryou-stat-col-seed  { color: var(--ctp-subtext1); }
+.foryou-stat-val.foryou-stat-col-match {
+  color: var(--ctp-text);
+}
+.foryou-stat-val.foryou-stat-col-seed {
+  color: var(--ctp-subtext1);
+}
 
 /* ── Position Pages ───────────────────────────────────────────────────────── */
 
@@ -8916,11 +9001,18 @@ button:active {
   border-top: 3px solid var(--pos-color, var(--ctp-sapphire));
   border-radius: 14px;
   text-decoration: none;
-  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  transition:
+    background 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .pos-tile:hover {
-  background: color-mix(in srgb, var(--pos-color, var(--ctp-sapphire)) 10%, var(--ctp-surface0));
+  background: color-mix(
+    in srgb,
+    var(--pos-color, var(--ctp-sapphire)) 10%,
+    var(--ctp-surface0)
+  );
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
 }
@@ -8968,7 +9060,10 @@ button:active {
   background: var(--ctp-surface0);
   border: 1px solid var(--ctp-surface1);
   cursor: pointer;
-  transition: color 130ms ease, background 130ms ease, border-color 130ms ease;
+  transition:
+    color 130ms ease,
+    background 130ms ease,
+    border-color 130ms ease;
 }
 
 .pos-sort-btn:hover {
@@ -9098,7 +9193,9 @@ button:active {
   font-weight: 700;
   color: var(--ctp-sapphire);
   text-decoration: none;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 .foryou-scout-btn:hover {
   background: var(--ctp-surface1);
@@ -9146,7 +9243,9 @@ button:active {
   font-size: 13px;
   text-decoration: none;
 }
-.foryou-login-btn:hover { opacity: 0.85; }
+.foryou-login-btn:hover {
+  opacity: 0.85;
+}
 
 @media (max-width: 600px) {
   .foryou-cards {
@@ -9191,22 +9290,26 @@ button:active {
 
 .pcard--selected {
   border-color: var(--ctp-blue);
-  background: linear-gradient(135deg, rgba(137, 180, 250, 0.12), var(--ctp-surface0));
+  background: linear-gradient(
+    135deg,
+    rgba(137, 180, 250, 0.12),
+    var(--ctp-surface0)
+  );
 }
 
 .pcard-img-wrap {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   flex-shrink: 0;
 }
 
 .pcard-img {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  object-position: center 20%;
+  object-position: center 40%;
   background: var(--ctp-surface1);
   display: block;
 }
@@ -9222,7 +9325,7 @@ button:active {
   width: 22px;
   height: 22px;
   object-fit: contain;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
 }
 
 .pcard-body {
@@ -9327,7 +9430,9 @@ button:active {
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
   background: transparent;
   cursor: pointer;
   font-family: var(--app-font);
@@ -9360,7 +9465,9 @@ button:active {
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--ctp-base);
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 .pcard-check--active {
@@ -9385,12 +9492,12 @@ button:active {
     gap: 11px;
   }
   .pcard-img-wrap {
-    width: 52px;
-    height: 52px;
+    width: 64px;
+    height: 64px;
   }
   .pcard-img {
-    width: 52px;
-    height: 52px;
+    width: 64px;
+    height: 64px;
   }
   .pcard-action {
     padding: 5px 10px;
