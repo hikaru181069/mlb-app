@@ -6089,29 +6089,19 @@ button:active {
   color: var(--ctp-overlay0);
 }
 
-/* ── 共通: スリムなアプリ型ページヘッダー（案A + アクセントカラー案C） ──────────
-   PageHeader コンポーネントが使う。Team / League / Stats などで共有。
-   --accent: アクセント色（チームカラー等）。未指定時はデフォルトのsapphire。 */
+/* ── 共通: スリムなアプリ型ページヘッダー ──────────
+   PageHeader コンポーネントが使う。Team / League / Stats などで共有。 */
 .app-screen {
   width: 100%;
 }
 
 .page-header {
-  --accent: var(--ctp-sapphire);
   position: sticky;
   top: 56px; /* モバイル: 上部固定バー(56px)の下に貼り付く */
   z-index: 20;
   padding: 10px 24px 0;
-  border-top: 3px solid var(--accent);
   border-bottom: 1px solid var(--ctp-surface1);
-  /* 上部にアクセント色を薄く敷く（C案） */
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--accent) 16%, transparent),
-      transparent 72%
-    ),
-    var(--ctp-mantle);
+  background: var(--ctp-mantle);
 }
 @media (min-width: 768px) {
   .page-header {
@@ -6216,7 +6206,7 @@ button:active {
 }
 .page-tab--active {
   color: var(--ctp-text);
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--ctp-sapphire);
 }
 
 .screen-body {

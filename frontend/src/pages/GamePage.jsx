@@ -13,7 +13,6 @@ import { Link, useParams } from "react-router-dom";
 
 import { getGame, getGamePlays, getGameHighlights } from "../services/api/gameApi";
 import { formatGameDate, formatGameTime } from "../utils/datetime";
-import { getTeamColor } from "../services/teamColors";
 import PageHeader from "../components/PageHeader";
 import ErrorCard from "../components/ErrorCard";
 
@@ -337,14 +336,9 @@ function GamePage() {
   const timeLabel = formatGameTime(game.gameDate);
   const box = game.boxscore[activeTeam];
   const activeMeta = game[activeTeam];
-  // アクセント色は勝者（試合終了時）、未確定ならホームチームの球団色
-  const accentTeamId = game.away.isWinner ? game.away.teamId : game.home.teamId;
-  const accentColor = getTeamColor(accentTeamId);
-
   return (
     <div className="app-screen">
       <PageHeader
-        accentColor={accentColor}
         backTo="/league"
         backLabel="League"
         kicker={`${isLive ? "● LIVE" : game.status} · ${dateLabel} · ${timeLabel} JST`}

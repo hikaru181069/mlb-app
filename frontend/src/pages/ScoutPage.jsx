@@ -508,7 +508,6 @@ function ScoutPage() {
   return (
     <div className="app-screen">
       <PageHeader
-        accentColor="var(--ctp-sapphire)"
         backTo={playerId ? "/scout" : undefined}
         backLabel={playerId ? "Search" : undefined}
         kicker="Analysis"

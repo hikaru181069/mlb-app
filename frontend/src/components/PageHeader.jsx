@@ -1,9 +1,7 @@
 // 共通のスリムなアプリ型ページヘッダー
-// Team / League / Stats などで共有する。巨大ヒーローの代わりに、
-// 薄い固定バー（アクセント色 + sticky タブ）でアプリらしい密度を出す。
+// Team / League / Stats などで共有する。
 //
 // props（すべて任意。渡したものだけ表示される）:
-//   accentColor : 上ライン/背景ティント/アクティブタブ下線の色（例: チームカラー）
 //   backTo      : 戻り先パス（指定すると「← backLabel」を表示）
 //   kicker      : 右上の小ラベル（例: "2026 Season"）
 //   logo        : 左のロゴ画像URL（例: 球団ロゴ）
@@ -16,7 +14,6 @@
 import { Link } from "react-router-dom";
 
 function PageHeader({
-  accentColor,
   backTo,
   backLabel = "Back",
   kicker,
@@ -29,10 +26,7 @@ function PageHeader({
   onTabChange,
 }) {
   return (
-    <header
-      className="page-header"
-      style={accentColor ? { "--accent": accentColor } : undefined}
-    >
+    <header className="page-header">
       {(backTo || kicker) && (
         <div className="page-header-top">
           {backTo ? (

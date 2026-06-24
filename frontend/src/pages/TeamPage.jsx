@@ -435,7 +435,6 @@ function TeamPage() {
   return (
     <div className="app-screen">
       <PageHeader
-        accentColor={teamColor}
         backTo="/league"
         backLabel="League"
         kicker={`${season} Season`}
