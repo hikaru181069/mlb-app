@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { mlbTeams } from "../services/mlbTeams";
 
 const HEADSHOT = (id) =>
-  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_160,h_160,c_fill,g_face,q_auto:best/v1/people/${id}/headshot/67/current`;
+  `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_160,q_auto:best/v1/people/${id}/headshot/67/current`;
 
 function FavoritePlayerCard({
   favorite,
