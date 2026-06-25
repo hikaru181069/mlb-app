@@ -6142,7 +6142,7 @@ button:active {
   color: var(--ctp-sapphire);
 }
 .page-header-kicker {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--ctp-overlay0);
   text-transform: uppercase;
@@ -6165,13 +6165,13 @@ button:active {
   flex: 1;
 }
 .page-header-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.1;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
   margin: 0;
 }
 .page-header-subtitle {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--ctp-subtext0);
   margin: 2px 0 0;
   white-space: nowrap;
@@ -6242,7 +6242,7 @@ button:active {
     display: none;
   }
   .page-header-title {
-    font-size: 1.25rem;
+    font-size: 1.05rem;
   }
 }
 
