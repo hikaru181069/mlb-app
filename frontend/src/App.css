@@ -958,7 +958,7 @@ input {
 
 /* タイトルは h1 の共通スタイルを上書きして大きくする */
 .guest-hero-title {
-  font-size: clamp(2.8rem, 7vw, 6rem);
+  font-size: clamp(2rem, 5.5vw, 3.6rem);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.03em;
