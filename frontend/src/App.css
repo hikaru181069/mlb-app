@@ -6169,6 +6169,10 @@ button:active {
   font-weight: 700;
   line-height: 1.2;
   margin: 0;
+  padding: 0;
+  text-align: left;
+  color: var(--ctp-text);
+  letter-spacing: -0.01em;
 }
 .page-header-subtitle {
   font-size: 0.8rem;
