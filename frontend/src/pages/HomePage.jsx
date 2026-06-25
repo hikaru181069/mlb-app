@@ -132,6 +132,25 @@ function HomePage() {
           </div>
         </section>
 
+        {/* 機能タイル: 登録のメリットを示す */}
+        <section className="guest-features">
+          <h2 className="guest-features-title">Everything in one place</h2>
+          <div className="home-tiles">
+            {TILES.map((tile) => (
+              <Link
+                key={tile.to}
+                to={tile.to}
+                className="home-tile"
+                style={{ "--tile-color": tile.color }}
+              >
+                <h3 className="home-tile-title">{tile.title}</h3>
+                <p className="home-tile-desc">{tile.desc}</p>
+                <span className="home-tile-cta">{tile.cta}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="discovery-section">
           <div className="discovery-section-header">
             <div className="discovery-section-title-row">
@@ -153,12 +172,6 @@ function HomePage() {
             ))}
           </div>
         </section>
-
-        <div className="home-tech-stack">
-          {["MongoDB", "Express", "React", "Node.js", "MLB Stats API", "FastAPI"].map((t) => (
-            <span key={t}>{t}</span>
-          ))}
-        </div>
       </div>
     );
   }

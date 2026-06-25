@@ -1101,6 +1101,22 @@ input {
   font-weight: 700;
 }
 
+/* ── ゲスト: 機能プレビューセクション ──────────────────────────────────── */
+
+.guest-features {
+  width: 100%;
+  padding: 0 20px;
+  margin-bottom: 8px;
+}
+
+.guest-features-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ctp-text);
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+}
+
 /* ── Discovery Home ─────────────────────────────────────────────────────── */
 
 .home-discovery {
