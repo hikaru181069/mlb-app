@@ -100,35 +100,31 @@ function HomePage() {
     return (
       <div className="home-discovery">
         <section className="guest-hero">
-          <div className="guest-hero-text">
-            <p className="home-kicker">MLB Player Discovery</p>
-            <h1 className="guest-hero-title">Your Next Favorite<br />Player Is Already Here</h1>
-            <p className="home-description">
-              Add players you love. We&apos;ll automatically find similar players,
-              rising stars, and prospects — like Spotify for MLB.
-            </p>
+          <img src={MLB_LOGO} alt="MLB" className="guest-hero-logo" />
+          <p className="home-kicker">MLB Player Discovery</p>
+          <h1 className="guest-hero-title">Find Players You&apos;ll Love</h1>
+          <p className="home-description">
+            Add players you love. We&apos;ll automatically find similar players,
+            rising stars, and prospects — like Spotify for MLB.
+          </p>
 
-            <div className="guest-journey">
-              {JOURNEY_STEPS.map((step, i) => (
-                <div key={step.num} className="guest-journey-item">
-                  <div className="guest-journey-step">
-                    <span className="guest-journey-num">{step.num}</span>
-                    <span className="guest-journey-label">{step.label}</span>
-                  </div>
-                  {i < JOURNEY_STEPS.length - 1 && (
-                    <span className="guest-journey-arrow">→</span>
-                  )}
+          <div className="guest-journey">
+            {JOURNEY_STEPS.map((step, i) => (
+              <div key={step.num} className="guest-journey-item">
+                <div className="guest-journey-step">
+                  <span className="guest-journey-num">{step.num}</span>
+                  <span className="guest-journey-label">{step.label}</span>
                 </div>
-              ))}
-            </div>
-
-            <div className="home-actions">
-              <Link className="home-link" to="/register">Get Started</Link>
-              <Link className="home-link secondary" to="/login">Login</Link>
-            </div>
+                {i < JOURNEY_STEPS.length - 1 && (
+                  <span className="guest-journey-arrow">→</span>
+                )}
+              </div>
+            ))}
           </div>
-          <div className="guest-hero-visual" aria-hidden="true">
-            <img src={MLB_LOGO} alt="" className="guest-hero-logo" />
+
+          <div className="home-actions">
+            <Link className="home-link" to="/register">Get Started</Link>
+            <Link className="home-link secondary" to="/login">Login</Link>
           </div>
         </section>
 
