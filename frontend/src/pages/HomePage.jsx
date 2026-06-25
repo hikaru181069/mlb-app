@@ -1,11 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { getCurrentUser } from "../services/api/userApi";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import { isUnauthorizedError } from "../services/api/apiError";
-
-const MLB_LOGO = "https://www.mlbstatic.com/team-logos/league-on-dark/1.svg";
 
 const ARCHETYPES = [
   { type: "power-hitter",   label: "Power Hitter",   color: "var(--ctp-red)"      },
@@ -68,13 +66,6 @@ const TILES = [
   },
 ];
 
-const JOURNEY_STEPS = [
-  { num: "1", label: "Add Favorites"   },
-  { num: "2", label: "Get Matched"     },
-  { num: "3", label: "MLB Stats"        },
-  { num: "4", label: "Prospects"       },
-];
-
 const getGreeting = () => {
   const h = new Date().getHours();
   if (h < 5)  return "Good night";
@@ -95,82 +86,8 @@ function HomePage() {
       .catch((err) => { if (isUnauthorizedError(err)) clearAuthData(); });
   }, [token]);
 
-  // ─── ゲスト表示 ──────────────────────────────────────────────────────────
-  if (!token) {
-    return (
-      <div className="home-discovery">
-        <section className="guest-hero">
-          <img src={MLB_LOGO} alt="MLB" className="guest-hero-logo" />
-          <p className="home-kicker">MLB Player Discovery</p>
-          <h1 className="guest-hero-title">Find Players You&apos;ll Love</h1>
-          <p className="home-description">
-            Add players you love. We&apos;ll automatically find similar players,
-            rising stars, and prospects — like Spotify for MLB.
-          </p>
-
-          <div className="guest-journey">
-            {JOURNEY_STEPS.map((step, i) => (
-              <div key={step.num} className="guest-journey-item">
-                <div className="guest-journey-step">
-                  <span className="guest-journey-num">{step.num}</span>
-                  <span className="guest-journey-label">{step.label}</span>
-                </div>
-                {i < JOURNEY_STEPS.length - 1 && (
-                  <span className="guest-journey-arrow">→</span>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="home-actions">
-            <Link className="home-link" to="/register">Get Started</Link>
-            <Link className="home-link secondary" to="/login">Login</Link>
-          </div>
-        </section>
-
-        {/* 機能タイル: 登録のメリットを示す */}
-        <section className="guest-features">
-          <h2 className="guest-features-title">Everything in one place</h2>
-          <div className="home-tiles">
-            {TILES.map((tile) => (
-              <Link
-                key={tile.to}
-                to={tile.to}
-                className="home-tile"
-                style={{ "--tile-color": tile.color }}
-              >
-                <h3 className="home-tile-title">{tile.title}</h3>
-                <p className="home-tile-desc">{tile.desc}</p>
-                <span className="home-tile-cta">{tile.cta}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="discovery-section">
-          <div className="discovery-section-header">
-            <div className="discovery-section-title-row">
-              <h2 className="discovery-section-title">Browse by Style</h2>
-              <Link to="/positions" className="discovery-see-all">Browse by Position →</Link>
-            </div>
-            <p className="discovery-section-desc">Explore players by playing style</p>
-          </div>
-          <div className="discovery-archetypes">
-            {ARCHETYPES.map((a) => (
-              <Link
-                key={a.type}
-                to={`/archetype/${a.type}`}
-                className="discovery-archetype-chip"
-                style={{ "--chip-color": a.color }}
-              >
-                {a.label}
-              </Link>
-            ))}
-          </div>
-        </section>
-      </div>
-    );
-  }
+  // 未ログインはランディングページへ
+  if (!token) return <Navigate to="/landing" replace />;
 
   // ─── ログイン済み表示 ─────────────────────────────────────────────────────
   return (

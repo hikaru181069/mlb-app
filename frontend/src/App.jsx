@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, Navigate } from "react-router-dom";
 import { ToastProvider } from "./contexts/ToastContext";
 import "./App.css";
 import Navbar from "./components/Navbar";
@@ -30,6 +30,7 @@ import ProspectsPage from "./pages/ProspectsPage";
 import ForYouPage from "./pages/ForYouPage";
 import PositionsPage from "./pages/PositionsPage";
 import PositionPage from "./pages/PositionPage";
+import LandingPage from "./pages/LandingPage";
 
 // [Phase 4] ページ遷移アニメーション
 // location.key を React の key に渡すことで、ページが変わるたびにコンポーネントが
@@ -68,6 +69,7 @@ function AnimatedRoutes() {
         <Route path="/foryou" element={<ForYouPage />} />
         <Route path="/positions" element={<PositionsPage />} />
         <Route path="/position/:pos" element={<PositionPage />} />
+        <Route path="/landing" element={<LandingPage />} />
       </Routes>
     </div>
   );
@@ -108,20 +110,17 @@ function Footer() {
 }
 
 function App() {
+  const location = useLocation();
+  const isLanding = location.pathname === "/landing";
+
   return (
-    // [Phase 5] ToastProvider でアプリ全体をラップ
-    // Navbar も内側に入れることで、Navbar 内でも useToast() が使える
     <ToastProvider>
-      {/* [Phase 6] Navbar は左サイドバーとして固定表示される */}
-      <Navbar />
-      {/* pt-14: モバイル時のトップバー(56px)分を上に確保
-          md:pt-0 md:ml-52: デスクトップではサイドバー幅(208px)分だけ右にオフセット */}
-      {/* pb-16: モバイルで下部タブバー(64px)に隠れないようにオフセット */}
-      <main className="pt-14 pb-16 md:pt-0 md:pb-0 md:ml-52">
+      {!isLanding && <Navbar />}
+      <main className={isLanding ? "" : "pt-14 pb-16 md:pt-0 md:pb-0 md:ml-52"}>
         <AnimatedRoutes />
       </main>
-      <BottomTabBar />
-      <Footer />
+      {!isLanding && <BottomTabBar />}
+      {!isLanding && <Footer />}
     </ToastProvider>
   );
 }

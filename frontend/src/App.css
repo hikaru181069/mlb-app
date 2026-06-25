@@ -877,6 +877,63 @@ input {
    画像でページを覆い、タイトルをオーバーレイの上に配置するデザイン。
    ─────────────────────────────────────────────────────────────────────────── */
 
+/* ── LandingPage ─────────────────────────────────────────────────────────── */
+
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--app-bg);
+}
+
+.landing-nav {
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--app-bg);
+  border-bottom: 1px solid var(--ctp-surface0);
+}
+
+.landing-nav-logo {
+  width: 28px;
+  height: 28px;
+  opacity: 0.9;
+}
+
+.landing-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.landing-nav-login {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ctp-subtext1);
+  text-decoration: none;
+  transition: color 150ms;
+}
+
+.landing-nav-login:hover {
+  color: var(--ctp-text);
+}
+
+.landing-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 860px;
+  padding: 0 0 80px;
+}
+
 /* セクション本体: サイドバーの px-6 を突き破って全幅に広げる */
 .guest-fullbleed-hero {
   position: relative;
