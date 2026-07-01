@@ -58,11 +58,11 @@ const TILES = [
     cta:   "View Leaders →",
   },
   {
-    to:    "/search",
+    to:    "/scout",
     title: "Scouting",
     desc:  "Deep-dive any MLB player's stats and analytics",
     color: "var(--ctp-mauve)",
-    cta:   "Find a player →",
+    cta:   "Scout a player →",
   },
 ];
 
