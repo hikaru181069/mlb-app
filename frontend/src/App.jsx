@@ -1,4 +1,5 @@
 import { Route, Routes, useLocation, Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastProvider } from "./contexts/ToastContext";
 import "./App.css";
 import Navbar from "./components/Navbar";
@@ -39,33 +40,38 @@ function AnimatedRoutes() {
   return (
     <div key={location.key} className="page-transition">
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        {/* Public routes */}
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
-        <Route path="/team/:teamId" element={<TeamPage />} />
-        <Route path="/game/:gamePk" element={<GamePage />} />
-        <Route path="/news" element={<NewsPage />} />
-        <Route path="/stats" element={<StatsPage />} />
-        <Route path="/compare" element={<ComparePage />} />
-        <Route path="/matchup" element={<MatchupPage />} />
-        <Route path="/league" element={<LeaguePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/recommendations" element={<RecommendationsPage />} />
-        <Route path="/scout" element={<ScoutPage />} />
-        <Route path="/scout/:playerId" element={<ScoutPage />} />
         <Route path="/onboarding/favorites" element={<OnboardingFavoritesPage />} />
-        <Route path="/players" element={<PlayersPage />} />
-        <Route path="/external-players" element={<ExternalPlayersPage />} />
-        <Route path="/players/:playerId" element={<PlayerDetailPage />} />
-        <Route path="/archetype/:type" element={<ArchetypePage />} />
-        <Route path="/prospects" element={<ProspectsPage />} />
-        <Route path="/foryou" element={<ForYouPage />} />
-        <Route path="/positions" element={<PositionsPage />} />
-        <Route path="/position/:pos" element={<PositionPage />} />
-        <Route path="/landing" element={<LandingPage />} />
+
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />
+          <Route path="/team/:teamId" element={<TeamPage />} />
+          <Route path="/game/:gamePk" element={<GamePage />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/compare" element={<ComparePage />} />
+          <Route path="/matchup" element={<MatchupPage />} />
+          <Route path="/league" element={<LeaguePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/recommendations" element={<RecommendationsPage />} />
+          <Route path="/scout" element={<ScoutPage />} />
+          <Route path="/scout/:playerId" element={<ScoutPage />} />
+          <Route path="/players" element={<PlayersPage />} />
+          <Route path="/external-players" element={<ExternalPlayersPage />} />
+          <Route path="/players/:playerId" element={<PlayerDetailPage />} />
+          <Route path="/archetype/:type" element={<ArchetypePage />} />
+          <Route path="/prospects" element={<ProspectsPage />} />
+          <Route path="/foryou" element={<ForYouPage />} />
+          <Route path="/positions" element={<PositionsPage />} />
+          <Route path="/position/:pos" element={<PositionPage />} />
+        </Route>
       </Routes>
     </div>
   );

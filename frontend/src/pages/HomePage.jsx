@@ -1,4 +1,4 @@
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { getCurrentUser } from "../services/api/userApi";
@@ -80,14 +80,10 @@ function HomePage() {
   const token = getAuthToken();
 
   useEffect(() => {
-    if (!token) return;
     getCurrentUser(token)
       .then(setUser)
       .catch((err) => { if (isUnauthorizedError(err)) clearAuthData(); });
   }, [token]);
-
-  // 未ログインはランディングページへ
-  if (!token) return <Navigate to="/landing" replace />;
 
   // ─── ログイン済み表示 ─────────────────────────────────────────────────────
   return (
