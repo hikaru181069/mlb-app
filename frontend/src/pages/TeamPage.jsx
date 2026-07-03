@@ -37,7 +37,6 @@ const TABS = [
   { key: "leaders", label: "Leaders" },
 ];
 
-// プレイヤーのヘッドショットURL（既存の playerDataService と同じ形式）
 const headshotUrl = (playerId) =>
   `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_60,q_auto:best/v1/people/${playerId}/headshot/67/current`;
 

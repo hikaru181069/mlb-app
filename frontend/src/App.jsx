@@ -5,8 +5,6 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import PlayersPage from "./pages/PlayersPage";
 import PlayerDetailPage from "./pages/PlayerDetailPage";
-import AddPlayerPage from "./pages/AddPlayerPage";
-import EditPlayerPage from "./pages/EditPlayerPage";
 import LoginPage from "./pages/LoginPage";
 import ExternalPlayersPage from "./pages/ExternalPlayersPage";
 import SearchPage from "./pages/SearchPage";
@@ -61,8 +59,6 @@ function AnimatedRoutes() {
         <Route path="/onboarding/favorites" element={<OnboardingFavoritesPage />} />
         <Route path="/players" element={<PlayersPage />} />
         <Route path="/external-players" element={<ExternalPlayersPage />} />
-        <Route path="/players/new" element={<AddPlayerPage />} />
-        <Route path="/players/:id/edit" element={<EditPlayerPage />} />
         <Route path="/players/:playerId" element={<PlayerDetailPage />} />
         <Route path="/archetype/:type" element={<ArchetypePage />} />
         <Route path="/prospects" element={<ProspectsPage />} />

@@ -11,7 +11,6 @@ import {
   getFavorites,
 } from "../services/api/favoriteApi";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
-import { getPlayerById } from "../services/playerDataService";
 import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
 import { useReveal } from "../hooks/useReveal";
@@ -48,20 +47,6 @@ function PlayerDetailPage() {
         const token = getAuthToken();
         const favoritePlayers = await getFavorites(token);
         const isExternalPlayerId = /^\d+$/.test(playerId);
-
-        const localPlayer = getPlayerById(playerId);
-
-        if (localPlayer) {
-          const externalPlayer = await getExternalPlayerDetail(localPlayer.playerId);
-          const savedFavorite = favoritePlayers.find(
-            (favorite) => favorite.mlbPlayerId === localPlayer.playerId,
-          );
-          setPlayer({ ...localPlayer, ...externalPlayer });
-          setFavoriteRecord(savedFavorite || null);
-          setErrorMessage("");
-          getSimilarPlayers(localPlayer.playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); });
-          return;
-        }
 
         if (isExternalPlayerId) {
           const externalPlayer = await getExternalPlayerDetail(playerId);
