@@ -188,7 +188,7 @@ function ProspectsPage() {
       <PageHeader
         kicker="Minor Leagues"
         title="Prospects to Watch"
-        subtitle="AAA · AA players matched to your favorites"
+        subtitle={showSim ? "AAA · AA players matched to your favorites" : "AAA · AA players to watch"}
         tabs={TABS}
         activeTab={activeTab}
         onTabChange={setActiveTab}

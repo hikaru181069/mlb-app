@@ -331,6 +331,26 @@ const getGroupedRecommendationsForUser = async (userId) => {
     }),
   }));
 
+  // お気に入りはあるが、推薦エンジンが一件もマッチを返さなかった場合
+  // （FastAPIの一時的な障害・コールドスタート等）。
+  // 「お気に入りが0件」と同じ空状態を出すとユーザーに誤解を与えるため、
+  // 人気選手のフォールバックを添えて degraded フラグで区別する。
+  if (groups.length === 0) {
+    return {
+      hasFavorites: true,
+      groups: [],
+      degraded: true,
+      fallback: fallbackPlayers
+        .filter((p) => !favoriteIds.has(Number(p.playerId)))
+        .slice(0, 5)
+        .map((p) => ({
+          mlbPlayerId: p.playerId,
+          name:        p.fullName,
+          team:        p.team || "",
+        })),
+    };
+  }
+
   return { hasFavorites: true, groups };
 };
 

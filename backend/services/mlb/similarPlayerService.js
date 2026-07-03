@@ -127,7 +127,8 @@ const fetchSimilarPlayers = async (playerId) => {
   // 4. FastAPI で類似度を計算
   const result = await fetchDiscoverSimilar(target, mlbCandidates, youngCandidates, 3);
 
-  if (!result) return { mlbSimilar: [], youngSimilar: [] };
+  // FastAPI が落ちている/タイムアウトした場合。「本当に0件」と区別するため unavailable を立てる
+  if (!result) return { mlbSimilar: [], youngSimilar: [], unavailable: true };
 
   // 5. 重複除去: mlbSimilar に既出の選手を youngSimilar から除く
   const mlbIds = new Set(result.mlbSimilar.map((p) => p.playerId));

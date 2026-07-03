@@ -30,6 +30,11 @@ function SearchPage() {
   // [Suggestions] debounce用タイマーID / 外クリック検知用ラッパー要素
   const debounceRef = useRef(null);
   const wrapperRef = useRef(null);
+  // [Suggestions] 候補選択直後、それ以前にリクエスト済みの候補取得が後から
+  // 解決してドロップダウンを再度開いてしまうのを防ぐフラグ。
+  // ユーザーが実際に入力し直すまで true のままにする（debounce effectの
+  // 再発火だけでは、選択前に飛んでいた fetch の解決までは防げないため）。
+  const suppressSuggestionsRef = useRef(false);
 
   const handleSearchExternalPlayers = async (nextSearchText) => {
     if (!nextSearchText.trim()) {
@@ -91,6 +96,8 @@ function SearchPage() {
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       const results = await fetchPlayerSuggestions(text);
+      // 待っている間に候補が選択されていたら、この結果は無視する
+      if (suppressSuggestionsRef.current) return;
       setSuggestions(results);
       setShowSuggestions(results.length > 0);
     }, 300); // 300ms待ってからAPI呼び出し
@@ -123,7 +130,10 @@ function SearchPage() {
 
   // [Suggestions] 候補をクリックしたら選手名をセットして即検索
   const handleSuggestionClick = (suggestion) => {
+    suppressSuggestionsRef.current = true;
+    clearTimeout(debounceRef.current); // 保留中の候補取得タイマーも止める
     setSearchText(suggestion.name);
+    setSuggestions([]);
     setShowSuggestions(false);
     setSearchParams({ keyword: suggestion.name });
   };
@@ -156,7 +166,10 @@ function SearchPage() {
                 type="text"
                 placeholder="e.g. Shohei Ohtani"
                 value={searchText}
-                onChange={(event) => setSearchText(event.target.value)}
+                onChange={(event) => {
+                  suppressSuggestionsRef.current = false;
+                  setSearchText(event.target.value);
+                }}
                 onFocus={() =>
                   suggestions.length > 0 && setShowSuggestions(true)
                 }

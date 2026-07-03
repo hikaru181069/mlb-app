@@ -247,11 +247,16 @@ function ForYouPage() {
           />
         ))}
 
-        {/* フォールバック: お気に入りなし → 人気選手 */}
+        {/* フォールバック: お気に入りなし、またはレコメンドエンジンが一時的に利用不可 → 人気選手 */}
         {token && !loading && groups.length === 0 && fallback.length > 0 && (
           <section className="foryou-group">
             <div className="foryou-group-header foryou-group-header--fallback">
               <p className="foryou-group-name">Popular Players</p>
+              {data?.degraded && (
+                <p className="foryou-group-because" style={{ marginTop: 4 }}>
+                  Couldn&apos;t find matches for your favorites right now — showing popular players instead.
+                </p>
+              )}
             </div>
             <div className="foryou-cards">
               {fallback.map((p) => (

@@ -27,6 +27,7 @@ function PlayerDetailPage() {
   const [youngSimilar, setYoungSimilar] = useState([]);
   const [targetArchetypes, setTargetArchetypes] = useState([]);
   const [targetStyleScores, setTargetStyleScores] = useState(null);
+  const [similarUnavailable, setSimilarUnavailable] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [retryKey, setRetryKey] = useState(0);
   const [favoriteRecord, setFavoriteRecord] = useState(null);
@@ -56,7 +57,7 @@ function PlayerDetailPage() {
           setPlayer(externalPlayer);
           setFavoriteRecord(savedFavorite || null);
           setErrorMessage("");
-          getSimilarPlayers(playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); });
+          getSimilarPlayers(playerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null, unavailable = false }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); setSimilarUnavailable(unavailable); });
           return;
         }
 
@@ -74,7 +75,7 @@ function PlayerDetailPage() {
         setPlayer({ ...favoritePlayer, ...externalPlayer });
         setFavoriteRecord(favoritePlayer);
         setErrorMessage("");
-        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); });
+        getSimilarPlayers(favoritePlayer.mlbPlayerId).then(({ mlbSimilar = [], youngSimilar = [], targetArchetypes = [], targetStyleScores = null, unavailable = false }) => { setMlbSimilar(mlbSimilar); setYoungSimilar(youngSimilar); setTargetArchetypes(targetArchetypes); setTargetStyleScores(targetStyleScores); setSimilarUnavailable(unavailable); });
       } catch (error) {
         console.error("Fetch player error:", error);
         setPlayer(null);
@@ -247,6 +248,15 @@ function PlayerDetailPage() {
                 })()
             }
             <h1>{displayName}</h1>
+            <button
+              className={`home-link${favoriteRecord ? " secondary" : ""}`}
+              style={{ marginTop: 4, justifySelf: "center" }}
+              type="button"
+              disabled={Boolean(favoriteRecord)}
+              onClick={handleAddToFavorites}
+            >
+              {favoriteRecord ? "✓ Already in Favorites" : "★ Add to Favorites"}
+            </button>
             <dl className="detail-meta-list">
               <div>
                 <dt>Team</dt>
@@ -430,7 +440,14 @@ function PlayerDetailPage() {
         ) : (
           <div className="home-empty-state">
             <span className="empty-state-icon"><img src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg" alt="" width={36} height={36} style={{ opacity: 0.5 }} /></span>
-            <p className="empty-state-title">No Similar Players Found</p>
+            {similarUnavailable ? (
+              <>
+                <p className="empty-state-title">Similar players unavailable right now</p>
+                <p className="empty-state-desc">The recommendation engine is warming up or temporarily unreachable. Please try again in a moment.</p>
+              </>
+            ) : (
+              <p className="empty-state-title">No Similar Players Found</p>
+            )}
           </div>
         )}
 

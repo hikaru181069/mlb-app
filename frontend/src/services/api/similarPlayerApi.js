@@ -8,7 +8,7 @@ export const getSimilarPlayers = async (playerId) => {
   const response = await fetch(`${API_URL}/api/similar-players/${playerId}`);
 
   if (!response.ok) {
-    return { mlbSimilar: [], youngSimilar: [] };
+    return { mlbSimilar: [], youngSimilar: [], unavailable: true };
   }
 
   return response.json();
