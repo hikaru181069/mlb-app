@@ -97,11 +97,16 @@ function PlayerDetailPage() {
       return;
     }
 
+    // 楽観的更新: APIレスポンスを待たずに即座にUI反映
+    setFavoriteRecord({ _id: "temp", mlbPlayerId: player?.mlbPlayerId });
+
     try {
       const favorite = await createFavorite(player, token);
       setFavoriteRecord(favorite);
       addToast("Added to favorites!", "success");
     } catch (error) {
+      // 失敗時はロールバック
+      setFavoriteRecord(null);
       console.error("Add favorite error:", error);
       addToast(error.message || "Failed to add favorite.", "error");
     }

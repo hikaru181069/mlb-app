@@ -78,16 +78,16 @@ function FavoriteEditPage() {
   };
 
   const handleDelete = async () => {
+    // 楽観的更新: APIレスポンスを待たずに即座に画面遷移
+    addToast(`${favorite.fullName} removed from favorites.`, "success");
+    navigate("/favorites");
+
     try {
-      setDeleting(true);
       await deleteFavorite(favoriteId, token);
-      addToast(`${favorite.fullName} removed from favorites.`, "success");
-      navigate("/favorites");
     } catch (error) {
+      // 失敗時: FavoritesPage再マウント時に再取得されるので自然に復元される
       console.error("Delete favorite error:", error);
       addToast(error.message || "Failed to delete.", "error");
-      setDeleting(false);
-      setConfirmDelete(false);
     }
   };
 
