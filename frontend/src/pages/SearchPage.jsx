@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import ExternalPlayerCard from "../components/ExternalPlayerCard";
 import PageHeader from "../components/PageHeader";
 import ErrorCard from "../components/ErrorCard";
-import { Search as SearchIcon } from "lucide-react";
+import { Search as SearchIcon, X } from "lucide-react";
 import SkeletonCard from "../components/SkeletonCard";
 import { getAuthToken } from "../utils/authStorage";
 import { getFavorites } from "../services/api/favoriteApi";
@@ -17,6 +17,11 @@ function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
   const [searchText, setSearchText] = useState(keyword);
+  // [Suggestions] 入力欄の表示値(searchText)とは別に、候補検索をトリガーする値を
+  // 分離して持つ。候補選択時は searchText だけを更新して suggestQuery には触れない
+  // ことで、選択直後に「選んだ選手名でもう一度候補検索が走り、自分自身が候補として
+  // 再表示されてドロップダウンが閉じなくなる」問題を構造的に防ぐ。
+  const [suggestQuery, setSuggestQuery] = useState("");
   const [players, setPlayers] = useState([]);
   const [savedPlayers, setSavedPlayers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,11 +35,6 @@ function SearchPage() {
   // [Suggestions] debounce用タイマーID / 外クリック検知用ラッパー要素
   const debounceRef = useRef(null);
   const wrapperRef = useRef(null);
-  // [Suggestions] 候補選択直後、それ以前にリクエスト済みの候補取得が後から
-  // 解決してドロップダウンを再度開いてしまうのを防ぐフラグ。
-  // ユーザーが実際に入力し直すまで true のままにする（debounce effectの
-  // 再発火だけでは、選択前に飛んでいた fetch の解決までは防げないため）。
-  const suppressSuggestionsRef = useRef(false);
 
   const handleSearchExternalPlayers = async (nextSearchText) => {
     if (!nextSearchText.trim()) {
@@ -82,8 +82,10 @@ function SearchPage() {
 
   // [Suggestions] 入力中に300msのdebounceをかけて候補を取得する
   // debounce: キー入力のたびにAPIを叩かず、入力が止まってから発火させる仕組み
+  // suggestQuery は実際のキー入力(onChange)でのみ更新されるため、候補選択による
+  // searchText の変更ではこの effect は発火しない。
   useEffect(() => {
-    const text = searchText.trim();
+    const text = suggestQuery.trim();
 
     // 2文字未満は候補を出さない（APIが結果を返さないため）
     if (text.length < 2) {
@@ -96,15 +98,13 @@ function SearchPage() {
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       const results = await fetchPlayerSuggestions(text);
-      // 待っている間に候補が選択されていたら、この結果は無視する
-      if (suppressSuggestionsRef.current) return;
       setSuggestions(results);
       setShowSuggestions(results.length > 0);
     }, 300); // 300ms待ってからAPI呼び出し
 
     // クリーンアップ: コンポーネントが再レンダリングされたらタイマーをキャンセル
     return () => clearTimeout(debounceRef.current);
-  }, [searchText]);
+  }, [suggestQuery]);
 
   // [Suggestions] フォームの外をクリックしたらドロップダウンを閉じる
   useEffect(() => {
@@ -129,13 +129,25 @@ function SearchPage() {
   };
 
   // [Suggestions] 候補をクリックしたら選手名をセットして即検索
+  // suggestQuery には触れないため、候補検索effectはこの変更に反応しない
   const handleSuggestionClick = (suggestion) => {
-    suppressSuggestionsRef.current = true;
     clearTimeout(debounceRef.current); // 保留中の候補取得タイマーも止める
     setSearchText(suggestion.name);
     setSuggestions([]);
     setShowSuggestions(false);
     setSearchParams({ keyword: suggestion.name });
+  };
+
+  const handleClear = () => {
+    clearTimeout(debounceRef.current);
+    setSearchText("");
+    setSuggestQuery("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setPlayers([]);
+    setErrorMessage("");
+    setHasSearched(false);
+    setSearchParams({});
   };
 
   const isAlreadySaved = (player) => {
@@ -158,17 +170,17 @@ function SearchPage() {
       <div className="screen-body px-6 py-6 w-full">
         {/* 検索フォーム（旧ヒーローから本文へ移動）
             [Suggestions] wrapperRef は「フォーム外クリック」の検知範囲 */}
-        <div className="search-form-wrapper search-form-wrapper--page" ref={wrapperRef}>
-          <form className="flex w-full gap-3" onSubmit={handleSearch}>
-            {/* [Suggestions] position: relative でドロップダウンを input に揃える */}
-            <div className="relative flex-1">
+        <form onSubmit={handleSearch}>
+          <div className="player-search-wrap" ref={wrapperRef}>
+            <div className="player-search-input-row">
+              <SearchIcon size={16} className="player-search-icon" />
               <input
                 type="text"
                 placeholder="e.g. Shohei Ohtani"
                 value={searchText}
                 onChange={(event) => {
-                  suppressSuggestionsRef.current = false;
                   setSearchText(event.target.value);
+                  setSuggestQuery(event.target.value);
                 }}
                 onFocus={() =>
                   suggestions.length > 0 && setShowSuggestions(true)
@@ -176,39 +188,37 @@ function SearchPage() {
                 onKeyDown={(e) =>
                   e.key === "Escape" && setShowSuggestions(false)
                 }
-                style={{ margin: 0 }}
-                className="w-full rounded-full border border-ctp-surface1 bg-ctp-surface0/70 px-5 py-2.5 text-base text-ctp-text placeholder:text-ctp-subtext0/60 transition-all duration-200 focus:border-ctp-sapphire focus:ring-2 focus:ring-ctp-sapphire/20 focus:outline-none"
+                className="player-search-input"
+                autoFocus
               />
-
-              {/* [Suggestions] onMouseDown: onBlur より先に発火させてドロップダウンを閉じさせない */}
-              {showSuggestions && (
-                <ul className="search-suggestions">
-                  {suggestions.map((s) => (
-                    <li
-                      key={s.id}
-                      className="search-suggestion-item"
-                      onMouseDown={() => handleSuggestionClick(s)}
-                    >
-                      <span className="suggestion-name">{s.name}</span>
-                      <span className="suggestion-meta">
-                        {s.position && <span>{s.position}</span>}
-                        {s.team && <span>{s.team}</span>}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+              {searchText && (
+                <button type="button" className="player-search-clear" onClick={handleClear}>
+                  <X size={14} />
+                </button>
               )}
             </div>
 
-            <button
-              className="home-link flex-shrink-0"
-              type="submit"
-              disabled={loading}
-            >
-              Search
-            </button>
-          </form>
-        </div>
+            {/* [Suggestions] onMouseDown: onBlur より先に発火させてドロップダウンを閉じさせない */}
+            {showSuggestions && (
+              <ul className="scout-suggestions">
+                {suggestions.map((s) => (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      className="scout-suggestion-item"
+                      onMouseDown={() => handleSuggestionClick(s)}
+                    >
+                      <span className="scout-suggestion-name">{s.name}</span>
+                      <span className="scout-suggestion-pos">
+                        {s.position} {s.team}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </form>
 
         {/* Results */}
         {/* Status messages */}
