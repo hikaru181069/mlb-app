@@ -475,32 +475,32 @@ function ScoutSearch({ onSelect }) {
   };
 
   return (
-    <div className="scout-search-wrap" ref={wrapperRef}>
-      <div className="scout-search-input-row">
-        <Search size={18} className="scout-search-icon" />
+    <div className="player-search-wrap" ref={wrapperRef}>
+      <div className="player-search-input-row">
+        <Search size={16} className="player-search-icon" />
         <input
           type="text"
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Search any MLB player…"
-          className="scout-search-input"
+          className="player-search-input"
           autoFocus
           role="combobox"
           aria-expanded={suggestions.length > 0}
           aria-autocomplete="list"
         />
         {query && (
-          <button type="button" className="scout-search-clear" onClick={handleClear}>
-            <X size={16} />
+          <button type="button" className="player-search-clear" onClick={handleClear}>
+            <X size={14} />
           </button>
         )}
       </div>
 
-      {searching && <p className="scout-search-status">Searching…</p>}
+      {searching && <p className="player-search-status">Searching…</p>}
 
       {!searching && searched && suggestions.length === 0 && (
-        <p className="scout-search-status">No players found.</p>
+        <p className="player-search-status">No players found.</p>
       )}
 
       {suggestions.length > 0 && (
