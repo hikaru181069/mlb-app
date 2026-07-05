@@ -7265,7 +7265,8 @@ button:active {
   cursor: pointer;
   transition: background 120ms ease;
 }
-.scout-suggestion-item:hover {
+.scout-suggestion-item:hover,
+.scout-suggestion-item--active {
   background: var(--ctp-surface0);
 }
 

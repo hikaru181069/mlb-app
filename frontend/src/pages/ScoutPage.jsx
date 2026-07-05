@@ -388,40 +388,90 @@ function ScoutSearch({ onSelect }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [searched, setSearched] = useState(false); // 検索が一度でも完了したか（0件表示の判定に使う）
+  const [activeIndex, setActiveIndex] = useState(-1); // キーボード操作でのハイライト位置
   const debounceRef = useRef(null);
   const wrapperRef = useRef(null);
+  const requestIdRef = useRef(0); // 選択/クリア後に届く古いレスポンスを無視するためのガード
 
   useEffect(() => {
     const handleClick = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setSuggestions([]);
+        setActiveIndex(-1);
       }
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // アンマウント時に保留中のタイマー/レスポンスを無効化する
+  useEffect(() => {
+    return () => {
+      clearTimeout(debounceRef.current);
+      requestIdRef.current += 1;
+    };
+  }, []);
+
   const handleChange = (e) => {
     const value = e.target.value;
     setQuery(value);
+    setActiveIndex(-1);
     clearTimeout(debounceRef.current);
 
     if (value.trim().length < 2) {
+      requestIdRef.current += 1;
       setSuggestions([]);
+      setSearching(false);
+      setSearched(false);
       return;
     }
 
+    const requestId = ++requestIdRef.current;
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
       const results = await fetchPlayerSuggestions(value.trim());
+      if (requestId !== requestIdRef.current) return; // 選択/入力変更/アンマウント後の遅延レスポンス
       setSuggestions(results.slice(0, 8));
       setSearching(false);
+      setSearched(true);
     }, 300);
   };
 
   const handleClear = () => {
+    requestIdRef.current += 1;
+    clearTimeout(debounceRef.current);
     setQuery("");
     setSuggestions([]);
+    setSearching(false);
+    setSearched(false);
+    setActiveIndex(-1);
+  };
+
+  const handleSelect = (id) => {
+    requestIdRef.current += 1; // 保留中の候補取得を無効化してから遷移する
+    setSuggestions([]);
+    setActiveIndex(-1);
+    onSelect(id);
+  };
+
+  const handleKeyDown = (e) => {
+    if (suggestions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => (i + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      const s = suggestions[activeIndex];
+      handleSelect(s.id || s.playerId);
+    } else if (e.key === "Escape") {
+      setSuggestions([]);
+      setActiveIndex(-1);
+    }
   };
 
   return (
@@ -432,9 +482,13 @@ function ScoutSearch({ onSelect }) {
           type="text"
           value={query}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           placeholder="Search any MLB player…"
           className="scout-search-input"
           autoFocus
+          role="combobox"
+          aria-expanded={suggestions.length > 0}
+          aria-autocomplete="list"
         />
         {query && (
           <button type="button" className="scout-search-clear" onClick={handleClear}>
@@ -445,14 +499,19 @@ function ScoutSearch({ onSelect }) {
 
       {searching && <p className="scout-search-status">Searching…</p>}
 
+      {!searching && searched && suggestions.length === 0 && (
+        <p className="scout-search-status">No players found.</p>
+      )}
+
       {suggestions.length > 0 && (
         <ul className="scout-suggestions">
-          {suggestions.map((s) => (
+          {suggestions.map((s, i) => (
             <li key={s.id || s.playerId}>
               <button
                 type="button"
-                className="scout-suggestion-item"
-                onClick={() => onSelect(s.id || s.playerId)}
+                className={`scout-suggestion-item${i === activeIndex ? " scout-suggestion-item--active" : ""}`}
+                onMouseEnter={() => setActiveIndex(i)}
+                onClick={() => handleSelect(s.id || s.playerId)}
               >
                 <span className="scout-suggestion-name">{s.fullName || s.name}</span>
                 {s.position && (
