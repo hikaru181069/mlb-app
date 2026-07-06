@@ -236,6 +236,7 @@ function PlayerDetailPage() {
                         { key: "power",   label: "Power",   color: "var(--ctp-red)"   },
                         { key: "speed",   label: "Speed",   color: "var(--ctp-teal)"  },
                         { key: "contact", label: "Contact", color: "var(--ctp-green)" },
+                        { key: "defense", label: "Defense", color: "var(--ctp-blue)"  },
                       ];
                   return defs
                     .map((d) => ({ ...d, score: targetStyleScores[d.key] ?? 0 }))

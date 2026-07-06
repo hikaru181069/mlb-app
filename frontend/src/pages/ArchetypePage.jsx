@@ -14,6 +14,7 @@ const ARCHETYPE_DESCRIPTIONS = {
   "Power Hitter":     "Elite home run production and slugging ability.",
   "Speedster":        "Elite stolen base ability and speed on the bases.",
   "Contact Hitter":   "High batting average with consistent contact.",
+  "Elite Defender":   "Elite Outs Above Average — the best gloves in the league.",
   "All-Around":       "Balanced contributors across all offensive categories.",
   "Ace":              "Elite ERA and strikeout ability — the staff cornerstone.",
   "Power Pitcher":    "High strikeout rates with overpowering stuff.",

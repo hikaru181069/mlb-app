@@ -35,6 +35,7 @@ class ArchetypeCandidate(BaseModel):
     stolenBases: float = 0
     avg: float = 0
     rbi: float = 0
+    oaa: float = 0
     # 投手スタッツ
     era: float = 0
     whip: float = 0
@@ -54,6 +55,7 @@ class StyleScores(BaseModel):
     power: int = 0
     speed: int = 0
     contact: int = 0
+    defense: int = 0
     # 投手軸 (0-100 パーセンタイル)
     dominance: int = 0
     control: int = 0
@@ -80,12 +82,15 @@ def _classify_hitters(candidates: list[ArchetypeCandidate]) -> list[ArchetypeRes
     hr_dist  = [c.homeRuns    for c in candidates]
     sb_dist  = [c.stolenBases for c in candidates]
     avg_dist = [c.avg         for c in candidates]
+    # OAA はデータがない選手だと 0 になるため、実際に守備データがある選手だけで分布を作る
+    oaa_dist = [c.oaa for c in candidates if c.oaa != 0]
 
     results = []
     for c in candidates:
         hr_pct  = calc_percentile(c.homeRuns,    hr_dist)
         sb_pct  = calc_percentile(c.stolenBases, sb_dist)
         avg_pct = calc_percentile(c.avg,         avg_dist)
+        oaa_pct = calc_percentile(c.oaa, oaa_dist) if c.oaa != 0 and oaa_dist else 0
 
         tags: list[str] = []
         if hr_pct >= THRESHOLD:
@@ -94,11 +99,13 @@ def _classify_hitters(candidates: list[ArchetypeCandidate]) -> list[ArchetypeRes
             tags.append("Speedster")
         if avg_pct >= THRESHOLD:
             tags.append("Contact Hitter")
+        if c.oaa != 0 and oaa_pct >= THRESHOLD:
+            tags.append("Elite Defender")
 
         results.append(ArchetypeResult(
             playerId=c.playerId,
             archetypes=tags,
-            styleScores=StyleScores(power=hr_pct, speed=sb_pct, contact=avg_pct),
+            styleScores=StyleScores(power=hr_pct, speed=sb_pct, contact=avg_pct, defense=oaa_pct),
         ))
 
     return results

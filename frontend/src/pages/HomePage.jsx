@@ -20,6 +20,11 @@ const ARCHETYPES = [
     color: "var(--ctp-sapphire)",
   },
   { type: "workhorse", label: "Workhorse", color: "var(--ctp-teal)" },
+  {
+    type: "elite-defender",
+    label: "Elite Defender",
+    color: "var(--ctp-blue)",
+  },
 ];
 
 const TILES = [

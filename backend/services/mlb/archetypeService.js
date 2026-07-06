@@ -25,6 +25,7 @@ const toHitterCandidate = (p) => ({
   stolenBases: p.stolenBases,
   avg: p.avg,
   rbi: p.rbi,
+  oaa: p.oaa ?? 0,
 });
 
 // leagueStats の投手を FastAPI 用フォーマットに変換
