@@ -438,12 +438,19 @@ input {
   font-size: 14px;
 }
 
+.archetype-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .archetype-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: fit-content;
-  margin: 0 auto 10px;
   padding: 5px 14px;
   color: var(--ctp-base);
   font-size: 12px;

@@ -13,6 +13,7 @@ import {
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
 import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
+import { getArchetypeColor } from "../services/archetypeColors";
 import { useReveal } from "../hooks/useReveal";
 import { useToast } from "../contexts/ToastContext";
 
@@ -214,40 +215,43 @@ function PlayerDetailPage() {
             {player.source && player.source !== "Manual" && (
               <p className="source-badge">{player.source}</p>
             )}
-            {targetArchetypes.length > 0
-              ? targetArchetypes.map((arch) => (
-                  <Link
-                    key={arch}
-                    to={`/archetype/${arch.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="archetype-badge"
-                  >
-                    {arch}
-                  </Link>
-                ))
-              : targetStyleScores && (() => {
-                  const isP = player?.playerType === "pitcher" || player?.position === "P";
-                  const defs = isP
-                    ? [
-                        { key: "dominance",  label: "Dominance",  color: "var(--ctp-mauve)"    },
-                        { key: "control",    label: "Control",    color: "var(--ctp-sapphire)" },
-                        { key: "durability", label: "Durability", color: "var(--ctp-peach)"    },
-                      ]
-                    : [
-                        { key: "power",   label: "Power",   color: "var(--ctp-red)"   },
-                        { key: "speed",   label: "Speed",   color: "var(--ctp-teal)"  },
-                        { key: "contact", label: "Contact", color: "var(--ctp-green)" },
-                        { key: "defense", label: "Defense", color: "var(--ctp-blue)"  },
-                      ];
-                  return defs
-                    .map((d) => ({ ...d, score: targetStyleScores[d.key] ?? 0 }))
-                    .sort((a, b) => b.score - a.score)
-                    .map(({ key, label, color }) => (
-                      <span key={key} className="archetype-badge" style={{ background: color, color: "var(--ctp-base)" }}>
-                        {label}
-                      </span>
-                    ));
-                })()
-            }
+            <div className="archetype-badge-row">
+              {targetArchetypes.length > 0
+                ? targetArchetypes.map((arch) => (
+                    <Link
+                      key={arch}
+                      to={`/archetype/${arch.toLowerCase().replace(/\s+/g, "-")}`}
+                      className="archetype-badge"
+                      style={{ background: getArchetypeColor(arch), color: "var(--ctp-base)" }}
+                    >
+                      {arch}
+                    </Link>
+                  ))
+                : targetStyleScores && (() => {
+                    const isP = player?.playerType === "pitcher" || player?.position === "P";
+                    const defs = isP
+                      ? [
+                          { key: "dominance",  label: "Dominance",  color: "var(--ctp-mauve)"    },
+                          { key: "control",    label: "Control",    color: "var(--ctp-sapphire)" },
+                          { key: "durability", label: "Durability", color: "var(--ctp-peach)"    },
+                        ]
+                      : [
+                          { key: "power",   label: "Power",   color: "var(--ctp-red)"   },
+                          { key: "speed",   label: "Speed",   color: "var(--ctp-teal)"  },
+                          { key: "contact", label: "Contact", color: "var(--ctp-green)" },
+                          { key: "defense", label: "Defense", color: "var(--ctp-blue)"  },
+                        ];
+                    return defs
+                      .map((d) => ({ ...d, score: targetStyleScores[d.key] ?? 0 }))
+                      .sort((a, b) => b.score - a.score)
+                      .map(({ key, label, color }) => (
+                        <span key={key} className="archetype-badge" style={{ background: color, color: "var(--ctp-base)" }}>
+                          {label}
+                        </span>
+                      ));
+                  })()
+              }
+            </div>
             <h1>{displayName}</h1>
             <button
               className={`home-link${favoriteRecord ? " secondary" : ""}`}
