@@ -36,13 +36,19 @@ const CATEGORY_LABELS = {
   inningsPitched: { label: "Innings Pitched", abbr: "IP" },
 };
 
-const buildLeadersUrl = ({ categories, statGroup, limit }) => {
+// ア・リーグ / ナ・リーグの MLB Stats API 上の league ID
+const LEAGUE_IDS = { al: 103, nl: 104 };
+
+const buildLeadersUrl = ({ categories, statGroup, limit, league }) => {
   const params = new URLSearchParams({
     leaderCategories: categories.join(","),
     season: CURRENT_SEASON,
     statGroup,
     limit: String(limit),
   });
+  if (LEAGUE_IDS[league]) {
+    params.set("leagueId", String(LEAGUE_IDS[league]));
+  }
   return `${MLB_LEADERS_URL}?${params}`;
 };
 
@@ -62,17 +68,17 @@ const formatLeaders = (leagueLeaders) => {
   }));
 };
 
-const fetchHittingLeaders = async (limit = 10) => {
+const fetchHittingLeaders = async (limit = 10, league = "all") => {
   const data = await fetchFromMlbApi(
-    buildLeadersUrl({ categories: HITTING_CATEGORIES, statGroup: "hitting", limit }),
+    buildLeadersUrl({ categories: HITTING_CATEGORIES, statGroup: "hitting", limit, league }),
     "Failed to fetch hitting leaders",
   );
   return formatLeaders(data.leagueLeaders || []);
 };
 
-const fetchPitchingLeaders = async (limit = 10) => {
+const fetchPitchingLeaders = async (limit = 10, league = "all") => {
   const data = await fetchFromMlbApi(
-    buildLeadersUrl({ categories: PITCHING_CATEGORIES, statGroup: "pitching", limit }),
+    buildLeadersUrl({ categories: PITCHING_CATEGORIES, statGroup: "pitching", limit, league }),
     "Failed to fetch pitching leaders",
   );
   return formatLeaders(data.leagueLeaders || []);

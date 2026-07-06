@@ -13,14 +13,15 @@ const { fetchRisingStars } = require("../services/mlb/risingStarsService");
 const getLeaders = async (req, res) => {
   const type = req.query.type === "pitching" ? "pitching" : "hitting";
   const limit = Math.min(Number(req.query.limit) || 10, 20);
+  const league = ["al", "nl"].includes(req.query.league) ? req.query.league : "all";
 
   try {
     const data =
       type === "pitching"
-        ? await fetchPitchingLeaders(limit)
-        : await fetchHittingLeaders(limit);
+        ? await fetchPitchingLeaders(limit, league)
+        : await fetchHittingLeaders(limit, league);
 
-    res.json({ type, season: new Date().getFullYear(), categories: data });
+    res.json({ type, league, season: new Date().getFullYear(), categories: data });
   } catch (error) {
     console.error("Stats leaders error:", error.message);
     res.status(500).json({ message: "Failed to fetch stats leaders" });

@@ -10,6 +10,12 @@ const TABS = [
   { key: "pitching", label: "Pitchers" },
 ];
 
+const LEAGUES = [
+  { key: "all", label: "MLB" },
+  { key: "al", label: "AL" },
+  { key: "nl", label: "NL" },
+];
+
 function LeaderTable({ category }) {
   return (
     <div className="stats-category-card">
@@ -72,20 +78,24 @@ function SkeletonLeaderTable() {
 
 function StatsPage() {
   const [activeTab, setActiveTab] = useState("hitting");
-  const [data, setData] = useState({ hitting: null, pitching: null });
+  const [league, setLeague] = useState("all");
+  const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const currentSeason = new Date().getFullYear();
 
+  // hitting/pitching と MLB/AL/NL の組み合わせごとにキャッシュする
+  const cacheKey = `${activeTab}-${league}`;
+
   useEffect(() => {
-    if (data[activeTab]) return;
+    if (data[cacheKey]) return;
 
     const fetchLeaders = async () => {
       try {
         setLoading(true);
         setErrorMessage("");
-        const result = await getLeaders({ type: activeTab, limit: 10 });
-        setData((prev) => ({ ...prev, [activeTab]: result.categories }));
+        const result = await getLeaders({ type: activeTab, limit: 10, league });
+        setData((prev) => ({ ...prev, [cacheKey]: result.categories }));
       } catch (error) {
         console.error("Stats fetch error:", error);
         setErrorMessage(getApiErrorMessage(error, "Failed to load stats."));
@@ -95,9 +105,9 @@ function StatsPage() {
     };
 
     fetchLeaders();
-  }, [activeTab, data]);
+  }, [cacheKey, activeTab, league, data]);
 
-  const categories = data[activeTab];
+  const categories = data[cacheKey];
 
   return (
     <div className="app-screen">
@@ -111,6 +121,19 @@ function StatsPage() {
       />
 
       <div className="screen-body px-6 py-6 w-full">
+        <div className="page-header-tabs" style={{ marginBottom: "1rem" }}>
+          {LEAGUES.map((l) => (
+            <button
+              key={l.key}
+              type="button"
+              onClick={() => setLeague(l.key)}
+              className={`page-tab ${league === l.key ? "page-tab--active" : ""}`}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
+
         {errorMessage && <ErrorCard message={errorMessage} />}
 
         <div className="stats-grid">
