@@ -1658,34 +1658,6 @@ input {
   gap: 10px;
 }
 
-.discovery-archetype-chip {
-  padding: 10px 18px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--chip-color, var(--ctp-text));
-  background: color-mix(
-    in srgb,
-    var(--chip-color, var(--ctp-surface1)) 12%,
-    var(--ctp-mantle)
-  );
-  border: 1px solid
-    color-mix(in srgb, var(--chip-color, var(--ctp-surface1)) 35%, transparent);
-  transition:
-    background 150ms ease,
-    transform 100ms ease;
-}
-
-.discovery-archetype-chip:hover {
-  background: color-mix(
-    in srgb,
-    var(--chip-color, var(--ctp-surface1)) 22%,
-    var(--ctp-mantle)
-  );
-  transform: translateY(-1px);
-}
-
 /* Hot ページの "Last 14 days" ラベル */
 .hot-period-label {
   font-size: 11px;

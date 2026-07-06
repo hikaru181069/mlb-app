@@ -1,15 +1,17 @@
 import { Link, Navigate } from "react-router-dom";
 import { getAuthToken } from "../utils/authStorage";
+import { getArchetypeColor } from "../services/archetypeColors";
 
 const MLB_LOGO = "https://www.mlbstatic.com/team-logos/league-on-dark/1.svg";
 
 const ARCHETYPES = [
-  { type: "power-hitter",   label: "Power Hitter",   color: "var(--ctp-red)"      },
-  { type: "speedster",      label: "Speedster",       color: "var(--ctp-green)"    },
-  { type: "contact-hitter", label: "Contact Hitter",  color: "var(--ctp-yellow)"   },
-  { type: "ace",            label: "Ace",             color: "var(--ctp-mauve)"    },
-  { type: "power-pitcher",  label: "Power Pitcher",   color: "var(--ctp-sapphire)" },
-  { type: "workhorse",      label: "Workhorse",       color: "var(--ctp-teal)"     },
+  { type: "power-hitter",   label: "Power Hitter"   },
+  { type: "speedster",      label: "Speedster"      },
+  { type: "contact-hitter", label: "Contact Hitter"  },
+  { type: "ace",            label: "Ace"             },
+  { type: "power-pitcher",  label: "Power Pitcher"   },
+  { type: "workhorse",      label: "Workhorse"       },
+  { type: "elite-defender", label: "Elite Defender"  },
 ];
 
 const TILES = [
@@ -152,8 +154,8 @@ function LandingPage() {
               <Link
                 key={a.type}
                 to={`/archetype/${a.type}`}
-                className="discovery-archetype-chip"
-                style={{ "--chip-color": a.color }}
+                className="archetype-badge"
+                style={{ background: getArchetypeColor(a.label), color: "var(--ctp-base)" }}
               >
                 {a.label}
               </Link>

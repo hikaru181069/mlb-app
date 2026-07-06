@@ -4,27 +4,16 @@ import { useEffect, useState } from "react";
 import { getCurrentUser } from "../services/api/userApi";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import { isUnauthorizedError } from "../services/api/apiError";
+import { getArchetypeColor } from "../services/archetypeColors";
 
 const ARCHETYPES = [
-  { type: "power-hitter", label: "Power Hitter", color: "var(--ctp-red)" },
-  { type: "speedster", label: "Speedster", color: "var(--ctp-green)" },
-  {
-    type: "contact-hitter",
-    label: "Contact Hitter",
-    color: "var(--ctp-yellow)",
-  },
-  { type: "ace", label: "Ace", color: "var(--ctp-mauve)" },
-  {
-    type: "power-pitcher",
-    label: "Power Pitcher",
-    color: "var(--ctp-sapphire)",
-  },
-  { type: "workhorse", label: "Workhorse", color: "var(--ctp-teal)" },
-  {
-    type: "elite-defender",
-    label: "Elite Defender",
-    color: "var(--ctp-blue)",
-  },
+  { type: "power-hitter", label: "Power Hitter" },
+  { type: "speedster", label: "Speedster" },
+  { type: "contact-hitter", label: "Contact Hitter" },
+  { type: "ace", label: "Ace" },
+  { type: "power-pitcher", label: "Power Pitcher" },
+  { type: "workhorse", label: "Workhorse" },
+  { type: "elite-defender", label: "Elite Defender" },
 ];
 
 const TILES = [
@@ -144,8 +133,8 @@ function HomePage() {
             <Link
               key={a.type}
               to={`/archetype/${a.type}`}
-              className="discovery-archetype-chip"
-              style={{ "--chip-color": a.color }}
+              className="archetype-badge"
+              style={{ background: getArchetypeColor(a.label), color: "var(--ctp-base)" }}
             >
               {a.label}
             </Link>
