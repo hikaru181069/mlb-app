@@ -92,6 +92,7 @@ async function fetchAllPitcherStats() {
       name:        s.player.fullName || "",
       team:        s.team?.name     || "",
       gamesPlayed: parseInt(s.stat.gamesPlayed)      || 0,
+      gamesStarted: parseInt(s.stat.gamesStarted)    || 0,
       era:         parseFloat(s.stat.era)            || 0,
       whip:        parseFloat(s.stat.whip)           || 0,
       strikeouts:  parseInt(s.stat.strikeOuts)       || 0,

@@ -68,6 +68,9 @@ const fetchAllPlayersWithPositions = async () => {
     team:        p.team,
     teamId:      metaMap[p.playerId]?.teamId ?? null,
     position:    metaMap[p.playerId]?.position ?? "",
+    // MLB APIのprimaryPositionは投手だと常に"P"でSP/RPを区別しないため、
+    // 登板数に占める先発回数の割合からSP/RPを判定する
+    role:        p.gamesPlayed > 0 && p.gamesStarted / p.gamesPlayed >= 0.5 ? "SP" : "RP",
     age:         metaMap[p.playerId]?.age ?? 0,
     playerType:  "pitcher",
     imageUrl:    HEADSHOT(p.playerId),
@@ -89,8 +92,13 @@ const fetchPlayersByPosition = async (position) => {
   const pos = position.toUpperCase();
   const { hitters, pitchers } = await fetchAllPlayersWithPositions();
 
-  const pool = PITCHER_POSITIONS.has(pos) ? pitchers : hitters;
-  return pool.filter((p) => p.position.toUpperCase() === pos);
+  if (PITCHER_POSITIONS.has(pos)) {
+    // "P" 単体で来た場合は先発・救援どちらも対象にする
+    if (pos === "P") return pitchers;
+    return pitchers.filter((p) => p.role === pos);
+  }
+
+  return hitters.filter((p) => p.position.toUpperCase() === pos);
 };
 
 module.exports = { fetchPlayersByPosition };
