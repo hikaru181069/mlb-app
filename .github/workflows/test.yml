@@ -30,6 +30,25 @@ jobs:
       - name: Run pytest
         run: cd fastapi-service && pytest -v
 
+  # ── Backend（Express）のユニットテスト ───────────────────────────────
+  # DB・外部APIに依存しない純粋な変換ロジック/バリデーションのみが対象なので、
+  # MongoDBのコンテナ等は用意していない。
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: cd backend && npm ci
+
+      - name: Run tests
+        run: cd backend && npm test
+
   # ── フロントエンドのビルド確認 ───────────────────────────────────────
   # ユニットテストはまだ無いが、「ビルドが壊れていないか」だけでも
   # 自動チェックしておく最小限のCI。
