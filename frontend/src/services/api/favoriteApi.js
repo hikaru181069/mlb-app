@@ -109,9 +109,6 @@ const createFavoriteRequestBody = (player) => {
     playerType: player.playerType || "hitter",
     hitterStats: player.hitterStats,
     pitcherStats: player.pitcherStats,
-    currentSeasonStats: player.currentSeasonStats,
-    careerStats: player.careerStats,
-    recentGames: player.recentGames || [],
     baseballSavantUrl: player.baseballSavantUrl || "",
     source: player.source || "MLB Stats API",
   };

@@ -32,6 +32,9 @@ const favoritePlayerSchema = new mongoose.Schema(
       enum: ["hitter", "pitcher"],
       default: "hitter",
     },
+    // お気に入り登録時点の成績スナップショット。
+    // Favorites一覧・編集ページの軽量表示専用（選手ごとにライブAPIを叩かずに
+    // 一覧を出すため）。最新の成績は選手詳細ページで別途ライブ取得している。
     hitterStats: {
       battingAverage: {
         type: String,
@@ -45,77 +48,6 @@ const favoritePlayerSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
-    },
-    currentSeasonStats: {
-      hitterStats: {
-        battingAverage: {
-          type: String,
-          default: "",
-        },
-        homeRuns: {
-          type: Number,
-          default: 0,
-        },
-        rbis: {
-          type: Number,
-          default: 0,
-        },
-      },
-      pitcherStats: {
-        era: {
-          type: String,
-          default: "",
-        },
-        strikeouts: {
-          type: Number,
-          default: 0,
-        },
-        inningsPitched: {
-          type: String,
-          default: "",
-        },
-      },
-    },
-    careerStats: {
-      hitterStats: {
-        battingAverage: {
-          type: String,
-          default: "",
-        },
-        homeRuns: {
-          type: Number,
-          default: 0,
-        },
-        rbis: {
-          type: Number,
-          default: 0,
-        },
-      },
-      pitcherStats: {
-        era: {
-          type: String,
-          default: "",
-        },
-        strikeouts: {
-          type: Number,
-          default: 0,
-        },
-        inningsPitched: {
-          type: String,
-          default: "",
-        },
-      },
-    },
-    recentGames: {
-      type: [
-        {
-          date: String,
-          opponent: String,
-          summary: String,
-          result: String,
-        },
-      ],
-      default: [],
     },
     baseballSavantUrl: {
       type: String,
