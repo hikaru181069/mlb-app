@@ -146,7 +146,31 @@ const x = cx + radius * Math.cos(angle);
 
 ## ローカル起動方法
 
-**必要なもの:** Node.js 18+ / Python 3.10+ / Docker
+### Dockerで一発起動（推奨）
+
+**必要なもの:** Docker Desktop
+
+```bash
+git clone https://github.com/your-username/mlb-app.git
+cd mlb-app
+docker compose up -d --build
+```
+
+これだけで MongoDB / Redis / FastAPI / Backend / Frontend の5サービスがすべて起動します。
+`.env`ファイルの用意は不要です（Docker用の環境変数は`docker-compose.yml`にローカル開発専用の値として定義済み）。
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5001
+- FastAPI: http://localhost:8000
+
+手元のソースコードを編集すると、コンテナ内のホットリロード（nodemon / Vite / uvicorn --reload）でそのまま反映されます。
+停止するときは `docker compose down`（`-v`を付けるとDBのデータも削除されます）。
+
+MongoDBは空の状態から始まるため、ユーザー登録からのスタートになります。
+
+### Dockerを使わない場合
+
+**必要なもの:** Node.js 18+ / Python 3.10+ / Docker（MongoDB/Redis用）
 
 ```bash
 # 1. リポジトリをクローン
@@ -159,7 +183,7 @@ cd ../frontend && npm install
 
 # 3. Python 仮想環境のセットアップ
 python3 -m venv .venv
-.venv/bin/pip install fastapi uvicorn numpy pydantic
+.venv/bin/pip install -r fastapi-service/requirements.txt
 ```
 
 **環境変数 (`backend/.env`):**
@@ -174,8 +198,8 @@ FRONTEND_URL=http://localhost:5173
 **起動（4つのターミナルで）:**
 
 ```bash
-# MongoDB
-docker compose up -d
+# MongoDB / Redis
+docker compose up -d mongodb redis
 
 # FastAPI（推薦エンジン）
 cd fastapi-service
