@@ -342,4 +342,94 @@ const fetchOnboardingPlayers = async ({ hitterLimit = 14, pitcherLimit = 6 } = {
   return [...hitters, ...pitchers];
 };
 
-module.exports = { fetchLeagueStats, fetchYoungLeaguePlayers, fetchYoungPitchers, fetchOnboardingPlayers };
+// ── オールスター選出選手リスト ────────────────────────────────────────────────
+// ファン投票で選ばれたオールスターゲームのロースターを取得する。
+// シーズン序盤(選出発表前)はロースターがまだ存在しないため、空配列を返す
+// (呼び出し側の fetchPopularPlayers() がリーグ成績上位にフォールバックする)。
+
+const fetchAllStarPlayers = async () => {
+  const scheduleParams = new URLSearchParams({
+    sportId:  "1",
+    gameType: "A",
+    season:   CURRENT_SEASON,
+  });
+
+  const schedule = await fetchFromMlbApi(
+    `https://statsapi.mlb.com/api/v1/schedule?${scheduleParams}`,
+    "Failed to fetch All-Star Game schedule",
+  );
+
+  const gamePk = schedule.dates?.[0]?.games?.[0]?.gamePk;
+  if (!gamePk) return [];
+
+  const boxscore = await fetchFromMlbApi(
+    `https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`,
+    "Failed to fetch All-Star Game boxscore",
+  );
+
+  const awayPlayers = Object.values(boxscore.teams?.away?.players ?? {});
+  const homePlayers = Object.values(boxscore.teams?.home?.players ?? {});
+  const rosterEntries = [...awayPlayers, ...homePlayers].filter((p) => p.person?.id);
+
+  if (rosterEntries.length === 0) return [];
+
+  // position・所属チームをバッチ取得する(boxscoreのplayer情報はteam名を含まないため)
+  const playerIds = rosterEntries.map((p) => p.person.id);
+  const metaMap = {};
+  try {
+    const data = await fetchFromMlbApi(
+      `https://statsapi.mlb.com/api/v1/people?personIds=${playerIds.join(",")}&hydrate=currentTeam`,
+      "Failed to fetch All-Star player meta",
+    );
+    for (const person of data.people || []) {
+      metaMap[person.id] = {
+        teamId:   person.currentTeam?.id   ?? null,
+        teamName: person.currentTeam?.name ?? "",
+        position: person.primaryPosition?.abbreviation ?? "",
+      };
+    }
+  } catch { /* メタ取得失敗はスキップ(team名/positionが空のまま表示される) */ }
+
+  const HEADSHOT = (id) =>
+    `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
+
+  return rosterEntries.map((entry) => {
+    const id = entry.person.id;
+    const meta = metaMap[id] ?? {};
+    const position = meta.position || entry.position?.abbreviation || "";
+    return {
+      mlbPlayerId: id,
+      fullName:    entry.person.fullName,
+      teamName:    meta.teamName || "",
+      teamId:      meta.teamId ?? null,
+      position,
+      playerType:  position === "P" ? "pitcher" : "hitter",
+      imageUrl:    HEADSHOT(id),
+    };
+  });
+};
+
+// ── 人気選手リスト(オールスター優先、フォールバック付き) ───────────────────────
+// ファン投票のオールスターの方が「人気選手」の実態に近いため優先する。
+// シーズン序盤で選出前の場合は、既存のOPS/ERA上位リストにフォールバックする。
+// この関数は OnboardingFavoritesPage(選手選択画面)とHome画面のPopular Players
+// 両方から共通で使われる。
+
+const fetchPopularPlayers = async () => {
+  try {
+    const allStars = await fetchAllStarPlayers();
+    if (allStars.length > 0) return allStars;
+  } catch (error) {
+    console.error("All-Star roster fetch failed, falling back to league leaders:", error.message);
+  }
+  return fetchOnboardingPlayers();
+};
+
+module.exports = {
+  fetchLeagueStats,
+  fetchYoungLeaguePlayers,
+  fetchYoungPitchers,
+  fetchOnboardingPlayers,
+  fetchAllStarPlayers,
+  fetchPopularPlayers,
+};

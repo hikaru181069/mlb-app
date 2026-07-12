@@ -1,0 +1,41 @@
+.row {
+  margin-top: 32px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ctp-text);
+}
+
+.viewAll {
+  font-size: 0.85rem;
+  color: var(--ctp-blue);
+  white-space: nowrap;
+}
+
+.scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+}
+
+.scroll > * {
+  flex: 0 0 180px;
+  scroll-snap-align: start;
+}
+
+.empty {
+  color: var(--ctp-subtext0);
+  font-size: 0.9rem;
+  padding: 24px 0;
+}

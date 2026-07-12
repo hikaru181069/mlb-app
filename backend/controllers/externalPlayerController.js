@@ -5,7 +5,7 @@ const {
   fetchPlayerSuggestions,
 } = require("../services/mlb");
 const { fetchFromMlbApi } = require("../services/mlb/mlbClient");
-const { fetchOnboardingPlayers } = require("../services/mlb/leagueStatsService");
+const { fetchPopularPlayers } = require("../services/mlb/leagueStatsService");
 
 const searchExternalPlayers = async (req, res) => {
   try {
@@ -102,7 +102,7 @@ const getPlayerYearByYear = async (req, res) => {
 
 const getOnboardingPlayers = async (req, res) => {
   try {
-    const players = await fetchOnboardingPlayers();
+    const players = await fetchPopularPlayers();
     res.json(players);
   } catch (error) {
     console.error("Onboarding players error:", error.message);

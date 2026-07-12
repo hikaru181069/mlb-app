@@ -15,6 +15,7 @@ import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
 import { getArchetypeColor } from "../services/archetypeColors";
 import { useReveal } from "../hooks/useReveal";
+import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 import { useToast } from "../contexts/ToastContext";
 
 
@@ -23,6 +24,7 @@ function PlayerDetailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { addRecentlyViewed } = useRecentlyViewed();
   const [player, setPlayer] = useState(null);
   const [mlbSimilar, setMlbSimilar] = useState([]);
   const [youngSimilar, setYoungSimilar] = useState([]);
@@ -87,6 +89,18 @@ function PlayerDetailPage() {
     };
     fetchPlayer();
   }, [playerId, retryKey]);
+
+  // 選手詳細の閲覧履歴をホーム画面の「最近見た選手」用にlocalStorageへ記録する
+  useEffect(() => {
+    if (!player?.mlbPlayerId) return;
+    addRecentlyViewed({
+      playerId: player.mlbPlayerId,
+      fullName: player.fullName || player.name,
+      teamName: player.team && player.team !== "Unknown" ? player.team : player.teamName,
+      position: player.position,
+      imageUrl: player.imageUrl || player.image,
+    });
+  }, [player, addRecentlyViewed]);
 
   const handleAddToFavorites = async () => {
     if (!token) {

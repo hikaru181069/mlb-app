@@ -1,0 +1,32 @@
+/* Home画面のみで使う調整用スタイル。
+   home-tiles / home-tile 等はLandingPage.jsxとも共有されているグローバルクラスなので、
+   App.css側の定義は変更せず、ここでは:global()でHome画面限定の上書きだけを行う。 */
+
+.toolsHeading {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ctp-text);
+  margin: 32px 0 12px;
+}
+
+.tilesCompact {
+  padding-top: 0;
+}
+
+.tilesCompact :global(.home-tile) {
+  padding: 12px 14px;
+  gap: 3px;
+}
+
+.tilesCompact :global(.home-tile-title) {
+  font-size: 0.95rem;
+}
+
+.tilesCompact :global(.home-tile-desc) {
+  font-size: 0.78rem;
+}
+
+.tilesCompact :global(.home-tile-cta) {
+  font-size: 0.78rem;
+  margin-top: 6px;
+}
