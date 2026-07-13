@@ -8,6 +8,7 @@ import {
   getFutureStars,
 } from "../services/api/recommendationApi";
 import { getOnboardingPlayers } from "../services/api/externalPlayerApi";
+import { getPlayersByArchetype } from "../services/api/archetypeApi";
 import { clearAuthData, getAuthToken } from "../utils/authStorage";
 import { isUnauthorizedError } from "../services/api/apiError";
 import { getArchetypeColor } from "../services/archetypeColors";
@@ -20,6 +21,9 @@ import TodaysPick from "../components/TodaysPick";
 
 import styles from "./HomePage.module.css";
 
+// Home画面の各行で表示する最大枚数(以前は10件で情報過多だったため6件に絞る)
+const ROW_ITEM_LIMIT = 6;
+
 const HEADSHOT_URL = (id) =>
   `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${id}/headshot/67/current`;
 
@@ -31,6 +35,17 @@ const ARCHETYPES = [
   { type: "power-pitcher", label: "Power Pitcher" },
   { type: "workhorse", label: "Workhorse" },
   { type: "elite-defender", label: "Elite Defender" },
+];
+
+// Home画面下部の「Categories」行。既存の/api/archetype/:typeをそのまま使う。
+// power-hitter/speedster/elite-defenderは既存のアーキタイプ分類、
+// future-mvp/japanese-playersはバックエンド側で特殊ロジックに振り分けられる。
+const CATEGORY_ROWS = [
+  { slug: "power-hitter", title: "Power Hitters" },
+  { slug: "speedster", title: "Speed Demons" },
+  { slug: "elite-defender", title: "Elite Defenders" },
+  { slug: "future-mvp", title: "Future MVP" },
+  { slug: "japanese-players", title: "Japanese Players" },
 ];
 
 const TILES = [
@@ -104,6 +119,9 @@ function HomePage() {
   const [futureStarsLoading, setFutureStarsLoading] = useState(true);
   const [popularPlayers, setPopularPlayers] = useState([]);
   const [popularLoading, setPopularLoading] = useState(true);
+  const [categoryData, setCategoryData] = useState(() =>
+    Object.fromEntries(CATEGORY_ROWS.map((c) => [c.slug, { items: [], loading: true }])),
+  );
   const token = getAuthToken();
   const { recentlyViewed } = useRecentlyViewed();
 
@@ -154,17 +172,36 @@ function HomePage() {
       });
   }, []);
 
+  // Categories行もそれぞれ独立して取得する(5行同時にPromise.allで待たない)
+  useEffect(() => {
+    CATEGORY_ROWS.forEach(({ slug }) => {
+      getPlayersByArchetype(slug)
+        .catch(() => [])
+        .then((items) => {
+          setCategoryData((prev) => ({ ...prev, [slug]: { items, loading: false } }));
+        });
+    });
+  }, []);
+
   // お気に入り未登録のユーザーには「本物のおすすめ」が存在しないため、
   // ForYou APIのfallback(=人気選手)は使わない。それを使うと「Popular Players」行と
   // 内容が重複して見えてしまうため、groupsが無い場合は空のまま(空状態メッセージを表示)にする。
+  // 各matchに、どのお気に入り選手が理由でおすすめされたかを"reason"として付与する。
   const recommendedItems = forYouData?.groups?.length
-    ? forYouData.groups.flatMap((group) => group.matches).slice(0, 10)
+    ? forYouData.groups
+        .flatMap((group) =>
+          group.matches.map((match) => ({
+            ...match,
+            reason: `Similar to ${group.seedPlayer.name}`,
+          })),
+        )
+        .slice(0, ROW_ITEM_LIMIT)
     : [];
 
-  // Today's Pick: 本物のパーソナライズ結果がある場合のみ表示する。
+  // Today's Pick: 本物のパーソナライズ結果がある場合のみ表示する(最大3人)。
   // 無い場合(お気に入り0件など)は表示しない — Popular Playersと同じ選手が
   // 二重に強調表示されるのを避けるため。
-  const todaysPick = forYouData?.groups?.[0]?.matches?.[0] || null;
+  const todaysPicks = recommendedItems.slice(0, 3);
 
   // ─── ログイン済み表示 ─────────────────────────────────────────────────────
   return (
@@ -176,7 +213,7 @@ function HomePage() {
         </p>
       </header>
 
-      <TodaysPick player={todaysPick} loading={forYouLoading} />
+      <TodaysPick players={todaysPicks} loading={forYouLoading} />
 
       <HomeRow
         title="Recommended For You"
@@ -196,7 +233,7 @@ function HomePage() {
         title="Your Favorites"
         viewAllTo="/favorites"
         loading={favoritesLoading}
-        items={favorites}
+        items={favorites.slice(0, ROW_ITEM_LIMIT)}
         emptyMessage="You haven't added any favorite players yet."
         renderItem={(favorite) => (
           <FavoritePlayerCard key={favorite._id} favorite={favorite} />
@@ -207,12 +244,16 @@ function HomePage() {
         title="Future Stars"
         viewAllTo="/prospects"
         loading={futureStarsLoading}
-        items={futureStars.slice(0, 10)}
+        items={futureStars.slice(0, ROW_ITEM_LIMIT)}
         emptyMessage="Add favorites to see rising prospects picked for you."
         renderItem={(prospect) => (
           <PlayerCard
             key={prospect.playerId}
-            player={{ ...prospect, imageUrl: HEADSHOT_URL(prospect.playerId) }}
+            player={{
+              ...prospect,
+              imageUrl: HEADSHOT_URL(prospect.playerId),
+              reason: prospect.reasons?.[0],
+            }}
           />
         )}
       />
@@ -221,7 +262,7 @@ function HomePage() {
         title="Popular Players"
         viewAllTo="/search"
         loading={popularLoading}
-        items={popularPlayers.slice(0, 10)}
+        items={popularPlayers.slice(0, ROW_ITEM_LIMIT)}
         emptyMessage="Couldn't load popular players right now."
         renderItem={(player) => (
           <PlayerCard
@@ -235,9 +276,28 @@ function HomePage() {
       <HomeRow
         title="Recently Viewed"
         loading={false}
-        items={recentlyViewed}
+        items={recentlyViewed.slice(0, ROW_ITEM_LIMIT)}
         renderItem={(player) => <PlayerCard key={player.playerId} player={player} />}
       />
+
+      {/* Categories: アーキタイプ・国籍などの切り口で選手を横スクロール表示 */}
+      <h2 className={styles.toolsHeading}>Categories</h2>
+      {CATEGORY_ROWS.map(({ slug, title }) => (
+        <HomeRow
+          key={slug}
+          title={title}
+          viewAllTo={`/archetype/${slug}`}
+          loading={categoryData[slug].loading}
+          items={categoryData[slug].items.slice(0, ROW_ITEM_LIMIT)}
+          emptyMessage="No players found for this category right now."
+          renderItem={(player) => (
+            <PlayerCard
+              key={player.mlbPlayerId}
+              player={{ ...player, reason: player.reason || player.archetypes?.[0] }}
+            />
+          )}
+        />
+      ))}
 
       {/* 機能タイル */}
       <h2 className={styles.toolsHeading}>Tools</h2>

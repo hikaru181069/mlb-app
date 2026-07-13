@@ -1,5 +1,6 @@
 :root {
-  --app-font: "Space Mono", monospace;
+  --app-font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --app-font-mono: "Space Mono", monospace;
 
   --ctp-rosewater: #f5e0dc;
   --ctp-flamingo: #f2cdcd;

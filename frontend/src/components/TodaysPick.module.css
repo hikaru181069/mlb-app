@@ -10,64 +10,76 @@
   margin-bottom: 8px;
 }
 
-.card {
+.row {
   display: flex;
+  gap: 14px;
+}
+
+.card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 20px;
-  border-radius: 18px;
-  padding: 20px;
-  border: 1px solid var(--ctp-surface1);
-  background: linear-gradient(135deg, rgba(137, 180, 250, 0.12), transparent 60%);
+  text-align: center;
+  gap: 10px;
+  padding: 4px;
   color: var(--ctp-text);
   transition: transform 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 .image {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 160px;
+  border-radius: 18%;
   object-fit: cover;
-  flex-shrink: 0;
   background: var(--ctp-surface0);
-}
-
-.body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+  box-shadow: 0 14px 30px rgba(17, 17, 27, 0.35);
 }
 
 .name {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .meta {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--ctp-subtext0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .reason {
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   color: var(--ctp-sapphire);
-  margin-top: 2px;
-}
-
-.cta {
-  font-size: 0.85rem;
-  color: var(--ctp-blue);
-  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 @media (max-width: 480px) {
+  .row {
+    gap: 8px;
+  }
+
   .card {
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
+    padding: 12px 6px;
+  }
+
+  .image {
+    width: 64px;
+    height: 64px;
   }
 }

@@ -8,18 +8,32 @@ import { getPlayersByArchetype } from "../services/api/archetypeApi";
 const slugToTitle = (slug) =>
   slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 
+// slugToTitle だけでは正しく表示できないタイトルの上書き("future-mvp" → "Future Mvp" になってしまう等)
+const TITLE_OVERRIDES = {
+  "power-hitter":      "Power Hitters",
+  "speedster":         "Speed Demons",
+  "elite-defender":    "Elite Defenders",
+  "future-mvp":        "Future MVP",
+  "japanese-players":  "Japanese Players",
+};
+
 // アーキタイプごとの説明文
 const ARCHETYPE_DESCRIPTIONS = {
   "Five-Tool Threat": "Power, speed, and contact — these players do it all.",
   "Power Hitter":     "Elite home run production and slugging ability.",
+  "Power Hitters":    "Elite home run production and slugging ability.",
   "Speedster":        "Elite stolen base ability and speed on the bases.",
+  "Speed Demons":     "Elite stolen base ability and speed on the bases.",
   "Contact Hitter":   "High batting average with consistent contact.",
   "Elite Defender":   "Elite Outs Above Average — the best gloves in the league.",
+  "Elite Defenders":  "Elite Outs Above Average — the best gloves in the league.",
   "All-Around":       "Balanced contributors across all offensive categories.",
   "Ace":              "Elite ERA and strikeout ability — the staff cornerstone.",
   "Power Pitcher":    "High strikeout rates with overpowering stuff.",
   "Control Artist":   "Exceptional command with minimal walks.",
   "Workhorse":        "Durable innings-eaters who take the ball every five days.",
+  "Future MVP":       "Age 24 or younger, already producing elite numbers in the majors.",
+  "Japanese Players": "MLB players born in Japan.",
 };
 
 function ArchetypePage() {
@@ -27,7 +41,7 @@ function ArchetypePage() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const title = slugToTitle(type);
+  const title = TITLE_OVERRIDES[type] || slugToTitle(type);
   const description = ARCHETYPE_DESCRIPTIONS[title] || "";
 
   useEffect(() => {

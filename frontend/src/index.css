@@ -25,7 +25,7 @@
 }
 
 :root {
-  font-family: "Space Mono", monospace;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   color: #cdd6f4;
   /* ▼ 背景色: #1e1e2e (Base) か #181825 (Mantle) で切り替え */
   --app-bg: #1e1e2e;

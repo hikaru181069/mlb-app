@@ -321,6 +321,7 @@ const fetchOnboardingPlayers = async ({ hitterLimit = 14, pitcherLimit = 6 } = {
     position:    metaMap[p.playerId]?.position ?? "",
     playerType:  "hitter",
     imageUrl:    HEADSHOT(p.playerId),
+    reason:      "League leader in OPS",
     currentSeasonStats: {
       hitterStats: { ops: p.ops, homeRuns: p.homeRuns, battingAverage: p.avg, rbis: p.rbi },
     },
@@ -334,6 +335,7 @@ const fetchOnboardingPlayers = async ({ hitterLimit = 14, pitcherLimit = 6 } = {
     position:    "P",
     playerType:  "pitcher",
     imageUrl:    HEADSHOT(p.playerId),
+    reason:      "League leader in ERA",
     currentSeasonStats: {
       pitcherStats: { era: p.era, strikeouts: p.strikeouts, inningsPitched: p.innings },
     },
@@ -405,6 +407,7 @@ const fetchAllStarPlayers = async () => {
       position,
       playerType:  position === "P" ? "pitcher" : "hitter",
       imageUrl:    HEADSHOT(id),
+      reason:      `${CURRENT_SEASON} All-Star`,
     };
   });
 };
