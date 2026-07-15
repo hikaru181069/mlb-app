@@ -27,6 +27,7 @@ const scoutRoutes = require("./routes/scoutRoutes");
 const archetypeRoutes = require("./routes/archetypeRoutes");
 const compareRoutes = require("./routes/compareRoutes");
 const positionRoutes = require("./routes/positionRoutes");
+const interactionRoutes = require("./routes/interactionRoutes");
 
 const app = express();
 
@@ -63,6 +64,7 @@ app.use("/api/scout", scoutRoutes);
 app.use("/api/archetype", archetypeRoutes);
 app.use("/api/compare", compareRoutes);
 app.use("/api/positions", positionRoutes);
+app.use("/api/interactions", interactionRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend server is running");

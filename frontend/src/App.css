@@ -9012,6 +9012,13 @@ button:active {
   cursor: default;
 }
 
+.foryou-card-reason {
+  font-size: 12px;
+  color: var(--ctp-subtext1);
+  margin: 8px 0 0;
+  line-height: 1.4;
+}
+
 /* B: 類似度スコアバー */
 .foryou-sim-score {
   display: flex;

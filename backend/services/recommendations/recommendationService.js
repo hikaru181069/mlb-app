@@ -5,6 +5,9 @@ const { fetchExternalPlayerStats } = require("../mlb/playerStatsService");
 const { formatExternalStats } = require("../mlb/playerFormatter");
 const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("../mlb/baseballSavantService");
 const { fallbackPlayers } = require("./fallbackPlayers");
+const { fetchArchetypes } = require("../mlb/archetypeService");
+const { getUserPreferenceProfile, scoreAffinity } = require("./preferenceService");
+const { buildMatchReason } = require("./reasonService");
 
 const toNumber = (value) => {
   const n = Number(value);
@@ -223,7 +226,15 @@ const getGroupedRecommendationsForUser = async (userId) => {
     };
   }
 
-  const leagueStats = await fetchLeagueStats();
+  // アーキタイプ分類は24hキャッシュ済みのため、ここで1回取得すれば
+  // 選手カードのstyleScores(棒グラフ用パーセンタイル)をほぼノーコストで付与できる。
+  // preferenceProfileは閲覧・お気に入り履歴から作る好みの傾向(Interaction保存分のみ)。
+  // 使い始めたばかりで履歴が無いユーザーはnullになり、以降の並び替えはスキップされる。
+  const [leagueStats, archetypeMap, preferenceProfile] = await Promise.all([
+    fetchLeagueStats(),
+    fetchArchetypes(),
+    getUserPreferenceProfile(userId),
+  ]);
 
   // プレイヤーIDからキースタッツを引けるルックアップマップを構築
   const hitterPoolMap = {};
@@ -303,33 +314,59 @@ const getGroupedRecommendationsForUser = async (userId) => {
   );
 
   // Step 4: グループを組み立てて返す
-  const groups = deduped.map(({ fav, isPitcher, seedKeyStats, uniqueMatches }) => ({
-    seedPlayer: {
-      mlbPlayerId: Number(fav.mlbPlayerId),
-      name:        fav.fullName,
-      playerType:  fav.playerType || "hitter",
-      keyStats:    seedKeyStats,
-    },
-    matches: uniqueMatches.map((match) => {
-      const live = liveStatsMap[match.playerId];
-      const liveKeyStats = live
-        ? (isPitcher
-            ? { era: toNumber(live.pitcherStats?.era), strikeouts: toNumber(live.pitcherStats?.strikeouts), wins: toNumber(live.pitcherStats?.wins) }
-            : { ops: toNumber(live.hitterStats?.ops), homeRuns: toNumber(live.hitterStats?.homeRuns), stolenBases: toNumber(live.hitterStats?.stolenBases) })
-        : (isPitcher ? (pitcherPoolMap[Number(match.playerId)] || {}) : (hitterPoolMap[Number(match.playerId)] || {}));
+  const groups = deduped.map(({ fav, isPitcher, seedKeyStats, uniqueMatches }) => {
+    const seedArchetype = archetypeMap[Number(fav.mlbPlayerId)];
 
-      return {
-        mlbPlayerId:          match.playerId,
-        name:                 match.name,
-        team:                 match.team,
-        position:             match.position,
-        age:                  match.age,
-        similarityPercentage: match.similarityPercentage,
-        playerType:           isPitcher ? "pitcher" : "hitter",
-        keyStats:             liveKeyStats,
-      };
-    }),
-  }));
+    return {
+      seedPlayer: {
+        mlbPlayerId: Number(fav.mlbPlayerId),
+        name:        fav.fullName,
+        playerType:  fav.playerType || "hitter",
+        keyStats:    seedKeyStats,
+        styleScores: seedArchetype?.styleScores,
+        archetypes:  seedArchetype?.archetypes || [],
+      },
+      matches: uniqueMatches
+        .map((match) => {
+          const live = liveStatsMap[match.playerId];
+          const liveKeyStats = live
+            ? (isPitcher
+                ? { era: toNumber(live.pitcherStats?.era), strikeouts: toNumber(live.pitcherStats?.strikeouts), wins: toNumber(live.pitcherStats?.wins) }
+                : { ops: toNumber(live.hitterStats?.ops), homeRuns: toNumber(live.hitterStats?.homeRuns), stolenBases: toNumber(live.hitterStats?.stolenBases) })
+            : (isPitcher ? (pitcherPoolMap[Number(match.playerId)] || {}) : (hitterPoolMap[Number(match.playerId)] || {}));
+          const matchArchetype = archetypeMap[Number(match.playerId)];
+          const styleScores = matchArchetype?.styleScores;
+
+          return {
+            mlbPlayerId:          match.playerId,
+            name:                 match.name,
+            team:                 match.team,
+            position:             match.position,
+            age:                  match.age,
+            similarityPercentage: match.similarityPercentage,
+            playerType:           isPitcher ? "pitcher" : "hitter",
+            keyStats:             liveKeyStats,
+            styleScores,
+            affinityScore:        scoreAffinity(preferenceProfile, styleScores, isPitcher),
+            reason: buildMatchReason({
+              seedName:        fav.fullName,
+              seedArchetypes:  seedArchetype?.archetypes || [],
+              matchArchetypes: matchArchetype?.archetypes || [],
+              seedScores:      seedArchetype?.styleScores,
+              matchScores:     styleScores,
+              isPitcher,
+            }),
+          };
+        })
+        // 好みプロファイルがある場合のみ、既存の類似度に行動ベースの好みスコアを
+        // ブレンドして並び替える(類似度計算そのものは置き換えない)。
+        .sort((a, b) => {
+          if (a.affinityScore == null || b.affinityScore == null) return 0;
+          const blended = (m) => m.similarityPercentage * 0.6 + m.affinityScore * 0.4;
+          return blended(b) - blended(a);
+        }),
+    };
+  });
 
   // お気に入りはあるが、推薦エンジンが一件もマッチを返さなかった場合
   // （FastAPIの一時的な障害・コールドスタート等）。

@@ -11,6 +11,7 @@ import {
   getFavorites,
 } from "../services/api/favoriteApi";
 import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
+import { recordView } from "../services/api/interactionApi";
 import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
 import { getArchetypeColor } from "../services/archetypeColors";
@@ -101,6 +102,12 @@ function PlayerDetailPage() {
       imageUrl: player.imageUrl || player.image,
     });
   }, [player, addRecentlyViewed]);
+
+  // 閲覧行動をサーバー側にも記録する(推薦ロジックの「好みプロファイル」の元データ)
+  useEffect(() => {
+    if (!player?.mlbPlayerId || !token) return;
+    recordView(player, token);
+  }, [player, token]);
 
   const handleAddToFavorites = async () => {
     if (!token) {

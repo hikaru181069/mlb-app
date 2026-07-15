@@ -1,4 +1,5 @@
 const FavoritePlayer = require("../models/FavoritePlayer");
+const { logInteraction } = require("../services/interactionService");
 
 const LIMITS = { hitter: 15, pitcher: 10 };
 
@@ -38,6 +39,14 @@ const createFavorite = async (req, res) => {
     const favorite = await FavoritePlayer.create({
       ...req.body,
       user: req.user._id,
+    });
+
+    logInteraction({
+      userId: req.user._id,
+      mlbPlayerId: favorite.mlbPlayerId,
+      playerType: favorite.playerType,
+      action: "favorite",
+      source: "favorites",
     });
 
     res.status(201).json(favorite);
@@ -95,6 +104,16 @@ const createManyFavorites = async (req, res) => {
         { ...player, user: req.user._id },
         { new: true, runValidators: true, setDefaultsOnInsert: true, upsert: true },
       );
+
+      if (isNew) {
+        logInteraction({
+          userId: req.user._id,
+          mlbPlayerId: favorite.mlbPlayerId,
+          playerType: favorite.playerType,
+          action: "favorite",
+          source: "onboarding",
+        });
+      }
 
       favorites.push(favorite);
     }

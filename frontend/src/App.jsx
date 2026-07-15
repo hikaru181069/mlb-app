@@ -30,6 +30,7 @@ import ForYouPage from "./pages/ForYouPage";
 import PositionsPage from "./pages/PositionsPage";
 import PositionPage from "./pages/PositionPage";
 import LandingPage from "./pages/LandingPage";
+import DiscoverPage from "./pages/DiscoverPage";
 
 // [Phase 4] ページ遷移アニメーション
 // location.key を React の key に渡すことで、ページが変わるたびにコンポーネントが
@@ -49,6 +50,7 @@ function AnimatedRoutes() {
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/favorites/:favoriteId" element={<FavoriteEditPage />} />

@@ -92,6 +92,8 @@ function ForYouCard({ match, seedPlayer, isSaved, onSave, saving }) {
 
       <SimScore pct={match.similarityPercentage} />
 
+      {match.reason && <p className="foryou-card-reason">{match.reason}</p>}
+
       <StatComparison
         seedName={seedPlayer.name}
         seedStats={seedPlayer.keyStats}

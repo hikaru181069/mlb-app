@@ -23,12 +23,14 @@ let archetypeCacheTime = null;
 const toHitterCandidate = (p) => ({
   playerId: p.playerId,
   playerType: "hitter",
+  position: p.position || "",
   ops: p.ops,
   homeRuns: p.homeRuns,
   stolenBases: p.stolenBases,
   avg: p.avg,
   rbi: p.rbi,
   oaa: p.oaa ?? 0,
+  catcherFraming: p.catcherFraming,
 });
 
 // leagueStats の投手を FastAPI 用フォーマットに変換

@@ -29,6 +29,7 @@ THRESHOLD = 65
 class ArchetypeCandidate(BaseModel):
     playerId: int
     playerType: str = "hitter"
+    position: str = ""
     # 野手スタッツ
     ops: float = 0
     homeRuns: float = 0
@@ -36,6 +37,9 @@ class ArchetypeCandidate(BaseModel):
     avg: float = 0
     rbi: float = 0
     oaa: float = 0
+    # 捕手の守備力はOAAでは評価されない(Baseball Savant側でも対象外)ため、
+    # フレーミング(捕球技術による失点抑制ランズ)で代替する。捕手以外はNone。
+    catcherFraming: float | None = None
     # 投手スタッツ
     era: float = 0
     whip: float = 0
@@ -55,7 +59,9 @@ class StyleScores(BaseModel):
     power: int = 0
     speed: int = 0
     contact: int = 0
-    defense: int = 0
+    # 守備データが無い選手(OAA・フレーミングどちらも無い)はNone。
+    # 0にすると「最低評価」に見えてしまうため、「データなし」と「最低評価」を区別する。
+    defense: int | None = None
     # 投手軸 (0-100 パーセンタイル)
     dominance: int = 0
     control: int = 0
@@ -82,15 +88,24 @@ def _classify_hitters(candidates: list[ArchetypeCandidate]) -> list[ArchetypeRes
     hr_dist  = [c.homeRuns    for c in candidates]
     sb_dist  = [c.stolenBases for c in candidates]
     avg_dist = [c.avg         for c in candidates]
-    # OAA はデータがない選手だと 0 になるため、実際に守備データがある選手だけで分布を作る
-    oaa_dist = [c.oaa for c in candidates if c.oaa != 0]
+    # 捕手かどうかはpositionではなくcatcherFramingの有無で判定する。
+    # MLB Stats APIの成績エンドポイントはprimaryPositionが空文字になることがあり
+    # (捕手でもpositionが取れないケースが実際にある)、position判定だけでは
+    # 捕手を取りこぼしてしまうため。catcherFramingは捕手のみに紐付くデータなので
+    # 「値がある = 捕手」として扱える。
+    oaa_dist = [c.oaa for c in candidates if c.catcherFraming is None and c.oaa != 0]
+    framing_dist = [c.catcherFraming for c in candidates if c.catcherFraming is not None]
 
     results = []
     for c in candidates:
         hr_pct  = calc_percentile(c.homeRuns,    hr_dist)
         sb_pct  = calc_percentile(c.stolenBases, sb_dist)
         avg_pct = calc_percentile(c.avg,         avg_dist)
-        oaa_pct = calc_percentile(c.oaa, oaa_dist) if c.oaa != 0 and oaa_dist else 0
+
+        if c.catcherFraming is not None:
+            defense_pct = calc_percentile(c.catcherFraming, framing_dist) if framing_dist else None
+        else:
+            defense_pct = calc_percentile(c.oaa, oaa_dist) if c.oaa != 0 and oaa_dist else None
 
         tags: list[str] = []
         if hr_pct >= THRESHOLD:
@@ -99,13 +114,13 @@ def _classify_hitters(candidates: list[ArchetypeCandidate]) -> list[ArchetypeRes
             tags.append("Speedster")
         if avg_pct >= THRESHOLD:
             tags.append("Contact Hitter")
-        if c.oaa != 0 and oaa_pct >= THRESHOLD:
+        if defense_pct is not None and defense_pct >= THRESHOLD:
             tags.append("Elite Defender")
 
         results.append(ArchetypeResult(
             playerId=c.playerId,
             archetypes=tags,
-            styleScores=StyleScores(power=hr_pct, speed=sb_pct, contact=avg_pct, defense=oaa_pct),
+            styleScores=StyleScores(power=hr_pct, speed=sb_pct, contact=avg_pct, defense=defense_pct),
         ))
 
     return results

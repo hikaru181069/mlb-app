@@ -1,9 +1,12 @@
 const fs   = require("fs");
 const path = require("path");
 
-const OAA_FILE          = path.join(__dirname, "../../data/oaa_2026.csv");
-const SPRINT_SPEED_FILE = path.join(__dirname, "../../data/sprint_speed_2026.csv");
-const ARM_STRENGTH_FILE = path.join(__dirname, "../../data/arm_strength_2006.csv");
+const OAA_FILE              = path.join(__dirname, "../../data/oaa_2026.csv");
+const SPRINT_SPEED_FILE     = path.join(__dirname, "../../data/sprint_speed_2026.csv");
+const ARM_STRENGTH_FILE     = path.join(__dirname, "../../data/arm_strength_2006.csv");
+// OAAは捕手の守備を評価しない(Baseball Savant側でも捕手はOAAの対象外)ため、
+// 捕手の守備力は別指標のフレーミング(投球を受ける技術によるボール/ストライク損得)で評価する。
+const CATCHER_FRAMING_FILE  = path.join(__dirname, "../../data/catcher_framing_2026.csv");
 
 // 引用符を考慮したCSV行パーサー
 // "last_name, first_name" のようにカンマを含むフィールドを正しく処理する
@@ -143,4 +146,36 @@ const getArmStrengthMap = () => {
   }
 };
 
-module.exports = { getOaaMap, getOaaPositionMap, getSprintSpeedMap, getArmStrengthMap };
+// ── Catcher Framing (rv_tot = 通算フレーミング失点抑制ランズ) ──────────────────
+
+let catcherFramingCache = null;
+
+const getCatcherFramingMap = () => {
+  if (catcherFramingCache) return catcherFramingCache;
+  try {
+    const text    = fs.readFileSync(CATCHER_FRAMING_FILE, "utf-8");
+    const lines   = text.replace(/^﻿/, "").trim().split("\n");
+    const headers = parseCsvRow(lines[0]);
+    const idIdx   = headers.indexOf("id");
+    const valIdx  = headers.indexOf("rv_tot");
+    if (idIdx === -1 || valIdx === -1) {
+      console.warn("[BaseballSavant] Catcher framing CSV: required columns not found");
+      return (catcherFramingCache = {});
+    }
+    const map = {};
+    for (const line of lines.slice(1)) {
+      if (!line.trim()) continue;
+      const fields = parseCsvRow(line);
+      const id  = Number(fields[idIdx]);
+      const val = parseFloat(fields[valIdx]);
+      if (id && Number.isFinite(val)) map[id] = val;
+    }
+    console.log(`[BaseballSavant] Catcher framing loaded: ${Object.keys(map).length} players`);
+    return (catcherFramingCache = map);
+  } catch (err) {
+    console.warn(`[BaseballSavant] Failed to load catcher framing CSV: ${err.message}`);
+    return (catcherFramingCache = {});
+  }
+};
+
+module.exports = { getOaaMap, getOaaPositionMap, getSprintSpeedMap, getArmStrengthMap, getCatcherFramingMap };

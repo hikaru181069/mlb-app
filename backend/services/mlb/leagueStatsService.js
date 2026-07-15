@@ -1,5 +1,5 @@
 const { fetchFromMlbApi }                                 = require("./mlbClient");
-const { getOaaMap, getOaaPositionMap, getSprintSpeedMap, getArmStrengthMap } = require("./baseballSavantService");
+const { getOaaMap, getOaaPositionMap, getSprintSpeedMap, getArmStrengthMap, getCatcherFramingMap } = require("./baseballSavantService");
 
 const MLB_STATS_URL  = "https://statsapi.mlb.com/api/v1/stats";
 const CURRENT_SEASON = new Date().getFullYear().toString();
@@ -31,11 +31,12 @@ async function fetchAllHitterStats() {
     "Failed to fetch all hitter stats",
   );
 
-  const splits          = data.stats?.[0]?.splits ?? [];
-  const oaaMap          = getOaaMap();
-  const oaaPositionMap  = getOaaPositionMap();
-  const sprintSpeedMap  = getSprintSpeedMap();
-  const armStrengthMap  = getArmStrengthMap();
+  const splits            = data.stats?.[0]?.splits ?? [];
+  const oaaMap            = getOaaMap();
+  const oaaPositionMap    = getOaaPositionMap();
+  const sprintSpeedMap    = getSprintSpeedMap();
+  const armStrengthMap    = getArmStrengthMap();
+  const catcherFramingMap = getCatcherFramingMap();
 
   // 30+ AB: 投手打席・極端な限定出場を除外。類似選手プール用
   const players = splits
@@ -53,9 +54,12 @@ async function fetchAllHitterStats() {
       stolenBases:      parseInt(s.stat.stolenBases)       || 0,
       avg:              parseFloat(s.stat.avg)             || 0,
       rbi:              parseInt(s.stat.rbi)               || 0,
-      oaa:              oaaMap[s.player.id]                ?? 0,
+      // OAAは捕手非対応のため、捕手はundefinedのまま(0扱いにしない)にして
+      // FastAPI側でcatcherFramingにフォールバックできるようにする
+      oaa:              oaaMap[s.player.id],
       sprintSpeed:      sprintSpeedMap[s.player.id]        ?? 0,
       armStrength:      armStrengthMap[s.player.id]        ?? 0,
+      catcherFraming:   catcherFramingMap[s.player.id],
     }));
 
   // チームの最多試合数 ≈ 個人の最大 gamesPlayed から推定

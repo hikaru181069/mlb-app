@@ -50,6 +50,13 @@ const CATEGORY_ROWS = [
 
 const TILES = [
   {
+    to: "/discover",
+    title: "Discover",
+    desc: "A curated pick, one player at a time",
+    color: "var(--ctp-pink)",
+    cta: "Start discovering →",
+  },
+  {
     to: "/foryou",
     title: "For You",
     desc: "Players who play like your favorites",
@@ -192,7 +199,7 @@ function HomePage() {
         .flatMap((group) =>
           group.matches.map((match) => ({
             ...match,
-            reason: `Similar to ${group.seedPlayer.name}`,
+            reason: match.reason || `Similar to ${group.seedPlayer.name}`,
           })),
         )
         .slice(0, ROW_ITEM_LIMIT)

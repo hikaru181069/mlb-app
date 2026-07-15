@@ -30,6 +30,20 @@ const HomeIcon = () => (
     <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 );
+const DiscoverIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+  </svg>
+);
 const SearchIcon = () => (
   <svg
     width="16"
@@ -168,6 +182,7 @@ const LogoutIcon = () => (
 // 配列で定義しておくことで、ナビ項目の追加・削除が一箇所で管理できる
 const NAV_ITEMS = [
   { to: "/", label: "Home", Icon: HomeIcon, end: true },
+  { to: "/discover", label: "Discover", Icon: DiscoverIcon },
   { to: "/search", label: "Search", Icon: SearchIcon },
   { to: "/scout", label: "Scout", Icon: ScoutIcon },
   { to: "/compare", label: "Compare", Icon: CompareIcon },

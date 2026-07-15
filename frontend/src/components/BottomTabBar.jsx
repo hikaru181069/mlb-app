@@ -2,13 +2,13 @@
 // サイドバーナビの代わりにスマホで使いやすい片手操作を実現する。
 
 import { NavLink } from "react-router-dom";
-import { Home, Trophy, Star, Newspaper, User } from "lucide-react";
+import { Home, Sparkles, Trophy, Star, User } from "lucide-react";
 
 const TABS = [
   { to: "/",          Icon: Home,      label: "Home",    end: true },
-  { to: "/league",    Icon: Trophy,    label: "League"             },
+  { to: "/discover",  Icon: Sparkles,  label: "Discover"           },
   { to: "/favorites", Icon: Star,      label: "Favorites"          },
-  { to: "/news",      Icon: Newspaper, label: "News"               },
+  { to: "/league",    Icon: Trophy,    label: "League"             },
   { to: "/profile",   Icon: User,      label: "Profile"            },
 ];
 
