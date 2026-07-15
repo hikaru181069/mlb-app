@@ -1,0 +1,142 @@
+/* Linear風: ページ全体(--app-bg)より一段暗いcrustを使い、
+   ヒーローだけ沈み込むような没入感を出す。影・グラデーションは使わない。 */
+
+.hero {
+  display: block;
+  background: var(--ctp-crust);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 16px;
+  padding: 40px 32px;
+  margin: 24px 20px 0;
+  text-decoration: none;
+}
+
+.kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ctp-subtext0);
+  margin: 0 0 20px;
+}
+
+.matchRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.matchNumber {
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ctp-blue);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.matchUnit {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ctp-subtext0);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--ctp-surface0);
+  flex-shrink: 0;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ctp-text);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.meta {
+  font-size: 13px;
+  color: var(--ctp-subtext0);
+  margin: 0;
+}
+
+.reason {
+  font-size: 14px;
+  color: var(--ctp-subtext1);
+  line-height: 1.5;
+  margin: 0 0 28px;
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 64px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.barLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ctp-subtext0);
+}
+
+.barTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ctp-surface1);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ctp-blue);
+}
+
+.barValue {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ctp-subtext1);
+  text-align: right;
+}
+
+/* 空状態(お気に入り未登録) */
+.emptyTitle {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ctp-text);
+  margin: 0 0 8px;
+}
+
+.emptyDesc {
+  font-size: 13px;
+  color: var(--ctp-subtext0);
+  margin: 0 0 20px;
+}
+
+.emptyCta {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ctp-blue);
+  text-decoration: none;
+}

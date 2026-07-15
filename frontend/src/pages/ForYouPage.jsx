@@ -90,7 +90,7 @@ function ForYouCard({ match, seedPlayer, isSaved, onSave, saving }) {
         </button>
       </div>
 
-      <SimScore pct={match.similarityPercentage} />
+      <SimScore pct={Math.round(match.matchScore ?? match.similarityPercentage)} />
 
       {match.reason && <p className="foryou-card-reason">{match.reason}</p>}
 

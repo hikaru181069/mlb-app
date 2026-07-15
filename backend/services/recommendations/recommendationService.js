@@ -336,6 +336,13 @@ const getGroupedRecommendationsForUser = async (userId) => {
             : (isPitcher ? (pitcherPoolMap[Number(match.playerId)] || {}) : (hitterPoolMap[Number(match.playerId)] || {}));
           const matchArchetype = archetypeMap[Number(match.playerId)];
           const styleScores = matchArchetype?.styleScores;
+          const affinityScore = scoreAffinity(preferenceProfile, styleScores, isPitcher);
+          // 行動学習の好みプロファイルがある選手だけ類似度とブレンドする。
+          // ここで作った値が「最終的な推薦順位」の唯一の基準になる
+          // (グループ内の並び替え・Homeのヒーロー選出・ForYou画面の表示%、すべてこの値を使う)。
+          const matchScore = affinityScore != null
+            ? match.similarityPercentage * 0.6 + affinityScore * 0.4
+            : match.similarityPercentage;
 
           return {
             mlbPlayerId:          match.playerId,
@@ -347,7 +354,8 @@ const getGroupedRecommendationsForUser = async (userId) => {
             playerType:           isPitcher ? "pitcher" : "hitter",
             keyStats:             liveKeyStats,
             styleScores,
-            affinityScore:        scoreAffinity(preferenceProfile, styleScores, isPitcher),
+            affinityScore,
+            matchScore,
             reason: buildMatchReason({
               seedName:        fav.fullName,
               seedArchetypes:  seedArchetype?.archetypes || [],
@@ -358,13 +366,7 @@ const getGroupedRecommendationsForUser = async (userId) => {
             }),
           };
         })
-        // 好みプロファイルがある場合のみ、既存の類似度に行動ベースの好みスコアを
-        // ブレンドして並び替える(類似度計算そのものは置き換えない)。
-        .sort((a, b) => {
-          if (a.affinityScore == null || b.affinityScore == null) return 0;
-          const blended = (m) => m.similarityPercentage * 0.6 + m.affinityScore * 0.4;
-          return blended(b) - blended(a);
-        }),
+        .sort((a, b) => b.matchScore - a.matchScore),
     };
   });
 
