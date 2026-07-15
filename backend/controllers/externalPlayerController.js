@@ -3,6 +3,8 @@ const {
   fetchExternalPlayersByTeam,
   fetchExternalPlayers,
   fetchPlayerSuggestions,
+  getPlayerBios,
+  getPlayerProfiles,
 } = require("../services/mlb");
 const { fetchFromMlbApi } = require("../services/mlb/mlbClient");
 const { fetchPopularPlayers } = require("../services/mlb/leagueStatsService");
@@ -110,6 +112,46 @@ const getOnboardingPlayers = async (req, res) => {
   }
 };
 
+// 選手カード用の1行紹介文をまとめて取得する。?ids=1,2,3 形式のカンマ区切り。
+const getPlayerBiosHandler = async (req, res) => {
+  try {
+    const ids = String(req.query.ids || "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+
+    if (ids.length === 0) {
+      return res.status(400).json({ message: "ids query parameter is required" });
+    }
+
+    const bios = await getPlayerBios(ids);
+    res.json(bios);
+  } catch (error) {
+    console.error("Player bios error:", error.message);
+    res.status(500).json({ message: "Failed to fetch player bios" });
+  }
+};
+
+// Home Heroのスカウトレポート用。年齢・身長体重・利き手・出身地などをまとめて取得する。
+const getPlayerProfilesHandler = async (req, res) => {
+  try {
+    const ids = String(req.query.ids || "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+
+    if (ids.length === 0) {
+      return res.status(400).json({ message: "ids query parameter is required" });
+    }
+
+    const profiles = await getPlayerProfiles(ids);
+    res.json(profiles);
+  } catch (error) {
+    console.error("Player profiles error:", error.message);
+    res.status(500).json({ message: "Failed to fetch player profiles" });
+  }
+};
+
 module.exports = {
   getExternalPlayersByTeam,
   searchExternalPlayers,
@@ -117,4 +159,6 @@ module.exports = {
   getPlayerSuggestions,
   getPlayerYearByYear,
   getOnboardingPlayers,
+  getPlayerBiosHandler,
+  getPlayerProfilesHandler,
 };

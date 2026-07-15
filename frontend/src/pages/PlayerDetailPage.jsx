@@ -10,7 +10,7 @@ import {
   createFavorite,
   getFavorites,
 } from "../services/api/favoriteApi";
-import { getExternalPlayerDetail } from "../services/api/externalPlayerApi";
+import { getExternalPlayerDetail, getPlayerBios } from "../services/api/externalPlayerApi";
 import { recordView } from "../services/api/interactionApi";
 import { getSimilarPlayers } from "../services/api/similarPlayerApi";
 import { mlbTeams } from "../services/mlbTeams";
@@ -108,6 +108,17 @@ function PlayerDetailPage() {
     if (!player?.mlbPlayerId || !token) return;
     recordView(player, token);
   }, [player, token]);
+
+  // 出身校・ドラフト年・デビュー年などの紹介文。補助表示のため取得失敗は無視する。
+  const [bio, setBio] = useState(null);
+  useEffect(() => {
+    if (!player?.mlbPlayerId) return;
+    let active = true;
+    getPlayerBios([player.mlbPlayerId]).then((bios) => {
+      if (active) setBio(bios[player.mlbPlayerId] ?? null);
+    });
+    return () => { active = false; };
+  }, [player?.mlbPlayerId]);
 
   const handleAddToFavorites = async () => {
     if (!token) {
@@ -315,7 +326,7 @@ function PlayerDetailPage() {
                 </div>
               )}
             </dl>
-            {player.shortBio && <p className="detail-bio">{player.shortBio}</p>}
+            {bio && <p className="detail-bio">{bio}</p>}
           </div>
         </section>
 

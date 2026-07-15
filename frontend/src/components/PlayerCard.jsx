@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { mlbTeams } from "../services/mlbTeams";
+import { getPlayerBios } from "../services/api/externalPlayerApi";
 import styles from "./PlayerCard.module.css";
 
 // 打者・投手で軸(何を棒グラフにするか)が異なる。
@@ -38,6 +40,19 @@ function PlayerCard({ player }) {
 
   const bars = isPitcher ? PITCHER_BARS : HITTER_BARS;
 
+  // 出身校・ドラフト年・デビュー年などの紹介文(MLB Stats APIの構造化データから
+  // 組み立て済み)を取得する。補助表示のため、失敗・データ無しでも他の表示は
+  // 止めない(bioがnullのままなら行ごと表示しない)。
+  const [bio, setBio] = useState(null);
+  useEffect(() => {
+    if (!playerId) return;
+    let active = true;
+    getPlayerBios([playerId]).then((bios) => {
+      if (active) setBio(bios[playerId] ?? null);
+    });
+    return () => { active = false; };
+  }, [playerId]);
+
   return (
     <Link
       className="player-card transition duration-200 hover:-translate-y-1 hover:shadow-2xl"
@@ -63,7 +78,7 @@ function PlayerCard({ player }) {
         </div>
       </div>
 
-      {player.shortBio && <p className={styles.bio}>{player.shortBio}</p>}
+      {bio && <p className={styles.bio}>{bio}</p>}
       {player.reason && <p className="external-note">{player.reason}</p>}
       {recReasons.length > 0 && (
         <div className="rec-reasons">

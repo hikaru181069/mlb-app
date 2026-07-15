@@ -62,9 +62,11 @@ function HomePage() {
   // ブレンド値。バックエンド側でグループ内の並び替えにも使っているのと同じ値)
   // が最も高い1人だけを「今日イチオシの1人」として採用する。複数人を切り替えて
   // じっくり見る体験はDiscover画面の役割なので、Homeでは前後送りを付けない。
+  // seedPlayerを各matchに付与しておくことで、Heroの「お気に入りとの比較」表示
+  // (どの favorite を根拠に推薦されたか)がそのまま使える。
   const heroPick = forYouData?.groups?.length
     ? (forYouData.groups
-        .flatMap((group) => group.matches)
+        .flatMap((group) => group.matches.map((match) => ({ ...match, seedPlayer: group.seedPlayer })))
         .sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0))[0] ?? null)
     : null;
 
@@ -77,7 +79,7 @@ function HomePage() {
         </p>
       </header>
 
-      <HomeHero player={heroPick} loading={forYouLoading} />
+      <HomeHero key={heroPick?.mlbPlayerId ?? "empty"} player={heroPick} loading={forYouLoading} />
 
       {/* プレイスタイル別に探す */}
       <section className="discovery-section">

@@ -5,10 +5,13 @@ const { fetchExternalPlayers, fetchPlayerSuggestions } = require("./playerSearch
 const {
   fetchExternalPlayersByTeam,
 } = require("./teamPlayerService");
+const { getPlayerBios, getPlayerProfiles } = require("./playerBioService");
 
 module.exports = {
   fetchExternalPlayerFullDetails,
   fetchExternalPlayers,
   fetchPlayerSuggestions,
   fetchExternalPlayersByTeam,
+  getPlayerBios,
+  getPlayerProfiles,
 };

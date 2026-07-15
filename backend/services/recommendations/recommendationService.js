@@ -354,6 +354,7 @@ const getGroupedRecommendationsForUser = async (userId) => {
             playerType:           isPitcher ? "pitcher" : "hitter",
             keyStats:             liveKeyStats,
             styleScores,
+            archetypes:           matchArchetype?.archetypes || [],
             affinityScore,
             matchScore,
             reason: buildMatchReason({

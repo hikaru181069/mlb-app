@@ -70,3 +70,33 @@ export const getOnboardingPlayers = async () => {
   }
   return data;
 };
+
+// カードの紹介文(出身校・ドラフト年・デビュー年など)は補助的な表示のため、
+// 失敗しても呼び出し側の表示自体は止めず、空オブジェクトを返す。
+export const getPlayerBios = async (ids) => {
+  if (!ids || ids.length === 0) return {};
+  try {
+    const response = await fetch(
+      `${API_URL}/api/external/players/bio?ids=${ids.join(",")}`,
+    );
+    if (!response.ok) return {};
+    return await response.json();
+  } catch {
+    return {};
+  }
+};
+
+// Home Heroのスカウトレポート用。年齢・身長体重・利き手・出身地などの構造化データ。
+// 補助表示のため、失敗しても呼び出し側の表示自体は止めない。
+export const getPlayerProfiles = async (ids) => {
+  if (!ids || ids.length === 0) return {};
+  try {
+    const response = await fetch(
+      `${API_URL}/api/external/players/profile?ids=${ids.join(",")}`,
+    );
+    if (!response.ok) return {};
+    return await response.json();
+  } catch {
+    return {};
+  }
+};
