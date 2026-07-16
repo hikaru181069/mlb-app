@@ -10,8 +10,16 @@
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background:
-    radial-gradient(140% 120% at 15% -10%, color-mix(in srgb, var(--team-color, var(--ctp-blue)) 20%, transparent), transparent 55%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    radial-gradient(
+      140% 120% at 15% -10%,
+      color-mix(in srgb, var(--team-color, var(--ctp-blue)) 20%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.02)
+    );
   backdrop-filter: blur(28px) saturate(140%);
   -webkit-backdrop-filter: blur(28px) saturate(140%);
   box-shadow: 0 24px 70px -30px rgba(0, 0, 0, 0.55);
@@ -177,7 +185,6 @@
    独立したフェードインの演出ビート。 */
 .centerCol {
   position: relative;
-  min-height: 320px;
   border-radius: 20px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -194,73 +201,73 @@
   transform: translateY(0);
 }
 
+/* 写真は「実体のある土台」ではなく、overlayContentの高さに追従する
+   純粋な背景として扱う(position:absolute; inset:0)。 */
 .photoBg {
   position: absolute;
-  left: 0;
-  top: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: 50% 15%;
+  z-index: 0;
 }
 
-.photoFade {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    transparent 28%,
-    var(--ctp-crust) 62%,
-    var(--ctp-crust) 100%
-  );
-  opacity: 0.86;
+/* AI MatchとHeadshot+選手詳細を、絶対配置で個別に浮かせるのではなく
+   1つの通常フロー要素にまとめる。justify-content:space-betweenで
+   上下に配置しつつ、実際のコンテンツ量がcenterCol自体の高さを決めるので、
+   テキストがどれだけ増えても物理的に重なりようがない
+   (当て推量のmin-heightに頼らない)。 */
+.overlayContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 280px;
+  padding: 20px;
+  gap: 20px;
 }
 
-/* AI Matchを写真パネルの左上に重ねる。busy な観客席の写真の上でも読めるように
-   backdrop-filterで軽くぼかしを入れる。 */
+/* busy な観客席の写真の上でも読めるように背景で沈める */
 .matchOverlay {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 3;
+  align-self: flex-start;
   max-width: 190px;
   padding: 16px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(17, 17, 27, 0.5);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Headshot + 選手詳細を左端に寄せた1グループにする。align-items:stretchで
+   Headshotの高さを選手詳細(identityText)の実際の高さに揃える。 */
+.leftGroup {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  max-width: 60%;
 }
 
 .headshotCard {
-  position: absolute;
-  left: 20px;
-  bottom: 20px;
-  z-index: 2;
-  width: 96px;
-  height: 120px;
+  width: 122px;
   object-fit: cover;
   border-radius: 6px;
   border: 4px solid rgba(255, 255, 255, 0.92);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
 }
 
 .identityText {
-  /* position:relative + height:100%だと、centerColがmin-heightしか持たず
-     「定義済みの高さ」にならないため100%が解決されずjustify-content: flex-end
-     が効かない。position:absoluteでbottomに直接アンカーする。 */
-  position: absolute;
-  z-index: 1;
-  left: 46%;
-  right: 26px;
-  bottom: 20px;
-  padding: 0;
-  display: flex;
+  /* 写真全体に対して固定%でグラデーション/ハードエッジを引くと、選手名や
+     出身地の文字数が長い選手でテキストが写真の明るい部分にはみ出してしまう
+     (境目が文字の途中を横切る)。パネル全体を暗くするのではなく、
+     テキスト自身に不透明な背景を持たせ、内容量に合わせて幅が伸縮するようにする。 */
+  display: inline-flex;
   flex-direction: column;
+  justify-content: center;
+  background: rgba(17, 17, 27, 0.5);
+  padding: 14px 20px;
+  border-radius: 14px;
 }
 
 .name {
@@ -458,7 +465,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
   text-decoration: none;
-  transition: border-color 180ms ease, background 180ms ease;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease;
 }
 
 .ctaBar:hover {
@@ -518,6 +527,29 @@
 @media (max-width: 980px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  /* デスクトップ(約1500×1000)表示はここでは一切変更しない。
+     狭い画面だけ、写真を背景として敷くのをやめて、写真→AI Match→
+     Headshot+選手詳細を普通に縦積みするフローに切り替える(見た目の好みのため。
+     衝突防止自体は上のoverlayContentの構造でどの幅でも保証されている)。 */
+  .photoBg {
+    position: relative;
+    width: 100%;
+    height: 200px;
+  }
+
+  .leftGroup {
+    max-width: 100%;
+    align-items: flex-start;
+  }
+
+  .headshotCard {
+    height: 110px;
+  }
+
+  .identityText {
+    padding: 12px 16px;
   }
 }
 

@@ -50,7 +50,7 @@ const HEADSHOT_URL = (id) =>
 // MLB公式の画像基盤(img.mlbstatic.com。Headshotと同じCDN)が提供している
 // アクション写真バリアント。サードパーティのライセンス画像やスクレイピングではない。
 const ACTION_PHOTO_URL = (id) =>
-  `https://img.mlbstatic.com/mlb-photos/image/upload/w_640,q_auto:best/v1/people/${id}/action/hero/current`;
+  `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best/v1/people/${id}/action/hero/current`;
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
@@ -216,55 +216,66 @@ function HomeHero({ player, loading }) {
             aria-hidden="true"
             onError={(e) => { e.currentTarget.src = HEADSHOT_URL(player.mlbPlayerId); }}
           />
-          <div className={styles.photoFade} />
 
-          <div className={styles.matchOverlay}>
-            <p className={styles.blockLabel}>AI Match</p>
-            <div className={styles.matchRow}>
-              <span className={styles.matchNumber}>{displayedMatch}</span>
-              <span className={styles.matchUnit}>%</span>
-            </div>
-            <p className={styles.confidence}>{confidenceLabel(matchValue)}</p>
-          </div>
-
-          <img
-            className={styles.headshotCard}
-            src={HEADSHOT_URL(player.mlbPlayerId)}
-            alt={player.name}
-          />
-
-          <div className={styles.identityText}>
-            <h2 className={styles.name}>{player.name}</h2>
-            <p className={styles.team}>
-              {teamId && (
-                <img
-                  src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
-                  alt=""
-                  className={styles.teamLogo}
-                  onError={(e) => { e.currentTarget.style.display = "none"; }}
-                />
-              )}
-              {player.team}
-            </p>
-
-            <div className={styles.pillRow}>
-              {player.position && <span className={styles.pill}>{player.position}</span>}
-              {profile?.number && <span className={styles.pill}>#{profile.number}</span>}
-              {(batHand || throwHand) && (
-                <span className={styles.pill}>{[batHand, throwHand].filter(Boolean).join("/")}</span>
-              )}
+          {/* matchOverlayとleftGroupを絶対配置で個別に浮かせるのではなく、
+              overlayContentという1つの通常フロー要素にまとめる。
+              こうすることでこの2つの実際の高さがcenterCol自体の高さを
+              決めるようになり、テキスト量がどれだけ増えても(絶対配置同士の
+              当て推量のmin-heightに頼らないので)物理的に重なりようがなくなる。
+              写真の方をposition:absoluteにして、この高さに追従させる。 */}
+          <div className={styles.overlayContent}>
+            <div className={styles.matchOverlay}>
+              <p className={styles.blockLabel}>AI Match</p>
+              <div className={styles.matchRow}>
+                <span className={styles.matchNumber}>{displayedMatch}</span>
+                <span className={styles.matchUnit}>%</span>
+              </div>
+              <p className={styles.confidence}>{confidenceLabel(matchValue)}</p>
             </div>
 
-            {archetype && <p className={styles.archetype}>{archetype}</p>}
+            {/* Headshot + 選手詳細を左端に寄せて1つのグループにする。
+                align-items:stretchでHeadshotの高さを選手詳細側の高さに揃える */}
+            <div className={styles.leftGroup}>
+              <img
+                className={styles.headshotCard}
+                src={HEADSHOT_URL(player.mlbPlayerId)}
+                alt={player.name}
+              />
 
-            <div className={styles.factRow}>
-              {profile?.age && <span>Age {profile.age}</span>}
-              {profile?.height && profile?.weight && (
-                <span>{profile.height} / {profile.weight} lbs</span>
-              )}
-              {debutYear && <span>MLB Debut {debutYear}</span>}
+              <div className={styles.identityText}>
+                <h2 className={styles.name}>{player.name}</h2>
+                <p className={styles.team}>
+                  {teamId && (
+                    <img
+                      src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
+                      alt=""
+                      className={styles.teamLogo}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  )}
+                  {player.team}
+                </p>
+
+                <div className={styles.pillRow}>
+                  {player.position && <span className={styles.pill}>{player.position}</span>}
+                  {profile?.number && <span className={styles.pill}>#{profile.number}</span>}
+                  {(batHand || throwHand) && (
+                    <span className={styles.pill}>{[batHand, throwHand].filter(Boolean).join("/")}</span>
+                  )}
+                </div>
+
+                {archetype && <p className={styles.archetype}>{archetype}</p>}
+
+                <div className={styles.factRow}>
+                  {profile?.age && <span>Age {profile.age}</span>}
+                  {profile?.height && profile?.weight && (
+                    <span>{profile.height} / {profile.weight} lbs</span>
+                  )}
+                  {debutYear && <span>MLB Debut {debutYear}</span>}
+                </div>
+                {birthplace && <p className={styles.birthplace}>{birthplace}</p>}
+              </div>
             </div>
-            {birthplace && <p className={styles.birthplace}>{birthplace}</p>}
           </div>
         </div>
 
