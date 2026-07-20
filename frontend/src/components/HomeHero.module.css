@@ -128,6 +128,22 @@
   margin: 0;
 }
 
+/* サンプル表示(お気に入り0件のユーザー向け)用 */
+.samplePick {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ctp-blue);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.samplePrompt {
+  font-size: 12.5px;
+  color: var(--ctp-subtext1);
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
 .seedRow {
   display: flex;
   align-items: center;

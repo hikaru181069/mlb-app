@@ -1,6 +1,20 @@
 /* Linear風: 写真を主役にせず、名前・データを主役にする。
    アクセントカラーは1色(--ctp-blue)だけに絞り、虹色にしない。 */
 
+/* Home Hero(HomeHero.module.css)と同じガラス質感をカード規模に縮小して適用する。
+   写真は載せない(小さいカードを多数並べる用途のため画像負荷・密度の面で見送り)。
+   グローバルな.player-cardクラス(App.css)のbackground/borderを上書きするため、
+   要素セレクタと組み合わせて specificity を確実に上げる(a.glassCard)。 */
+a.glassCard {
+  background:
+    radial-gradient(160% 140% at 20% -10%, color-mix(in srgb, var(--team-color, var(--ctp-blue)) 14%, transparent), transparent 60%),
+    rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
 .head {
   display: flex;
   align-items: center;

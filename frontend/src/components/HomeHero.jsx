@@ -82,7 +82,7 @@ const HAND_LABEL = { L: "L", R: "R", S: "S" };
  * 選手が変わるたびにstage/displayedMatchをリセットする代わりに、
  * useStateの初期値として1回だけ計算する(エフェクト内での直接setStateを避けるため)。
  */
-function HomeHero({ player, loading }) {
+function HomeHero({ player, loading, isSample = false }) {
   const [bio, setBio] = useState(null);
   const [profile, setProfile] = useState(null);
   const [stage, setStage] = useState(() => (prefersReducedMotion() ? 5 : 0));
@@ -123,8 +123,9 @@ function HomeHero({ player, loading }) {
   }, [player?.mlbPlayerId]);
 
   // Match%のカウントアップ本体(rAFで数値だけ進める。フェード/伸長はCSS側)
+  // サンプル表示(isSample)は比較対象が無く%が意味を持たないためスキップする。
   useEffect(() => {
-    if (stage < 2 || !player?.mlbPlayerId || prefersReducedMotion()) return undefined;
+    if (stage < 2 || !player?.mlbPlayerId || isSample || prefersReducedMotion()) return undefined;
     const target = Math.round(player.matchScore ?? player.similarityPercentage ?? 0);
     const duration = 700;
     const start = performance.now();
@@ -136,7 +137,7 @@ function HomeHero({ player, loading }) {
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [stage, player?.mlbPlayerId, player?.matchScore, player?.similarityPercentage]);
+  }, [stage, player?.mlbPlayerId, player?.matchScore, player?.similarityPercentage, isSample]);
 
   if (loading) {
     return (
@@ -225,12 +226,22 @@ function HomeHero({ player, loading }) {
               写真の方をposition:absoluteにして、この高さに追従させる。 */}
           <div className={styles.overlayContent}>
             <div className={styles.matchOverlay}>
-              <p className={styles.blockLabel}>AI Match</p>
-              <div className={styles.matchRow}>
-                <span className={styles.matchNumber}>{displayedMatch}</span>
-                <span className={styles.matchUnit}>%</span>
-              </div>
-              <p className={styles.confidence}>{confidenceLabel(matchValue)}</p>
+              {isSample ? (
+                <>
+                  <p className={styles.blockLabel}>Sample Report</p>
+                  <p className={styles.samplePick}>Popular Pick</p>
+                  <p className={styles.confidence}>{archetype || "Trending Now"}</p>
+                </>
+              ) : (
+                <>
+                  <p className={styles.blockLabel}>AI Match</p>
+                  <div className={styles.matchRow}>
+                    <span className={styles.matchNumber}>{displayedMatch}</span>
+                    <span className={styles.matchUnit}>%</span>
+                  </div>
+                  <p className={styles.confidence}>{confidenceLabel(matchValue)}</p>
+                </>
+              )}
             </div>
 
             {/* Headshot + 選手詳細を左端に寄せて1つのグループにする。
@@ -298,7 +309,16 @@ function HomeHero({ player, loading }) {
             ))}
           </ul>
 
-          {seed && (
+          {isSample ? (
+            <div className={styles.seedBlock}>
+              <p className={styles.blockLabel}>Get Your Own Report</p>
+              <p className={styles.samplePrompt}>
+                Add a few favorite players and we&apos;ll build a personalized
+                scout report just for you.
+              </p>
+              <Link to="/favorites" className={styles.emptyCta}>Go to Favorites →</Link>
+            </div>
+          ) : seed && (
             <div className={styles.seedBlock}>
               <p className={styles.blockLabel}>Compared To Your Favorite</p>
               <div className={styles.seedRow}>

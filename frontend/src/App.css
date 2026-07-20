@@ -2,6 +2,13 @@
   --app-font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --app-font-mono: "Space Mono", monospace;
 
+  /* linear.appの本番CSSバンドル(static.linear.app配下のindexビルド成果物)
+     から実際に取得した値(color-bg系, color-text系, color-brand-bg)。
+     虹色として使っている残りの変数(pink/mauve/peach/green等)は今回のスコープ外で、
+     意図的に変更していない。変数名は既存のまま(--ctp-*)にすることで、
+     全ページ・全コンポーネントの既存コードを一切書き換えずにテーマだけ反映できる。
+     ボーダーはLinear本家では半透明白オーバーレイだが、今回はsurfaceスケールの
+     不透明グレーのまま(border実装の変更は今回のスコープ外)。 */
   --ctp-rosewater: #f5e0dc;
   --ctp-flamingo: #f2cdcd;
   --ctp-pink: #f5c2e7;
@@ -14,21 +21,21 @@
   --ctp-teal: #94e2d5;
   --ctp-sky: #89dceb;
   --ctp-sapphire: #74c7ec;
-  --ctp-blue: #89b4fa;
+  --ctp-blue: #5e6ad2;
   --ctp-lavender: #b4befe;
 
-  --ctp-text: #cdd6f4;
-  --ctp-subtext1: #bac2de;
-  --ctp-subtext0: #a6adc8;
-  --ctp-overlay2: #9399b2;
-  --ctp-overlay1: #7f849c;
-  --ctp-overlay0: #6c7086;
-  --ctp-surface2: #585b70;
-  --ctp-surface1: #45475a;
-  --ctp-surface0: #313244;
-  --ctp-base: #1e1e2e;
-  --ctp-mantle: #181825;
-  --ctp-crust: #11111b;
+  --ctp-text: #f7f8f8;
+  --ctp-subtext1: #b4bcd0;
+  --ctp-subtext0: #8a8f98;
+  --ctp-overlay2: #86848d;
+  --ctp-overlay1: #62666d;
+  --ctp-overlay0: #3e3e44;
+  --ctp-surface2: #28282c;
+  --ctp-surface1: #232326;
+  --ctp-surface0: #1c1c1f;
+  --ctp-base: #08090a;
+  --ctp-mantle: #0f1011;
+  --ctp-crust: #08090a;
 
   /* Easing curves */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);

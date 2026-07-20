@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { mlbTeams } from "../services/mlbTeams";
 import { getPlayerBios } from "../services/api/externalPlayerApi";
+import { getTeamColor } from "../services/teamColors";
 import styles from "./PlayerCard.module.css";
 
 // 打者・投手で軸(何を棒グラフにするか)が異なる。
@@ -32,6 +33,7 @@ function PlayerCard({ player }) {
 
   const teamId = player.teamId
     ?? mlbTeams.find((t) => t.name.toLowerCase() === (team || "").toLowerCase())?.id;
+  const teamColor = getTeamColor(teamId);
 
   // 推薦理由のうち、全員に付く定型句は除き、特徴的な理由だけバッジ表示する
   const recReasons = (player.recommendationReasons || []).filter(
@@ -55,8 +57,9 @@ function PlayerCard({ player }) {
 
   return (
     <Link
-      className="player-card transition duration-200 hover:-translate-y-1 hover:shadow-2xl"
+      className={`player-card ${styles.glassCard} transition duration-200 hover:-translate-y-1 hover:shadow-2xl`}
       to={`/players/${playerId}`}
+      style={{ "--team-color": teamColor }}
     >
       <div className={styles.head}>
         {image && (
