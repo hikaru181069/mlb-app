@@ -5,17 +5,9 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-/* Apple MusicのNow Playing画面を参考にした、ぼかした背景アートワーク */
-.backdrop {
-  position: absolute;
-  inset: -40px;
-  background-size: cover;
-  background-position: center;
-  filter: blur(70px) brightness(0.42) saturate(1.4);
-  transform: scale(1.2);
-  z-index: 0;
+  /* 選手写真をぼかした背景(Apple Music Now Playing風)は廃止し、
+     他ページと同じ単色背景に統一する(Linearの一貫性を優先)。 */
+  background: var(--app-bg);
 }
 
 .content {

@@ -112,9 +112,6 @@ function DiscoverPage() {
 
   return (
     <div className={styles.page}>
-      {/* Apple MusicのNow Playing画面のような、ぼかした背景アートワーク */}
-      <div className={styles.backdrop} style={{ backgroundImage: `url(${photo})` }} />
-
       <div className={styles.content}>
         <p className={styles.kicker}>
           Discover · {index + 1} of {queue.length}
