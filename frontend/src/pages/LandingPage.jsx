@@ -1,78 +1,33 @@
 import { Link, Navigate } from "react-router-dom";
+import { Target, TrendingUp, Star } from "lucide-react";
 import { getAuthToken } from "../utils/authStorage";
-import { getArchetypeColor } from "../services/archetypeColors";
+import heroStyles from "./LandingHero.module.css";
 
 const MLB_LOGO = "https://www.mlbstatic.com/team-logos/league-on-dark/1.svg";
 
-const ARCHETYPES = [
-  { type: "power-hitter",   label: "Power Hitter"   },
-  { type: "speedster",      label: "Speedster"      },
-  { type: "contact-hitter", label: "Contact Hitter"  },
-  { type: "ace",            label: "Ace"             },
-  { type: "power-pitcher",  label: "Power Pitcher"   },
-  { type: "workhorse",      label: "Workhorse"       },
-  { type: "elite-defender", label: "Elite Defender"  },
-];
+const HERO_TITLE = "Find the players you'll love next.";
 
-const TILES = [
+// Home Hero(HomeHero.jsx)のScout Notesと同じアイコンを使い、実際の機能との
+// 視覚的な一貫性を保つ。あくまで説明用のカードでリンクは持たせない
+// (以前のTILES/Browse by StyleはProtectedRoute配下へのリンクで、
+// 未ログインで訪問すると/landingへ戻されるだけの壊れたループになっていた)。
+const HOW_IT_WORKS = [
   {
-    to:    "/foryou",
-    title: "For You",
-    desc:  "Players who play like your favorites",
-    color: "var(--ctp-sapphire)",
-    cta:   "View picks →",
+    icon: Star,
+    title: "Add Your Favorites",
+    desc: "Star the players you already like.",
   },
   {
-    to:    "/recommendations",
-    title: "Discovery Quiz",
-    desc:  "Answer 3 questions to find your next favorite player",
-    color: "var(--ctp-lavender)",
-    cta:   "Start quiz →",
+    icon: TrendingUp,
+    title: "AI Analyzes Play Styles",
+    desc: "Power, speed, contact, defense — all scored.",
   },
   {
-    to:    "/compare",
-    title: "Compare",
-    desc:  "Head-to-head stats for any two MLB players",
-    color: "var(--ctp-blue)",
-    cta:   "Compare players →",
-  },
-  {
-    to:    "/matchup",
-    title: "Matchup",
-    desc:  "Pitcher vs batter — career stats and AI prediction",
-    color: "var(--ctp-red)",
-    cta:   "Simulate →",
-  },
-  {
-    to:    "/prospects",
-    title: "Prospects",
-    desc:  "AAA & AA players on the verge of breaking through",
-    color: "var(--ctp-green)",
-    cta:   "Explore →",
-  },
-  {
-    to:    "/stats",
-    title: "MLB Stats",
-    desc:  "League leaders in hitting and pitching this season",
-    color: "var(--ctp-peach)",
-    cta:   "View Leaders →",
-  },
-  {
-    to:    "/search",
-    title: "Scouting",
-    desc:  "Deep-dive any MLB player's stats and analytics",
-    color: "var(--ctp-mauve)",
-    cta:   "Find a player →",
+    icon: Target,
+    title: "Discover New Favorites",
+    desc: "Get matched with players who play just like them.",
   },
 ];
-
-const JOURNEY_STEPS = [
-  { num: "1", label: "Add Favorites" },
-  { num: "2", label: "Get Matched"   },
-  { num: "3", label: "MLB Stats"     },
-  { num: "4", label: "Prospects"     },
-];
-
 function LandingPage() {
   const token = getAuthToken();
   if (token) return <Navigate to="/" replace />;
@@ -85,82 +40,46 @@ function LandingPage() {
         <img src={MLB_LOGO} alt="MLB" className="landing-nav-logo" />
         <div className="landing-nav-actions">
           <Link to="/login" className="landing-nav-login">Login</Link>
-          <Link to="/register" className="home-link">Get Started</Link>
+          <Link to="/register" className={`home-link ${heroStyles.navCta}`}>Get Started</Link>
         </div>
       </nav>
 
       <div className="landing-body">
 
-        {/* ヒーロー */}
-        <section className="guest-hero">
-          <img src={MLB_LOGO} alt="MLB" className="guest-hero-logo" />
-          <p className="home-kicker">MLB Player Discovery</p>
-          <h1 className="guest-hero-title">Find Players You&apos;ll Love</h1>
-          <p className="home-description">
-            Add players you love. We&apos;ll automatically find similar players,
-            rising stars, and prospects — like Spotify for MLB.
-          </p>
+        {/* ヒーロー: linear.app本家を参考に、大きな見出し一文+単語ごとの
+            ブラー→フェードイン演出のみに絞る。訪問者はまだアプリを使ったことが
+            ないため、特定の選手データはここでは見せない。CTAはGet Started 1つのみ。 */}
+        <section className={heroStyles.hero}>
+          <div className={heroStyles.grain} aria-hidden="true" />
+          <p className={heroStyles.kicker}>MLB Player Discovery</p>
+          <h1 className={heroStyles.title}>
+            {HERO_TITLE.split(" ").map((word, i) => (
+              <span key={`${word}-${i}`}>
+                <span
+                  className={heroStyles.word}
+                  style={{ animationDelay: `${i * 70}ms` }}
+                >
+                  {word}
+                </span>{" "}
+              </span>
+            ))}
+          </h1>
+          <Link className={heroStyles.cta} to="/register">Get Started</Link>
+        </section>
 
-          <div className="guest-journey">
-            {JOURNEY_STEPS.map((step, i) => (
-              <div key={step.num} className="guest-journey-item">
-                <div className="guest-journey-step">
-                  <span className="guest-journey-num">{step.num}</span>
-                  <span className="guest-journey-label">{step.label}</span>
-                </div>
-                {i < JOURNEY_STEPS.length - 1 && (
-                  <span className="guest-journey-arrow">→</span>
-                )}
+        {/* 仕組みの説明(非リンク)。3ステップで「どう機能するか」を伝える */}
+        <section className={heroStyles.howItWorks}>
+          {HOW_IT_WORKS.map(({ icon: Icon, title, desc }) => (
+            <div key={title} className={heroStyles.stepCard}>
+              <span className={heroStyles.stepIcon}>
+                <Icon size={18} strokeWidth={2} />
+              </span>
+              <div>
+                <p className={heroStyles.stepTitle}>{title}</p>
+                <p className={heroStyles.stepDesc}>{desc}</p>
               </div>
-            ))}
-          </div>
-
-          <div className="home-actions">
-            <Link className="home-link" to="/register">Get Started</Link>
-            <Link className="home-link secondary" to="/login">Login</Link>
-          </div>
-        </section>
-
-        {/* 機能タイル */}
-        <section className="guest-features">
-          <h2 className="guest-features-title">Everything in one place</h2>
-          <div className="home-tiles">
-            {TILES.map((tile) => (
-              <Link
-                key={tile.to}
-                to={tile.to}
-                className="home-tile"
-                style={{ "--tile-color": tile.color }}
-              >
-                <h3 className="home-tile-title">{tile.title}</h3>
-                <p className="home-tile-desc">{tile.desc}</p>
-                <span className="home-tile-cta">{tile.cta}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* プレースタイル別に探す */}
-        <section className="discovery-section">
-          <div className="discovery-section-header">
-            <div className="discovery-section-title-row">
-              <h2 className="discovery-section-title">Browse by Style</h2>
-              <Link to="/positions" className="discovery-see-all">Browse by Position →</Link>
             </div>
-            <p className="discovery-section-desc">Explore players by playing style</p>
-          </div>
-          <div className="discovery-archetypes">
-            {ARCHETYPES.map((a) => (
-              <Link
-                key={a.type}
-                to={`/archetype/${a.type}`}
-                className="archetype-badge"
-                style={{ background: getArchetypeColor(a.label), color: "var(--ctp-base)" }}
-              >
-                {a.label}
-              </Link>
-            ))}
-          </div>
+          ))}
         </section>
 
       </div>
