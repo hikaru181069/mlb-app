@@ -11,6 +11,7 @@ FastAPI サービス — 選手の成績ベクトルをもとに類似選手を�
   POST /recommend              推薦スコアリング
   POST /recommend/future-stars Rising Stars
   POST /discover/similar       プレイヤー発見
+  POST /discover/preference    行動履歴からの好み一致度・dislike減点
   POST /scouting-report        スカウティングレポート
   POST /archetype/classify     パーセンタイルベース 多ラベルアーキタイプ分類
   POST /compare/analyze        2選手の統計的優劣分析
@@ -20,7 +21,7 @@ FastAPI サービス — 選手の成績ベクトルをもとに類似選手を�
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import archetype, compare, discover, matchup, recommend, similar, scouting
+from routers import archetype, compare, discover, matchup, preference, recommend, similar, scouting
 
 app = FastAPI(title="MLB Similar Players API", version="1.0.0")
 
@@ -35,6 +36,7 @@ app.include_router(archetype.router)
 app.include_router(compare.router)
 app.include_router(discover.router)
 app.include_router(matchup.router)
+app.include_router(preference.router)
 app.include_router(recommend.router)
 app.include_router(similar.router)
 app.include_router(scouting.router)

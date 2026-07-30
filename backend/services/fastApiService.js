@@ -92,6 +92,31 @@ const fetchDiscoverSimilar = async (target, mlbCandidates, youngCandidates, topN
 };
 
 /**
+ * FastAPI の /discover/preference を呼び出す。
+ * ユーザーの行動履歴(interactions)と候補選手(candidates)を渡し、
+ * 候補ごとの好み一致度(affinityScore)とdislike減点(dislikePenalty)を計算してもらう。
+ * FastAPI未起動時などはnullを返し、呼び出し側でスコア無し扱いにフォールバックする。
+ */
+const fetchDiscoverPreference = async (interactions, candidates) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/discover/preference`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ interactions, candidates }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) {
+      console.warn(`FastAPI discover/preference responded with ${response.status}`);
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn(`FastAPI discover/preference error: ${error.message}`);
+    return null;
+  }
+};
+
+/**
  * FastAPI の /archetype/classify を呼び出す。
  * リーグ選手リストを k-means で分類してアーキタイプを返す。
  */
@@ -186,6 +211,7 @@ module.exports = {
   fetchScoutingReport,
   fetchSimilarPlayerIds,
   fetchDiscoverSimilar,
+  fetchDiscoverPreference,
   fetchArchetypeClassify,
   fetchCompareAnalyze,
   fetchMatchupPredict,
