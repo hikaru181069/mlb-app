@@ -6,7 +6,12 @@ const { formatExternalStats } = require("../mlb/playerFormatter");
 const { getOaaMap, getSprintSpeedMap, getArmStrengthMap } = require("../mlb/baseballSavantService");
 const { fallbackPlayers } = require("./fallbackPlayers");
 const { fetchArchetypes } = require("../mlb/archetypeService");
-const { getUserPreferenceProfile, scoreAffinity } = require("./preferenceService");
+const {
+  getUserPreferenceProfile,
+  scoreAffinity,
+  getDislikedStyleProfile,
+  scoreDislikePenalty,
+} = require("./preferenceService");
 const { buildMatchReason } = require("./reasonService");
 
 const toNumber = (value) => {
@@ -229,11 +234,13 @@ const getGroupedRecommendationsForUser = async (userId) => {
   // アーキタイプ分類は24hキャッシュ済みのため、ここで1回取得すれば
   // 選手カードのstyleScores(棒グラフ用パーセンタイル)をほぼノーコストで付与できる。
   // preferenceProfileは閲覧・お気に入り履歴から作る好みの傾向(Interaction保存分のみ)。
-  // 使い始めたばかりで履歴が無いユーザーはnullになり、以降の並び替えはスキップされる。
-  const [leagueStats, archetypeMap, preferenceProfile] = await Promise.all([
+  // dislikedProfileはdislikeした選手の傾向(こちらは減点にのみ使う。別枠計算はpreferenceService参照)。
+  // 使い始めたばかりで履歴が無いユーザーはどちらもnullになり、以降の並び替え・減点はスキップされる。
+  const [leagueStats, archetypeMap, preferenceProfile, dislikedProfile] = await Promise.all([
     fetchLeagueStats(),
     fetchArchetypes(),
     getUserPreferenceProfile(userId),
+    getDislikedStyleProfile(userId),
   ]);
 
   // プレイヤーIDからキースタッツを引けるルックアップマップを構築
@@ -337,12 +344,15 @@ const getGroupedRecommendationsForUser = async (userId) => {
           const matchArchetype = archetypeMap[Number(match.playerId)];
           const styleScores = matchArchetype?.styleScores;
           const affinityScore = scoreAffinity(preferenceProfile, styleScores, isPitcher);
+          // dislikeした選手の傾向に近いほど減点する(0〜MAX_DISLIKE_PENALTY点)。
+          const dislikePenalty = scoreDislikePenalty(dislikedProfile, styleScores, isPitcher);
           // 行動学習の好みプロファイルがある選手だけ類似度とブレンドする。
           // ここで作った値が「最終的な推薦順位」の唯一の基準になる
           // (グループ内の並び替え・Homeのヒーロー選出・ForYou画面の表示%、すべてこの値を使う)。
-          const matchScore = affinityScore != null
+          const baseScore = affinityScore != null
             ? match.similarityPercentage * 0.6 + affinityScore * 0.4
             : match.similarityPercentage;
+          const matchScore = Math.max(0, baseScore - dislikePenalty);
 
           return {
             mlbPlayerId:          match.playerId,
