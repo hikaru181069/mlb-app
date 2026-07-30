@@ -75,11 +75,17 @@
   margin-top: 26px;
 }
 
+.primaryRow {
+  display: flex;
+  gap: 10px;
+}
+
 .favoriteBtn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  flex: 1;
   padding: 13px;
   border-radius: 999px;
   border: none;
@@ -92,6 +98,26 @@
 }
 
 .favoriteBtn:hover {
+  transform: translateY(-2px);
+}
+
+.dislikeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 50px;
+  border-radius: 999px;
+  border: 1px solid rgba(205, 214, 244, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ctp-subtext1);
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.dislikeBtn:hover {
+  border-color: var(--ctp-red);
+  color: var(--ctp-red);
   transform: translateY(-2px);
 }
 

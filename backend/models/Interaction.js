@@ -18,7 +18,7 @@ const interactionSchema = new mongoose.Schema(
     },
     action: {
       type: String,
-      enum: ["view", "favorite"],
+      enum: ["view", "favorite", "dislike"],
       required: true,
     },
     source: {

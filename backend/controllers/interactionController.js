@@ -1,10 +1,14 @@
 const { logInteraction } = require("../services/interactionService");
 
-// 選手詳細ページの閲覧を記録する(お気に入り追加は favoriteController 側で記録済み)。
+// クライアントから直接記録できるアクション種別
+// (favoriteはfavoriteController側で記録済みのためここには含めない)。
+const CLIENT_RECORDABLE_ACTIONS = ["view", "dislike"];
+
+// 選手詳細ページの閲覧・Discover画面のdislikeを記録する。
 const recordInteraction = async (req, res) => {
   const { mlbPlayerId, playerType, action, source } = req.body;
 
-  if (!mlbPlayerId || action !== "view") {
+  if (!mlbPlayerId || !CLIENT_RECORDABLE_ACTIONS.includes(action)) {
     return res.status(400).json({ message: "Invalid interaction" });
   }
 

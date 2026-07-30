@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
+import { Star, X, ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 
 import { getForYouRecommendations } from "../services/api/recommendationApi";
 import { getOnboardingPlayers } from "../services/api/externalPlayerApi";
 import { createFavorite } from "../services/api/favoriteApi";
+import { recordDislike } from "../services/api/interactionApi";
 import { getAuthToken } from "../utils/authStorage";
 import { useToast } from "../contexts/ToastContext";
 
@@ -78,6 +79,12 @@ function DiscoverPage() {
     }
   };
 
+  const handleDislike = () => {
+    if (!currentPlayer) return;
+    recordDislike(currentPlayer, token);
+    goNext();
+  };
+
   const handleViewProfile = () => {
     if (!currentPlayer) return;
     navigate(`/players/${playerKey(currentPlayer)}`, {
@@ -133,10 +140,20 @@ function DiscoverPage() {
         {currentPlayer.reason && <p className={styles.reason}>{currentPlayer.reason}</p>}
 
         <div className={styles.actions}>
-          <button type="button" className={styles.favoriteBtn} onClick={handleFavorite}>
-            <Star size={18} strokeWidth={2.5} />
-            Add to Favorites
-          </button>
+          <div className={styles.primaryRow}>
+            <button type="button" className={styles.favoriteBtn} onClick={handleFavorite}>
+              <Star size={18} strokeWidth={2.5} />
+              Add to Favorites
+            </button>
+            <button
+              type="button"
+              className={styles.dislikeBtn}
+              onClick={handleDislike}
+              aria-label="Not interested"
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
+          </div>
           <button type="button" className={styles.profileBtn} onClick={handleViewProfile}>
             View Full Profile →
           </button>
