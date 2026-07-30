@@ -43,12 +43,7 @@ function DiscoverPage() {
       .catch(() => ({ groups: [], fallback: [] }))
       .then(async (data) => {
         let items = data?.groups?.length
-          ? data.groups.flatMap((group) =>
-              group.matches.map((match) => ({
-                ...match,
-                reason: `Similar to ${group.seedPlayer.name}`,
-              })),
-            )
+          ? data.groups.flatMap((group) => group.matches)
           : (data?.fallback || []).map((p) => ({ ...p, reason: "Popular MLB player" }));
 
         // お気に入り・履歴がまだ無いユーザーには、人気選手で埋める
